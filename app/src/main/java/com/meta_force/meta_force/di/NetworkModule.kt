@@ -1,7 +1,7 @@
 package com.meta_force.meta_force.di
 
 import com.meta_force.meta_force.data.network.AuthApi
-import com.meta_force.meta_force.data.network.RetrofitClient
+
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
