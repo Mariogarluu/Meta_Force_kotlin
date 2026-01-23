@@ -69,15 +69,16 @@ fun DashboardScreen(
 
 @Composable
 fun DashboardGrid(modifier: Modifier = Modifier) {
-    val items = listOf(
+    // Renombramos la lista a dashboardItems para evitar conflictos con la función items()
+    val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
         DashboardItem("Mi QR", Icons.Default.QrCode),
         DashboardItem("Equipo", Icons.Default.Groups),
         DashboardItem("Horarios", Icons.Default.Schedule),
         DashboardItem("Reservas", Icons.Default.CalendarToday),
         DashboardItem("Mi Rutina", Icons.Default.FitnessCenter),
-        DashboardItem("Dietas", Icons.Default.Restaurant), // Added
-        DashboardItem("Perfil", Icons.Default.Person), // Added
+        DashboardItem("Dietas", Icons.Default.Restaurant),
+        DashboardItem("Perfil", Icons.Default.Person),
         DashboardItem("Promociones", Icons.Default.LocalOffer),
         DashboardItem("Contacto", Icons.Default.Chat)
     )
@@ -87,9 +88,12 @@ fun DashboardGrid(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        items(items) { item ->
+        // Aquí pasamos la lista renombrada
+        items(dashboardItems) { item ->
             DashboardCard(item)
         }
     }
@@ -100,8 +104,8 @@ fun DashboardCard(item: DashboardItem) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f) // Square cards
-            .clickable { /* TODO: Navigate to feature */ },
+            .aspectRatio(1f)
+            .clickable { /* TODO: Navegación */ },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),

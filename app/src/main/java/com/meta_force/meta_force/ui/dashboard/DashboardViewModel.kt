@@ -12,10 +12,11 @@ class DashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+
     fun logout(onLogoutSuccess: () -> Unit) {
         viewModelScope.launch {
-            authRepository.logout()
-            onLogoutSuccess()
+            authRepository.logout() // Llama a la limpieza en el repositorio [cite: 70, 127]
+            onLogoutSuccess() // Navega de vuelta al Login
         }
     }
 }
