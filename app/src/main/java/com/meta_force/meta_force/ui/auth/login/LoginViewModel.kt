@@ -19,10 +19,18 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    fun login(email: String, pass: String) {
+    // Cambiamos 'pass' por 'password' para ser coherentes con el modelo
+    fun login(email: String, password: String) {
         viewModelScope.launch {
             _uiState.value = LoginUiState.Loading
-            val result = authRepository.login(LoginRequest(email, pass))
+
+            // LIMPIEZA: Aplicamos .trim() y usamos el nombre de parámetro correcto
+            val request = LoginRequest(
+                email = email.trim(),
+                password = password.trim() // 'password' coincide con AuthModels.kt
+            )
+
+            val result = authRepository.login(request)
             result.onSuccess {
                 _uiState.value = LoginUiState.Success
             }.onFailure {
