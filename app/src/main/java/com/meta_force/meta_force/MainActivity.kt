@@ -70,8 +70,14 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("login") {
                                         popUpTo("dashboard") { inclusive = true }
                                     }
+                                },
+                                onNavigateToProfile = {
+                                    navController.navigate("profile")
                                 }
                             )
+                        }
+                        composable("profile") {
+                            com.meta_force.meta_force.ui.profile.ProfileScreen()
                         }
                     }
                 }

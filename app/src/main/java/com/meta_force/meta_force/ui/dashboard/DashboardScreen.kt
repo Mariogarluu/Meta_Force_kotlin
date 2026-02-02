@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun DashboardScreen(
     onLogout: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -63,12 +64,18 @@ fun DashboardScreen(
             }
         }
     ) { innerPadding ->
-        DashboardGrid(modifier = Modifier.padding(innerPadding))
+        DashboardGrid(
+            modifier = Modifier.padding(innerPadding),
+            onNavigateToProfile = onNavigateToProfile
+        )
     }
 }
 
 @Composable
-fun DashboardGrid(modifier: Modifier = Modifier) {
+fun DashboardGrid(
+    modifier: Modifier = Modifier,
+    onNavigateToProfile: () -> Unit
+) {
     // Renombramos la lista a dashboardItems para evitar conflictos con la función items()
     val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
@@ -94,18 +101,25 @@ fun DashboardGrid(modifier: Modifier = Modifier) {
     ) {
         // Aquí pasamos la lista renombrada
         items(dashboardItems) { item ->
-            DashboardCard(item)
+            DashboardCard(
+                item = item,
+                onClick = {
+                    if (item.title == "Perfil") {
+                        onNavigateToProfile()
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
-fun DashboardCard(item: DashboardItem) {
+fun DashboardCard(item: DashboardItem, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clickable { /* TODO: Navegación */ },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),

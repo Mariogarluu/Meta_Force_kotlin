@@ -61,7 +61,11 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
+    // Icons
     implementation(libs.androidx.material.icons.extended)
+
+    // Coil
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -19,6 +19,10 @@ import java.util.concurrent.TimeUnit
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    // CAMBIAR AQUI PARA PRODUCCION:
+    private const val BASE_URL = "https://meta-force-back.vercel.app/api/" // URL Producción
+    //private const val BASE_URL = "http://10.0.2.2:3000/api/" // URL Desarrollo Local (Android Emulator)
+
     @Provides
     @Singleton
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
@@ -44,7 +48,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/api/")
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
