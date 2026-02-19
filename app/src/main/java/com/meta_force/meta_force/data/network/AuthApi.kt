@@ -20,13 +20,13 @@ interface AuthApi {
     @POST("auth/register")
     suspend fun register(@Body request: RegisterRequest): RegisterResponse
 
-    @GET("auth/me")
+    @GET("users/me")
     suspend fun getProfile(): LoginResponse // Often returns same structure as login, or just User
 
-    @PUT("auth/me")
+    @PUT("users/me") // Changed from auth/me which was incorrect
     suspend fun updateProfile(@Body user: User): User
 
     @Multipart
-    @POST("auth/avatar")
+    @POST("users/me/profile-image") // Also correct avatar upload if needed, checking backend... backend is /api/users/me/profile-image
     suspend fun uploadAvatar(@Part avatar: MultipartBody.Part): User
 }

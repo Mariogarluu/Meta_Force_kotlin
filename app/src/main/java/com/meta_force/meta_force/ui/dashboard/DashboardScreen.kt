@@ -21,6 +21,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun DashboardScreen(
     onLogout: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToWorkouts: () -> Unit,
+    onNavigateToDiets: () -> Unit,
+    onNavigateToClasses: () -> Unit, // Added
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -66,7 +69,10 @@ fun DashboardScreen(
     ) { innerPadding ->
         DashboardGrid(
             modifier = Modifier.padding(innerPadding),
-            onNavigateToProfile = onNavigateToProfile
+            onNavigateToProfile = onNavigateToProfile,
+            onNavigateToWorkouts = onNavigateToWorkouts,
+            onNavigateToDiets = onNavigateToDiets,
+            onNavigateToClasses = onNavigateToClasses
         )
     }
 }
@@ -74,12 +80,17 @@ fun DashboardScreen(
 @Composable
 fun DashboardGrid(
     modifier: Modifier = Modifier,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNavigateToWorkouts: () -> Unit,
+    onNavigateToDiets: () -> Unit,
+    onNavigateToClasses: () -> Unit
 ) {
     // Renombramos la lista a dashboardItems para evitar conflictos con la función items()
     val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
         DashboardItem("Mi QR", Icons.Default.QrCode),
+        // ... items
+
         DashboardItem("Equipo", Icons.Default.Groups),
         DashboardItem("Horarios", Icons.Default.Schedule),
         DashboardItem("Reservas", Icons.Default.CalendarToday),
@@ -106,6 +117,13 @@ fun DashboardGrid(
                 onClick = {
                     if (item.title == "Perfil") {
                         onNavigateToProfile()
+                    } else if (item.title == "Mi Rutina") {
+                        // Assuming Workouts
+                        onNavigateToWorkouts()
+                    } else if (item.title == "Dietas") {
+                        onNavigateToDiets()
+                    } else if (item.title == "Horarios" || item.title == "Reservas") {
+                        onNavigateToClasses()
                     }
                 }
             )

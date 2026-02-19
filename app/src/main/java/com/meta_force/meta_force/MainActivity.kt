@@ -73,11 +73,55 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToProfile = {
                                     navController.navigate("profile")
+                                },
+                                onNavigateToWorkouts = {
+                                    navController.navigate("workouts")
+                                },
+                                onNavigateToDiets = {
+                                    navController.navigate("diets")
+                                },
+                                onNavigateToClasses = {
+                                    navController.navigate("classes")
                                 }
                             )
                         }
                         composable("profile") {
                             com.meta_force.meta_force.ui.profile.ProfileScreen()
+                        }
+                        composable("workouts") {
+                            com.meta_force.meta_force.ui.workouts.WorkoutsScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToDetail = { workoutId -> 
+                                    navController.navigate("workout_detail/$workoutId")
+                                }
+                            )
+                        }
+                        composable("workout_detail/{workoutId}") { backStackEntry ->
+                            val workoutId = backStackEntry.arguments?.getString("workoutId") ?: return@composable
+                            com.meta_force.meta_force.ui.workouts.WorkoutDetailScreen(
+                                workoutId = workoutId,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("diets") {
+                            com.meta_force.meta_force.ui.diets.DietsScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToDetail = { dietId ->
+                                    navController.navigate("diet_detail/$dietId")
+                                }
+                            )
+                        }
+                        composable("diet_detail/{dietId}") { backStackEntry ->
+                            val dietId = backStackEntry.arguments?.getString("dietId") ?: return@composable
+                            com.meta_force.meta_force.ui.diets.DietDetailScreen(
+                                dietId = dietId,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("classes") {
+                            com.meta_force.meta_force.ui.classes.ClassesScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                     }
                 }
