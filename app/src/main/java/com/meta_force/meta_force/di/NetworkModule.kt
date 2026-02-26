@@ -4,6 +4,7 @@ import com.meta_force.meta_force.data.network.AuthApi
 import com.meta_force.meta_force.data.network.AuthInterceptor
 import com.meta_force.meta_force.data.network.WorkoutApi
 import com.meta_force.meta_force.data.network.DietApi
+import com.meta_force.meta_force.data.network.AiApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,6 +14,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import okhttp3.ConnectionPool
+import okhttp3.logging.HttpLoggingInterceptor
+import com.meta_force.meta_force.data.network.TokenAuthenticator
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,12 +24,22 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator
+    ): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY // We log everything
+        }
+
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(loggingInterceptor)
+            .authenticator(tokenAuthenticator)
+            .connectionPool(ConnectionPool(5, 5, TimeUnit.MINUTES))
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
             .build()
     }
 
@@ -33,7 +47,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/api/") // Android Emulator localhost loopback
+            .baseUrl("https://meta-force-back.vercel.app/api/") // Production Server
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -61,5 +75,11 @@ object NetworkModule {
     @Singleton
     fun provideDietApi(retrofit: Retrofit): DietApi {
         return retrofit.create(DietApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiApi(retrofit: Retrofit): AiApi {
+        return retrofit.create(AiApi::class.java)
     }
 }

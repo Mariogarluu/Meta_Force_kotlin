@@ -104,10 +104,10 @@ fun ProfileScreen(
                         .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                         .clickable { showBigImageDialog = true }
                 ) {
-                    if (user.photoUrl != null) {
+                    if (user.profileImageUrl != null) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(user.photoUrl)
+                                .data(user.profileImageUrl)
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "Profile Photo",
@@ -130,7 +130,7 @@ fun ProfileScreen(
 
                 // User Details
                 OutlinedTextField(
-                    value = user.name,
+                    value = user.name ?: "Unknown",
                     onValueChange = { /* TODO Implementation for instant edit or save button */ },
                     label = { Text("Name") },
                     readOnly = true, // Readonly for now, can implement edit mode later
@@ -140,7 +140,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = user.email,
+                    value = user.email ?: "",
                     onValueChange = {},
                     label = { Text("Email") },
                     readOnly = true,
@@ -157,9 +157,9 @@ fun ProfileScreen(
                             shape = MaterialTheme.shapes.medium
                         ) {
                             Box(modifier = Modifier.fillMaxSize()) {
-                                if (user.photoUrl != null) {
+                                if (user.profileImageUrl != null) {
                                     AsyncImage(
-                                        model = user.photoUrl,
+                                        model = user.profileImageUrl,
                                         contentDescription = "Full Profile",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.fillMaxSize()

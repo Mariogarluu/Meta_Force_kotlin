@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.meta_force.meta_force.data.network.NetworkResult
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,11 +31,16 @@ class LoginViewModel @Inject constructor(
                 password = password.trim() // 'password' coincide con AuthModels.kt
             )
 
-            val result = authRepository.login(request)
-            result.onSuccess {
-                _uiState.value = LoginUiState.Success
-            }.onFailure {
-                _uiState.value = LoginUiState.Error(it.message ?: "Login failed")
+            when (val result = authRepository.login(request)) {
+                is NetworkResult.Success -> {
+                    _uiState.value = LoginUiState.Success
+                }
+                is NetworkResult.Error -> {
+                    _uiState.value = LoginUiState.Error(result.message)
+                }
+                is NetworkResult.Exception -> {
+                    _uiState.value = LoginUiState.Error(result.e.message ?: "Login failed")
+                }
             }
         }
     }

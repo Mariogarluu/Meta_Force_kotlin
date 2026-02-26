@@ -6,6 +6,8 @@ import com.meta_force.meta_force.data.repository.WorkoutRepository
 import com.meta_force.meta_force.data.repository.WorkoutRepositoryImpl
 import com.meta_force.meta_force.data.repository.DietRepository
 import com.meta_force.meta_force.data.repository.DietRepositoryImpl
+import com.meta_force.meta_force.data.repository.AiRepository
+import com.meta_force.meta_force.data.repository.AiRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -39,4 +41,10 @@ abstract class RepositoryModule {
     abstract fun bindDietRepository(
         dietRepositoryImpl: DietRepositoryImpl
     ): DietRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAiRepository(
+        aiRepositoryImpl: AiRepositoryImpl
+    ): AiRepository
 }

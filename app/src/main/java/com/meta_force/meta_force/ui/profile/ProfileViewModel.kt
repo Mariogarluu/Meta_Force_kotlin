@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import com.meta_force.meta_force.data.network.NetworkResult
 
 sealed class ProfileUiState {
     object Loading : ProfileUiState()
@@ -33,13 +34,17 @@ class ProfileViewModel @Inject constructor(
     fun loadProfile() {
         viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
-            repository.getProfile()
-                .onSuccess { user ->
-                    _uiState.value = ProfileUiState.Success(user)
+            when (val userResult = repository.getProfile()) {
+                is NetworkResult.Success -> {
+                    _uiState.value = ProfileUiState.Success(userResult.data)
                 }
-                .onFailure { e ->
-                    _uiState.value = ProfileUiState.Error(e.message ?: "Error loading profile")
+                is NetworkResult.Error -> {
+                    _uiState.value = ProfileUiState.Error(userResult.message)
                 }
+                is NetworkResult.Exception -> {
+                    _uiState.value = ProfileUiState.Error(userResult.e.message ?: "Error loading profile")
+                }
+            }
         }
     }
 
@@ -47,27 +52,35 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             // Keep current state but maybe show loading indicator overlay
             // For simplicity, we stick to main state or could add a separate loading channel
-            repository.updateProfile(newName)
-                .onSuccess { user ->
-                    _uiState.value = ProfileUiState.Success(user)
+            when (val userResult = repository.updateProfile(newName)) {
+                is NetworkResult.Success -> {
+                    _uiState.value = ProfileUiState.Success(userResult.data)
                 }
-                .onFailure { e ->
+                is NetworkResult.Error -> {
                     // Show error but keep current data if possible, or transition to error
                     // Ideally we use a UI Event for one-shot errors
                 }
+                is NetworkResult.Exception -> {
+                    // Same as above
+                }
+            }
         }
     }
 
     fun uploadAvatar(file: File) {
         viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
-            repository.uploadAvatar(file)
-                .onSuccess { user ->
-                    _uiState.value = ProfileUiState.Success(user)
+            when (val userResult = repository.uploadAvatar(file)) {
+                is NetworkResult.Success -> {
+                    _uiState.value = ProfileUiState.Success(userResult.data)
                 }
-                .onFailure { e ->
-                    _uiState.value = ProfileUiState.Error(e.message ?: "Failed to upload avatar")
+                is NetworkResult.Error -> {
+                    _uiState.value = ProfileUiState.Error(userResult.message)
                 }
+                is NetworkResult.Exception -> {
+                    _uiState.value = ProfileUiState.Error(userResult.e.message ?: "Failed to upload avatar")
+                }
+            }
         }
     }
 }

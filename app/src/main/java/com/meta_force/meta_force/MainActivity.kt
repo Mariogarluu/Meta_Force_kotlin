@@ -82,6 +82,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToClasses = {
                                     navController.navigate("classes")
+                                },
+                                onNavigateToAiChat = {
+                                    navController.navigate("aichat")
                                 }
                             )
                         }
@@ -120,6 +123,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("classes") {
                             com.meta_force.meta_force.ui.classes.ClassesScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("aichat") {
+                            com.meta_force.meta_force.ui.aichat.AiChatScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

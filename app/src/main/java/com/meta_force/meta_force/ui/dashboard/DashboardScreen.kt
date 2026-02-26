@@ -23,7 +23,8 @@ fun DashboardScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToWorkouts: () -> Unit,
     onNavigateToDiets: () -> Unit,
-    onNavigateToClasses: () -> Unit, // Added
+    onNavigateToClasses: () -> Unit,
+    onNavigateToAiChat: () -> Unit, // Added
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -72,7 +73,8 @@ fun DashboardScreen(
             onNavigateToProfile = onNavigateToProfile,
             onNavigateToWorkouts = onNavigateToWorkouts,
             onNavigateToDiets = onNavigateToDiets,
-            onNavigateToClasses = onNavigateToClasses
+            onNavigateToClasses = onNavigateToClasses,
+            onNavigateToAiChat = onNavigateToAiChat
         )
     }
 }
@@ -83,22 +85,17 @@ fun DashboardGrid(
     onNavigateToProfile: () -> Unit,
     onNavigateToWorkouts: () -> Unit,
     onNavigateToDiets: () -> Unit,
-    onNavigateToClasses: () -> Unit
+    onNavigateToClasses: () -> Unit,
+    onNavigateToAiChat: () -> Unit
 ) {
-    // Renombramos la lista a dashboardItems para evitar conflictos con la función items()
     val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
         DashboardItem("Mi QR", Icons.Default.QrCode),
-        // ... items
-
-        DashboardItem("Equipo", Icons.Default.Groups),
-        DashboardItem("Horarios", Icons.Default.Schedule),
-        DashboardItem("Reservas", Icons.Default.CalendarToday),
         DashboardItem("Mi Rutina", Icons.Default.FitnessCenter),
         DashboardItem("Dietas", Icons.Default.Restaurant),
-        DashboardItem("Perfil", Icons.Default.Person),
-        DashboardItem("Promociones", Icons.Default.LocalOffer),
-        DashboardItem("Contacto", Icons.Default.Chat)
+        DashboardItem("Horarios", Icons.Default.Schedule),
+        DashboardItem("MetaCoach AI", Icons.Default.SmartToy),
+        DashboardItem("Perfil", Icons.Default.Person)
     )
 
     LazyVerticalGrid(
@@ -118,12 +115,13 @@ fun DashboardGrid(
                     if (item.title == "Perfil") {
                         onNavigateToProfile()
                     } else if (item.title == "Mi Rutina") {
-                        // Assuming Workouts
                         onNavigateToWorkouts()
                     } else if (item.title == "Dietas") {
                         onNavigateToDiets()
-                    } else if (item.title == "Horarios" || item.title == "Reservas") {
+                    } else if (item.title == "Horarios") {
                         onNavigateToClasses()
+                    } else if (item.title == "MetaCoach AI") {
+                        onNavigateToAiChat()
                     }
                 }
             )

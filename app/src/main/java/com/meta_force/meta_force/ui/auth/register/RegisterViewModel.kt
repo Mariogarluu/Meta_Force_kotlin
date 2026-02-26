@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.meta_force.meta_force.data.network.NetworkResult
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,11 +32,16 @@ class RegisterViewModel @Inject constructor(
                 password = password.trim()
             )
 
-            val result = authRepository.register(request)
-            result.onSuccess {
-                _uiState.value = RegisterUiState.Success
-            }.onFailure {
-                _uiState.value = RegisterUiState.Error(it.message ?: "Registration failed")
+            when (val result = authRepository.register(request)) {
+                is NetworkResult.Success -> {
+                    _uiState.value = RegisterUiState.Success
+                }
+                is NetworkResult.Error -> {
+                    _uiState.value = RegisterUiState.Error(result.message)
+                }
+                is NetworkResult.Exception -> {
+                    _uiState.value = RegisterUiState.Error(result.e.message ?: "Registration failed")
+                }
             }
         }
     }

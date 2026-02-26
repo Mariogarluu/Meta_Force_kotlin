@@ -86,13 +86,13 @@ fun DietDetailContent(diet: Diet) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (diet.meals.isEmpty()) {
+        if (diet.meals.isNullOrEmpty()) {
             Text("No hay comidas en esta dieta.")
         } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(diet.meals) { meal ->
+                items(diet.meals ?: emptyList()) { meal ->
                     Card(elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
                             Row(verticalAlignment = Alignment.CenterVertically) {

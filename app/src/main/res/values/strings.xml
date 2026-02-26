@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">meta_force</string>
+    <string name="ai_chat_title">MetaCoach AI</string>
+    <string name="ai_chat_greeting_title">¡Hola! Soy tu entrenador de IA.</string>
+    <string name="ai_chat_greeting_desc">Pregúntame sobre rutinas o dietas.</string>
+    <string name="ai_chat_input_hint">Escribe un mensaje...</string>
+    <string name="ai_chat_thinking">Pensando...</string>
+    <string name="ai_chat_history">Historial de Conversaciones</string>
+    <string name="ai_chat_delete_confirm">Chat eliminado</string>
+    <string name="ai_chat_suggestion_force">Rutina de Fuerza</string>
+    <string name="ai_chat_suggestion_def">Dieta de Definición</string>
+    <string name="ai_chat_suggestion_hiit">Cardio HIIT</string>
+    <string name="ai_chat_empty_history">No hay conversaciones previas.</string>
+    <string name="ai_chat_new_chat">Nuevo Chat</string>
+    <string name="ai_plan_generated">Plan generado</string>
 </resources>
