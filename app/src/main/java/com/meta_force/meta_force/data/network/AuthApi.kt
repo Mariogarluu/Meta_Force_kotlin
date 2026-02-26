@@ -21,7 +21,7 @@ interface AuthApi {
     suspend fun register(@Body request: RegisterRequest): RegisterResponse
 
     @GET("users/me")
-    suspend fun getProfile(): LoginResponse // Often returns same structure as login, or just User
+    suspend fun getProfile(): User
 
     @PUT("users/me") // Changed from auth/me which was incorrect
     suspend fun updateProfile(@Body user: User): User

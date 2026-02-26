@@ -44,8 +44,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun getProfile(): NetworkResult<User> {
         return safeApiCall {
-            val response = api.getProfile()
-            response.user
+            api.getProfile()
         }
     }
 
