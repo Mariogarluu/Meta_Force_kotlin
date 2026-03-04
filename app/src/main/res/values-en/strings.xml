@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">meta_force</string>
+    <string name="app_name">Meta Force</string>
     <string name="ai_chat_title">MetaCoach AI</string>
     <string name="ai_chat_greeting_title">Hello! I am your AI coach.</string>
     <string name="ai_chat_greeting_desc">Ask me about workouts or diets.</string>
