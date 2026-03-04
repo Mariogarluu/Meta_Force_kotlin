@@ -73,11 +73,25 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToProfile = {
                                     navController.navigate("profile")
+                                },
+                                onNavigateToQr = {
+                                    navController.navigate("qr")
                                 }
                             )
                         }
                         composable("profile") {
-                            com.meta_force.meta_force.ui.profile.ProfileScreen()
+                            com.meta_force.meta_force.ui.profile.ProfileScreen(
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                        composable("qr") {
+                            com.meta_force.meta_force.ui.qr.QrScreen(
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
                     }
                 }

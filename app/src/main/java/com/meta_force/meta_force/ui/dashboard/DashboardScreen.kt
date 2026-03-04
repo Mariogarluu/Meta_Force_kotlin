@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 fun DashboardScreen(
     onLogout: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToQr: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -66,7 +67,8 @@ fun DashboardScreen(
     ) { innerPadding ->
         DashboardGrid(
             modifier = Modifier.padding(innerPadding),
-            onNavigateToProfile = onNavigateToProfile
+            onNavigateToProfile = onNavigateToProfile,
+            onNavigateToQr = onNavigateToQr
         )
     }
 }
@@ -74,7 +76,8 @@ fun DashboardScreen(
 @Composable
 fun DashboardGrid(
     modifier: Modifier = Modifier,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNavigateToQr: () -> Unit
 ) {
     // Renombramos la lista a dashboardItems para evitar conflictos con la función items()
     val dashboardItems = listOf(
@@ -106,6 +109,8 @@ fun DashboardGrid(
                 onClick = {
                     if (item.title == "Perfil") {
                         onNavigateToProfile()
+                    } else if (item.title == "Mi QR") {
+                        onNavigateToQr()
                     }
                 }
             )

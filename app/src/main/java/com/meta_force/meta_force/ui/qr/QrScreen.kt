@@ -22,18 +22,25 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QrScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: QrViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,18 +67,34 @@ fun QrScreen(
             )
         }
     ) { innerPadding ->
-        QrContent(
-            paddingValues = innerPadding
-        )
+        when (val state = uiState) {
+            is QrUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            is QrUiState.Error -> {
+                Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+                    Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
+                }
+            }
+            is QrUiState.Success -> {
+                QrContent(
+                    paddingValues = innerPadding,
+                    userData = state.user.id
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun QrContent(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    userData: String
 ) {
     val qrUrl = "https://api.qrserver.com/v1/create-qr-code/" +
-        "?size=300x300&data=Hello&color=34-211-238&bgcolor=10-25-47&margin=1&ecc=M"
+        "?size=300x300&data=$userData&color=34-211-238&bgcolor=10-25-47&margin=1&ecc=M"
 
     Box(
         modifier = Modifier
