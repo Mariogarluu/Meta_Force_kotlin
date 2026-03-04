@@ -17,8 +17,8 @@ data class WorkoutExercise(
     val exercise: Exercise?, // Nested object often returned
     val dayOfWeek: Int,
     val order: Int,
-    val sets: Int,
-    val reps: Int,
+    val sets: String,
+    val reps: String,
     val weight: Double?,
     val restSeconds: Int?,
     val notes: String?

@@ -14,7 +14,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,6 +25,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.R
 import com.meta_force.meta_force.data.model.ChatSession
 import kotlinx.coroutines.launch
+
+// Tailwind-like colors for the theme
+private val PrimaryCyan = Color(0xFF22d3ee) // cyan-400
+private val PrimaryBlue = Color(0xFF3b82f6) // blue-500
+private val DarkBg = Color(0xFF0f172a) // slate-900
+private val DarkSurface = Color(0xFF1e293b) // slate-800
+private val DarkSurfaceVariant = Color(0xFF334155) // slate-700
+private val GradientColors = listOf(PrimaryCyan, PrimaryBlue)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,21 +58,32 @@ fun AiChatScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = DarkSurface,
+                drawerContentColor = Color.White
+            ) {
                 Text(
                     text = stringResource(R.string.ai_chat_history),
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryCyan
                 )
-                HorizontalDivider()
+                HorizontalDivider(color = DarkSurfaceVariant)
                 
                 Button(
                     onClick = {
                         viewModel.startNewSession()
                         coroutineScope.launch { drawerState.close() }
                     },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryBlue,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.ai_chat_new_chat))
                 }
@@ -71,7 +92,7 @@ fun AiChatScreen(
                     Text(
                         text = stringResource(R.string.ai_chat_empty_history),
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Gray
                     )
                 } else {
                     LazyColumn {
@@ -96,26 +117,33 @@ fun AiChatScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.ai_chat_title), color = MaterialTheme.colorScheme.primary) },
+                    title = { 
+                        Text(
+                            text = stringResource(R.string.ai_chat_title), 
+                            color = PrimaryCyan,
+                            fontWeight = FontWeight.ExtraBold
+                        ) 
+                    },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                         }
                     },
                     actions = {
                         IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                             Icon(
-                                painter = androidx.compose.ui.res.painterResource(android.R.drawable.ic_menu_recent_history),
+                                painter = painterResource(android.R.drawable.ic_menu_recent_history),
                                 contentDescription = "History",
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = PrimaryCyan
                             )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = DarkSurface.copy(alpha = 0.95f)
                     )
                 )
-            }
+            },
+            containerColor = DarkBg
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -146,31 +174,43 @@ fun AiChatScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     contentPadding = PaddingValues(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     if (uiState.messages.isEmpty() && !uiState.isLoading) {
                         item {
                             Column(
-                                modifier = Modifier.fillMaxWidth().padding(top = 60.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    "🤖",
-                                    style = MaterialTheme.typography.displayLarge
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(RoundedCornerShape(24.dp))
+                                        .background(Brush.linearGradient(GradientColors)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        "🤖",
+                                        style = MaterialTheme.typography.displayMedium
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(24.dp))
                                 Text(
                                     stringResource(R.string.ai_chat_greeting_title),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
                                 )
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     stringResource(R.string.ai_chat_greeting_desc),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Color.LightGray
                                 )
                                 
-                                Spacer(modifier = Modifier.height(32.dp))
+                                Spacer(modifier = Modifier.height(40.dp))
                                 
                                 val suggestions = listOf(
                                     stringResource(R.string.ai_chat_suggestion_force) to "💪",
@@ -181,8 +221,19 @@ fun AiChatScreen(
                                 suggestions.forEach { (text, icon) ->
                                     SuggestionChip(
                                         onClick = { viewModel.sendMessage(text) },
-                                        label = { Text("$icon $text") },
-                                        modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()
+                                        label = { Text("$icon $text", color = PrimaryCyan, fontWeight = FontWeight.Medium) },
+                                        colors = SuggestionChipDefaults.suggestionChipColors(
+                                            containerColor = DarkSurface,
+                                            labelColor = PrimaryCyan
+                                        ),
+                                        border = SuggestionChipDefaults.suggestionChipBorder(
+                                            enabled = true,
+                                            borderColor = PrimaryBlue
+                                        ),
+                                        modifier = Modifier
+                                            .padding(vertical = 4.dp)
+                                            .fillMaxWidth()
+                                            .height(50.dp)
                                     )
                                 }
                             }
@@ -199,16 +250,17 @@ fun AiChatScreen(
                                 Row(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                                        .padding(12.dp)
+                                        .background(DarkSurface)
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
+                                        modifier = Modifier.size(24.dp),
                                         strokeWidth = 2.dp,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = PrimaryCyan
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.ai_chat_thinking), style = MaterialTheme.typography.bodyMedium)
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(stringResource(R.string.ai_chat_thinking), style = MaterialTheme.typography.bodyMedium, color = Color.White)
                                 }
                             }
                         }
@@ -217,9 +269,10 @@ fun AiChatScreen(
 
                 // Input Area
                 Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 8.dp,
-                    modifier = Modifier.fillMaxWidth()
+                    color = DarkSurface,
+                    tonalElevation = 12.dp,
+                    modifier = Modifier.fillMaxWidth(),
+                    shadowElevation = 16.dp
                 ) {
                     Row(
                         modifier = Modifier
@@ -231,13 +284,22 @@ fun AiChatScreen(
                             value = inputText,
                             onValueChange = { inputText = it },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text(stringResource(R.string.ai_chat_input_hint)) },
+                            placeholder = { Text(stringResource(R.string.ai_chat_input_hint), color = Color.Gray) },
                             maxLines = 4,
                             shape = RoundedCornerShape(24.dp),
-                            enabled = !uiState.isLoading
+                            enabled = !uiState.isLoading,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = PrimaryCyan,
+                                unfocusedBorderColor = DarkSurfaceVariant,
+                                cursorColor = PrimaryCyan,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedContainerColor = DarkBg,
+                                unfocusedContainerColor = DarkBg
+                            )
                         )
                         
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         
                         FloatingActionButton(
                             onClick = {
@@ -246,14 +308,16 @@ fun AiChatScreen(
                                     inputText = ""
                                 }
                             },
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            containerColor = Color.Transparent,
                             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp),
-                            modifier = Modifier.size(56.dp)
+                            modifier = Modifier
+                                .size(56.dp)
+                                .background(Brush.linearGradient(GradientColors), shape = RoundedCornerShape(16.dp))
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
                                 contentDescription = "Send",
-                                tint = MaterialTheme.colorScheme.onPrimary
+                                tint = Color.White
                             )
                         }
                     }
@@ -296,7 +360,7 @@ fun SwipeToDeleteSessionItem(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Icon(
-                    painter = androidx.compose.ui.res.painterResource(android.R.drawable.ic_menu_delete),
+                    painter = painterResource(android.R.drawable.ic_menu_delete),
                     contentDescription = "Delete",
                     tint = Color.White
                 )
@@ -305,7 +369,7 @@ fun SwipeToDeleteSessionItem(
         content = {
             Surface(
                 onClick = onClick,
-                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                color = if (isSelected) DarkSurfaceVariant else DarkSurface,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -314,16 +378,17 @@ fun SwipeToDeleteSessionItem(
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = if (isSelected) PrimaryCyan else Color.White
                     )
                     Text(
                         text = session.createdAt.take(16).replace("T", " "),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.LightGray
                     )
                 }
             }
-            HorizontalDivider()
+            HorizontalDivider(color = DarkSurfaceVariant)
         }
     )
 }
@@ -337,12 +402,17 @@ fun MessageBubble(message: UiMessage) {
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
         if (!isUser) {
-            Text(
-                text = "🤖",
+            Box(
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .align(Alignment.Bottom)
-            )
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(DarkSurfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "🤖", style = MaterialTheme.typography.labelLarge)
+            }
         }
         
         Box(
@@ -350,33 +420,36 @@ fun MessageBubble(message: UiMessage) {
                 .widthIn(max = 280.dp)
                 .clip(
                     RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (isUser) 16.dp else 4.dp,
-                        bottomEnd = if (isUser) 4.dp else 16.dp
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                        bottomStart = if (isUser) 20.dp else 4.dp,
+                        bottomEnd = if (isUser) 4.dp else 20.dp
                     )
                 )
                 .background(
-                    if (isUser) MaterialTheme.colorScheme.primary 
-                    else MaterialTheme.colorScheme.surfaceVariant
+                    if (isUser) Brush.linearGradient(GradientColors) else Brush.linearGradient(listOf(DarkSurface, DarkSurface))
                 )
-                .padding(12.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Text(
                 text = message.content,
-                color = if (isUser) MaterialTheme.colorScheme.onPrimary 
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White,
                 style = MaterialTheme.typography.bodyLarge
             )
         }
         
         if (isUser) {
-            Text(
-                text = "🧑",
+            Box(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .align(Alignment.Bottom)
-            )
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(PrimaryBlue.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "🧑", style = MaterialTheme.typography.labelLarge)
+            }
         }
     }
 }

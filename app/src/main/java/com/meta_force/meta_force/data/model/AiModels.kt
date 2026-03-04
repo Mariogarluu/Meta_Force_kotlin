@@ -29,8 +29,8 @@ data class AiPlanDay(
 
 data class AiPlanItem(
     val name: String,
-    val sets: Int? = null,
-    val reps: Int? = null,
+    val sets: String? = null,
+    val reps: String? = null,
     val quantity: String? = null,
     val notes: String? = null
 )

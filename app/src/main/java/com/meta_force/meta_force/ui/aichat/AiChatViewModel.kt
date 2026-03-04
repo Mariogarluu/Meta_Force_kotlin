@@ -47,12 +47,12 @@ class AiChatViewModel @Inject constructor(
                     val sessions = result.data
                     if (sessions.isNotEmpty()) {
                         val sortedSessions = sessions.sortedByDescending { it.createdAt }
-                        val latest = sortedSessions.first()
-                        val uiMessages = latest.messages.map { UiMessage(it.role, it.content) }
+                        // Intentional change: Do not automatically load the latest session
+                        // so the chat starts empty (new session) every time the user enters the screen.
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            currentSessionId = latest.id,
-                            messages = uiMessages,
+                            currentSessionId = null,
+                            messages = emptyList(),
                             sessions = sortedSessions
                         )
                     } else {
