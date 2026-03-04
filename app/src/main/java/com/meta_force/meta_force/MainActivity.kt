@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.meta_force.meta_force.ui.auth.login.LoginScreen
 import com.meta_force.meta_force.ui.auth.register.RegisterScreen
 import com.meta_force.meta_force.ui.dashboard.DashboardScreen
+import com.meta_force.meta_force.ui.qr.QrScreen
 import com.meta_force.meta_force.ui.theme.Meta_forceTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -85,6 +86,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToAiChat = {
                                     navController.navigate("aichat")
+                                },
+                                onNavigateToQr = {
+                                    navController.navigate("qr")
                                 }
                             )
                         }
@@ -128,6 +132,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("aichat") {
                             com.meta_force.meta_force.ui.aichat.AiChatScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("qr") {
+                            QrScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

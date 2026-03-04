@@ -25,6 +25,7 @@ fun DashboardScreen(
     onNavigateToDiets: () -> Unit,
     onNavigateToClasses: () -> Unit,
     onNavigateToAiChat: () -> Unit, // Added
+    onNavigateToQr: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -74,7 +75,8 @@ fun DashboardScreen(
             onNavigateToWorkouts = onNavigateToWorkouts,
             onNavigateToDiets = onNavigateToDiets,
             onNavigateToClasses = onNavigateToClasses,
-            onNavigateToAiChat = onNavigateToAiChat
+            onNavigateToAiChat = onNavigateToAiChat,
+            onNavigateToQr = onNavigateToQr
         )
     }
 }
@@ -86,7 +88,8 @@ fun DashboardGrid(
     onNavigateToWorkouts: () -> Unit,
     onNavigateToDiets: () -> Unit,
     onNavigateToClasses: () -> Unit,
-    onNavigateToAiChat: () -> Unit
+    onNavigateToAiChat: () -> Unit,
+    onNavigateToQr: () -> Unit
 ) {
     val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
@@ -122,6 +125,8 @@ fun DashboardGrid(
                         onNavigateToClasses()
                     } else if (item.title == "MetaCoach AI") {
                         onNavigateToAiChat()
+                    } else if (item.title == "Mi QR") {
+                        onNavigateToQr()
                     }
                 }
             )
