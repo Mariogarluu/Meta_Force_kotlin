@@ -5,6 +5,7 @@ import com.meta_force.meta_force.data.network.AuthInterceptor
 import com.meta_force.meta_force.data.network.WorkoutApi
 import com.meta_force.meta_force.data.network.DietApi
 import com.meta_force.meta_force.data.network.AiApi
+import com.meta_force.meta_force.data.network.CenterApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -81,5 +82,11 @@ object NetworkModule {
     @Singleton
     fun provideAiApi(retrofit: Retrofit): AiApi {
         return retrofit.create(AiApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCenterApi(retrofit: Retrofit): CenterApi {
+        return retrofit.create(CenterApi::class.java)
     }
 }
