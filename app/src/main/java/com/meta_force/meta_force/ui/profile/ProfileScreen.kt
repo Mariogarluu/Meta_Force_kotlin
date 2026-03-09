@@ -38,10 +38,13 @@ fun ProfileScreen(
     val context = LocalContext.current
     var showBigImageDialog by remember { mutableStateOf(false) }
 
-    // Helper to get file from URI
+    // Helper to get file from URI with proper extension and type
     fun uriToFile(uri: Uri): File? {
         val contentResolver = context.contentResolver
-        val tempFile = File.createTempFile("avatar", ".jpg", context.cacheDir)
+        val mimeTypeMap = android.webkit.MimeTypeMap.getSingleton()
+        val extension = mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ?: "jpg"
+        
+        val tempFile = File.createTempFile("avatar", ".$extension", context.cacheDir)
         return try {
             val inputStream = contentResolver.openInputStream(uri) ?: return null
             val outputStream = FileOutputStream(tempFile)
