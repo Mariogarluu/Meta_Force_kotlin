@@ -52,21 +52,6 @@ fun DashboardScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
-        },
-        bottomBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Tiene 2 notificaciones nuevas", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
         }
     ) { innerPadding ->
         DashboardGrid(
