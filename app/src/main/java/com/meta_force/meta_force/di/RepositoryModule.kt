@@ -10,6 +10,8 @@ import com.meta_force.meta_force.data.repository.AiRepository
 import com.meta_force.meta_force.data.repository.AiRepositoryImpl
 import com.meta_force.meta_force.data.repository.CenterRepository
 import com.meta_force.meta_force.data.repository.CenterRepositoryImpl
+import com.meta_force.meta_force.data.repository.MachineRepository
+import com.meta_force.meta_force.data.repository.MachineRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -55,4 +57,10 @@ abstract class RepositoryModule {
     abstract fun bindCenterRepository(
         centerRepositoryImpl: CenterRepositoryImpl
     ): CenterRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMachineRepository(
+        machineRepositoryImpl: MachineRepositoryImpl
+    ): MachineRepository
 }

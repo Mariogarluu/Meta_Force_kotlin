@@ -89,6 +89,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToQr = {
                                     navController.navigate("qr")
+                                },
+                                onNavigateToCenters = {
+                                    navController.navigate("centers")
                                 }
                             )
                         }
@@ -139,6 +142,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("qr") {
                             QrScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("centers") {
+                            com.meta_force.meta_force.ui.centers.CentersScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

@@ -26,6 +26,7 @@ fun DashboardScreen(
     onNavigateToClasses: () -> Unit,
     onNavigateToAiChat: () -> Unit, // Added
     onNavigateToQr: () -> Unit,
+    onNavigateToCenters: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -61,7 +62,8 @@ fun DashboardScreen(
             onNavigateToDiets = onNavigateToDiets,
             onNavigateToClasses = onNavigateToClasses,
             onNavigateToAiChat = onNavigateToAiChat,
-            onNavigateToQr = onNavigateToQr
+            onNavigateToQr = onNavigateToQr,
+            onNavigateToCenters = onNavigateToCenters
         )
     }
 }
@@ -74,7 +76,8 @@ fun DashboardGrid(
     onNavigateToDiets: () -> Unit,
     onNavigateToClasses: () -> Unit,
     onNavigateToAiChat: () -> Unit,
-    onNavigateToQr: () -> Unit
+    onNavigateToQr: () -> Unit,
+    onNavigateToCenters: () -> Unit
 ) {
     val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
@@ -112,6 +115,8 @@ fun DashboardGrid(
                         onNavigateToAiChat()
                     } else if (item.title == "Mi QR") {
                         onNavigateToQr()
+                    } else if (item.title == "Centro") {
+                        onNavigateToCenters()
                     }
                 }
             )

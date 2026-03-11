@@ -13,9 +13,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.data.model.Center
+import com.meta_force.meta_force.data.model.MachineTypeModel
+import androidx.compose.foundation.shape.RoundedCornerShape
+
+// Theme Colors
+private val PrimaryCyan = Color(0xFF22d3ee) // cyan-400
+private val DarkBg = Color(0xFF0f172a) // slate-900
+private val DarkSurface = Color(0xFF1e293b) // slate-800
+private val DarkSurfaceVariant = Color(0xFF334155) // slate-700
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,31 +38,45 @@ fun CentersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isAdmin by viewModel.isAdmin.collectAsState()
+    val machinesState by viewModel.machinesState.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
+        containerColor = DarkBg,
         topBar = {
             TopAppBar(
-                title = { Text("Centros") },
+                title = { 
+                    Text(
+                        text = "Centros", 
+                        color = PrimaryCyan,
+                        fontWeight = FontWeight.ExtraBold
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás", tint = Color.White)
                     }
-                }
+                },
+                actions = {
+                    if (isAdmin) {
+                        IconButton(onClick = { showCreateDialog = true }) {
+                            Icon(Icons.Default.Add, contentDescription = "Añadir Centro", tint = PrimaryCyan)
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = DarkSurface.copy(alpha = 0.95f)
+                )
             )
-        },
-        floatingActionButton = {
-            if (isAdmin) {
-                FloatingActionButton(onClick = { showCreateDialog = true }) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir Centro")
-                }
-            }
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when (val state = uiState) {
                 is CentersUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = PrimaryCyan
+                    )
                 }
                 is CentersUiState.Error -> {
                     Text(
@@ -62,6 +89,7 @@ fun CentersScreen(
                     if (state.centers.isEmpty()) {
                         Text(
                             text = "No hay centros disponibles.",
+                            color = Color.LightGray,
                             modifier = Modifier.align(Alignment.Center)
                         )
                     } else {
@@ -74,6 +102,8 @@ fun CentersScreen(
                                 CenterCard(
                                     center = center,
                                     isAdmin = isAdmin,
+                                    machines = center.id?.let { machinesState[it] },
+                                    onLoadMachines = { center.id?.let { viewModel.loadMachinesForCenter(it) } },
                                     onEdit = { /* show edit dialog */ },
                                     onDelete = { viewModel.deleteCenter(center.id ?: "") }
                                 )
@@ -100,12 +130,28 @@ fun CentersScreen(
 fun CenterCard(
     center: Center,
     isAdmin: Boolean,
+    machines: List<MachineTypeModel>?,
+    onLoadMachines: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(expanded) {
+        if (expanded && machines == null) {
+            onLoadMachines()
+        }
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { expanded = !expanded },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkSurface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -116,29 +162,113 @@ fun CenterCard(
                 Text(
                     text = center.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
                 if (isAdmin) {
                     Row {
                         IconButton(onClick = onEdit) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar")
+                            Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PrimaryCyan)
                         }
                         IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color(0xFFef4444))
                         }
                     }
                 }
             }
             if (!center.description.isNullOrEmpty()) {
-                Text(text = center.description, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = center.description, 
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.LightGray
+                )
             }
             Spacer(modifier = Modifier.height(8.dp))
             if (!center.city.isNullOrEmpty() || !center.country.isNullOrEmpty()) {
                 Text(
                     text = "${center.city ?: ""} ${center.country ?: ""}".trim(),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.Gray
                 )
+            }
+
+            AnimatedVisibility(visible = expanded) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Divider(modifier = Modifier.padding(bottom = 8.dp), color = DarkSurfaceVariant)
+                    Text(
+                        text = "Máquinas Activas",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryCyan,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    if (machines == null) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .size(24.dp),
+                            color = PrimaryCyan,
+                            strokeWidth = 2.dp
+                        )
+                    } else if (machines.isEmpty()) {
+                        Text(
+                            text = "No hay máquinas registradas en este centro.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    } else {
+                        val activeMachines = machines.filter { type -> 
+                            type.instances?.any { it.centerId == center.id } == true
+                        }
+                        
+                        if (activeMachines.isEmpty()) {
+                            Text(
+                                text = "Este centro no tiene instancias de máquinas.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        } else {
+                            activeMachines.forEach { machineType ->
+                                val instances = machineType.instances?.filter { it.centerId == center.id } ?: emptyList()
+                                Text(
+                                    text = "${machineType.name} (${machineType.type.name})",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                                )
+                                instances.forEach { instance ->
+                                    val statusColor = when (instance.status.name) {
+                                        "OPERATIVA" -> Color(0xFF4CAF50)
+                                        "MANTENIMIENTO" -> Color(0xFFFF9800)
+                                        else -> Color(0xFFF44336)
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .background(statusColor, CircleShape)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "Instancia ${instance.instanceNumber} - ${instance.status.displayName}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.LightGray
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
