@@ -93,7 +93,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("profile") {
-                            com.meta_force.meta_force.ui.profile.ProfileScreen()
+                            com.meta_force.meta_force.ui.profile.ProfileScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                         composable("workouts") {
                             com.meta_force.meta_force.ui.workouts.WorkoutsScreen(
