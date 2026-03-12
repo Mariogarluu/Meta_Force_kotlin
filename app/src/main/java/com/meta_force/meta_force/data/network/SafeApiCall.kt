@@ -4,6 +4,13 @@ import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 
+/**
+ * Utility function to perform a network call safely, catching exceptions and mapping errors.
+ *
+ * @param T The expected return type of the API call.
+ * @param apiCall A lambda representing the suspendable network operation.
+ * @return A [NetworkResult] encapsulating the Success, Error, or Exception state.
+ */
 suspend fun <T> safeApiCall(apiCall: suspend () -> T): NetworkResult<T> {
     return try {
         NetworkResult.Success(apiCall())
@@ -18,7 +25,7 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): NetworkResult<T> {
                 message = jsonObject.getString("message")
             }
         } catch (ex: Exception) {
-            // If it's not JSON, fallback to the raw raw string or standard message
+            // If it's not JSON, fallback to the raw string or standard message
         }
         
         NetworkResult.Error(code, message)

@@ -12,6 +12,12 @@ import kotlinx.coroutines.launch
 import com.meta_force.meta_force.data.network.NetworkResult
 import javax.inject.Inject
 
+/**
+ * ViewModel for the User Registration screen.
+ * Handles the creation of new user accounts.
+ *
+ * @property authRepository The [AuthRepository] used for registration operations.
+ */
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val authRepository: AuthRepository

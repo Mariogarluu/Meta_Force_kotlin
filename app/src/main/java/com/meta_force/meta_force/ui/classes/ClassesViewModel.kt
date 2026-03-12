@@ -11,12 +11,23 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * UI State for the Gym Classes screen.
+ */
 sealed class ClassesUiState {
     object Loading : ClassesUiState()
     data class Success(val classes: List<GymClass>) : ClassesUiState()
     data class Error(val message: String) : ClassesUiState()
 }
 
+/**
+ * ViewModel for the Gym Classes management and booking screen.
+ * Handles class listing, booking (join/leave), and admin class management.
+ *
+ * @property classRepository Repository for class operations.
+ * @property centerRepository Repository for fetching available centers for class association.
+ * @property authRepository Repository for user role verification.
+ */
 @HiltViewModel
 class ClassesViewModel @Inject constructor(
     private val classRepository: ClassRepository,

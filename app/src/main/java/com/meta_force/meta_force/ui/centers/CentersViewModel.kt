@@ -17,12 +17,23 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * UI State for the Centers screen.
+ */
 sealed class CentersUiState {
     object Loading : CentersUiState()
     data class Success(val centers: List<Center>) : CentersUiState()
     data class Error(val message: String) : CentersUiState()
 }
 
+/**
+ * ViewModel for the Fitness Centers screen.
+ * Manages the list of centers, admin operations (create/update/delete), and equipment details.
+ *
+ * @property centerRepository Repository for center data.
+ * @property authRepository Repository for user role checks.
+ * @property machineRepository Repository for fetching equipment per center.
+ */
 @HiltViewModel
 class CentersViewModel @Inject constructor(
     private val centerRepository: CenterRepository,

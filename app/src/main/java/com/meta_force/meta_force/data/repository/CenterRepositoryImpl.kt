@@ -7,6 +7,11 @@ import com.meta_force.meta_force.data.network.CenterApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Concrete implementation of [CenterRepository] using [CenterApi].
+ *
+ * @property centerApi The API interface for center-related network requests.
+ */
 @Singleton
 class CenterRepositoryImpl @Inject constructor(
     private val centerApi: CenterApi

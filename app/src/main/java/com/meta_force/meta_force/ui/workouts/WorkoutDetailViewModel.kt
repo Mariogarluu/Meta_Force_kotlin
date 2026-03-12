@@ -13,12 +13,20 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * UI State for the Workout Detail screen.
+ */
 sealed class WorkoutDetailUiState {
     object Loading : WorkoutDetailUiState()
     data class Success(val workout: Workout) : WorkoutDetailUiState()
     data class Error(val message: String) : WorkoutDetailUiState()
 }
 
+/**
+ * ViewModel for viewing details of a specific workout plan.
+ *
+ * @property workoutRepository Repository for workout data.
+ */
 @HiltViewModel
 class WorkoutDetailViewModel @Inject constructor(
     private val workoutRepository: WorkoutRepository

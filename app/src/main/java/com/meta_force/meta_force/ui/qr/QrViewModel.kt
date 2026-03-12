@@ -17,12 +17,24 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 
+/**
+ * UI State for the QR access screen.
+ *
+ * @property user The current user information.
+ * @property timestamp ISO timestamp that updates periodically for security.
+ */
 sealed class QrUiState {
     object Loading : QrUiState()
     data class Success(val user: User, val timestamp: String) : QrUiState()
     data class Error(val message: String) : QrUiState()
 }
 
+/**
+ * ViewModel for generating and updating the QR access code.
+ * Fetches user profile and starts a periodic timestamp update.
+ *
+ * @property repository Repository for user information.
+ */
 @HiltViewModel
 class QrViewModel @Inject constructor(
     private val repository: AuthRepository

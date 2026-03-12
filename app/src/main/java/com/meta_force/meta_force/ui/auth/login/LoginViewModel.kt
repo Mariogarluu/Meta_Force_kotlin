@@ -12,6 +12,12 @@ import kotlinx.coroutines.launch
 import com.meta_force.meta_force.data.network.NetworkResult
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Login screen.
+ * Manages the authentication flow for existing users.
+ *
+ * @property authRepository The [AuthRepository] used for authentication operations.
+ */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository

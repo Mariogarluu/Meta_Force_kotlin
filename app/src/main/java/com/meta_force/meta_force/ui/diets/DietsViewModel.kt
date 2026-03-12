@@ -13,12 +13,21 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * UI State for the Diets list screen.
+ */
 sealed class DietsUiState {
     object Loading : DietsUiState()
     data class Success(val diets: List<Diet>) : DietsUiState()
     data class Error(val message: String) : DietsUiState()
 }
 
+/**
+ * ViewModel for the user's Dietary Plans screen.
+ * Handles fetching the list of plans and deleting them.
+ *
+ * @property dietRepository Repository for diet operations.
+ */
 @HiltViewModel
 class DietsViewModel @Inject constructor(
     private val dietRepository: DietRepository

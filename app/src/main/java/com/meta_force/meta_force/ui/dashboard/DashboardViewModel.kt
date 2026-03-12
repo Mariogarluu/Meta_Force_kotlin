@@ -7,6 +7,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the main Dashboard screen.
+ * Currently primarily handles global session actions like logout.
+ *
+ * @property authRepository Repository for session management.
+ */
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository
