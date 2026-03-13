@@ -9,6 +9,11 @@ import com.meta_force.meta_force.data.network.NetworkResult
 import com.meta_force.meta_force.data.network.safeApiCall
 import javax.inject.Inject
 
+/**
+ * Implementation of [AiRepository] that uses [AiApi] for data operations.
+ *
+ * @property api The [AiApi] instance for network calls.
+ */
 class AiRepositoryImpl @Inject constructor(
     private val api: AiApi
 ) : AiRepository {

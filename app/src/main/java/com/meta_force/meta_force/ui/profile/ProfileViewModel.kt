@@ -13,12 +13,21 @@ import java.io.File
 import javax.inject.Inject
 import com.meta_force.meta_force.data.network.NetworkResult
 
+/**
+ * UI State for the User Profile screen.
+ */
 sealed class ProfileUiState {
     object Loading : ProfileUiState()
     data class Success(val user: User) : ProfileUiState()
     data class Error(val message: String) : ProfileUiState()
 }
 
+/**
+ * ViewModel for the User Profile screen.
+ * Handles displaying and updating user information, including profile image uploads.
+ *
+ * @property repository Repository for user profile and authentication data.
+ */
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: AuthRepository

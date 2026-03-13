@@ -12,10 +12,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.data.model.GymClass
+
+// Theme Colors
+private val PrimaryCyan = Color(0xFF22d3ee) // cyan-400
+private val DarkBg = Color(0xFF0f172a) // slate-900
+private val DarkSurface = Color(0xFF1e293b) // slate-800
+private val DarkSurfaceVariant = Color(0xFF334155) // slate-700
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,19 +39,33 @@ fun ClassesScreen(
     var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
+        containerColor = DarkBg,
         topBar = {
             TopAppBar(
-                title = { Text("Clases Disponibles") },
+                title = { 
+                    Text(
+                        "Clases Disponibles",
+                        color = PrimaryCyan,
+                        fontWeight = FontWeight.ExtraBold
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = DarkSurface.copy(alpha = 0.95f)
+                )
             )
         },
         floatingActionButton = {
             if (isAdmin) {
-                FloatingActionButton(onClick = { showCreateDialog = true }) {
+                FloatingActionButton(
+                    onClick = { showCreateDialog = true },
+                    containerColor = PrimaryCyan,
+                    contentColor = DarkBg
+                ) {
                     Icon(Icons.Default.Add, contentDescription = "Añadir Clase")
                 }
             }
@@ -55,7 +77,9 @@ fun ClassesScreen(
             if (centers.isNotEmpty()) {
                 ScrollableTabRow(
                     selectedTabIndex = centers.indexOfFirst { it.id == selectedCenterId }.coerceAtLeast(0),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = DarkBg,
+                    contentColor = PrimaryCyan
                 ) {
                     Tab(
                         selected = selectedCenterId == null,
@@ -63,7 +87,7 @@ fun ClassesScreen(
                             selectedCenterId = null
                             viewModel.loadClasses(null)
                         },
-                        text = { Text("Todos") }
+                        text = { Text("Todos", color = if (selectedCenterId == null) PrimaryCyan else Color.White) }
                     )
                     centers.forEachIndexed { index, center ->
                         Tab(
@@ -72,7 +96,7 @@ fun ClassesScreen(
                                 selectedCenterId = center.id
                                 viewModel.loadClasses(center.id)
                             },
-                            text = { Text(center.name) }
+                            text = { Text(center.name, color = if (selectedCenterId == center.id) PrimaryCyan else Color.White) }
                         )
                     }
                 }
@@ -81,7 +105,7 @@ fun ClassesScreen(
             Box(modifier = Modifier.weight(1f).fillMaxSize()) {
                 when (val state = uiState) {
                     is ClassesUiState.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = PrimaryCyan)
                     }
                     is ClassesUiState.Error -> {
                         Text(
@@ -94,13 +118,14 @@ fun ClassesScreen(
                         if (state.classes.isEmpty()) {
                             Text(
                                 text = "No hay clases en este centro.",
+                                color = Color.LightGray,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
                                 contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 items(state.classes) { gymClass ->
                                     ClassCard(
@@ -140,7 +165,11 @@ fun ClassCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkSurface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -150,22 +179,23 @@ fun ClassCard(
             ) {
                 Text(
                     text = gymClass.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
                 if (isAdmin) {
                     Row {
                         IconButton(onClick = onEdit) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar")
+                            Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PrimaryCyan)
                         }
                         IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color(0xFFef4444))
                         }
                     }
                 }
             }
             if (!gymClass.description.isNullOrEmpty()) {
-                Text(text = gymClass.description, style = MaterialTheme.typography.bodyMedium)
+                Text(text = gymClass.description, style = MaterialTheme.typography.bodyMedium, color = Color.White)
             }
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -175,7 +205,7 @@ fun ClassCard(
                     Text(
                         text = "${getDayName(sc.dayOfWeek)}: ${sc.startTime} - ${sc.endTime}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.LightGray
                     )
                 }
             }
@@ -184,9 +214,10 @@ fun ClassCard(
 
             Button(
                 onClick = onJoin,
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan, contentColor = DarkBg)
             ) {
-                Text("Unirse")
+                Text("Unirse", fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -204,27 +235,51 @@ fun ClassFormDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialClass == null) "Nueva Clase" else "Editar Clase") },
+        containerColor = DarkSurface,
+        titleContentColor = PrimaryCyan,
+        textContentColor = Color.White,
+        title = { Text(if (initialClass == null) "Nueva Clase" else "Editar Clase", fontWeight = FontWeight.Bold) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre") })
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Descripción") })
+                OutlinedTextField(
+                    value = name, 
+                    onValueChange = { name = it }, 
+                    label = { Text("Nombre", color = Color.LightGray) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = PrimaryCyan,
+                        cursorColor = PrimaryCyan
+                    )
+                )
+                OutlinedTextField(
+                    value = description, 
+                    onValueChange = { description = it }, 
+                    label = { Text("Descripción", color = Color.LightGray) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = PrimaryCyan,
+                        cursorColor = PrimaryCyan
+                    )
+                )
             }
         },
         confirmButton = {
             Button(
                 onClick = { onConfirm(name, description) },
-                enabled = name.isNotBlank()
+                enabled = name.isNotBlank(),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan, contentColor = DarkBg)
             ) {
-                Text("Guardar")
+                Text("Guardar", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text("Cancelar", color = PrimaryCyan)
             }
         }
     )

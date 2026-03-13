@@ -14,6 +14,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * UI State for the AI Chat screen.
+ *
+ * @property isLoading Indicates if a message is being processed or sessions are loading.
+ * @property messages List of messages to display in the current chat.
+ * @property currentSessionId ID of the active chat session, or null if it's a new session.
+ * @property sessions List of previous chat sessions for the user.
+ * @property error Error message to display, if any.
+ */
 data class AiChatUiState(
     val isLoading: Boolean = false,
     val messages: List<UiMessage> = emptyList(),
@@ -22,11 +31,23 @@ data class AiChatUiState(
     val error: String? = null
 )
 
+/**
+ * Simplified message model for the UI.
+ *
+ * @property role Role of the message sender (e.g., "user", "model").
+ * @property content Text content of the message.
+ */
 data class UiMessage(
     val role: String,
     val content: String
 )
 
+/**
+ * ViewModel for the AI Chat screen.
+ * Handles sending messages, managing sessions, and updating the UI state.
+ *
+ * @property repository The [AiRepository] used for data operations.
+ */
 @HiltViewModel
 class AiChatViewModel @Inject constructor(
     private val repository: AiRepository

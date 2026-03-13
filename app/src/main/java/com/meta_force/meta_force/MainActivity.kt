@@ -89,11 +89,16 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToQr = {
                                     navController.navigate("qr")
+                                },
+                                onNavigateToCenters = {
+                                    navController.navigate("centers")
                                 }
                             )
                         }
                         composable("profile") {
-                            com.meta_force.meta_force.ui.profile.ProfileScreen()
+                            com.meta_force.meta_force.ui.profile.ProfileScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
                         composable("workouts") {
                             com.meta_force.meta_force.ui.workouts.WorkoutsScreen(
@@ -137,6 +142,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("qr") {
                             QrScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("centers") {
+                            com.meta_force.meta_force.ui.centers.CentersScreen(
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

@@ -1,5 +1,18 @@
 package com.meta_force.meta_force.data.model
 
+/**
+ * Represents a dietary plan for a user.
+ *
+ * @property id Unique identifier for the diet.
+ * @property name The name of the diet plan.
+ * @property description An optional description of the diet's goal or nature.
+ * @property userId The ID of the user this diet belongs to.
+ * @property caloriesTarget The daily calorie target for this diet.
+ * @property active Whether this is currently the active diet for the user.
+ * @property meals List of [DietMeal] associated with this diet.
+ * @property createdAt Timestamp when the diet was created.
+ * @property updatedAt Timestamp when the diet was last modified.
+ */
 data class Diet(
     val id: String,
     val name: String,
@@ -12,6 +25,21 @@ data class Diet(
     val updatedAt: String
 )
 
+/**
+ * Represents a specific meal within a [Diet].
+ *
+ * @property id Unique identifier for the meal.
+ * @property dietId The ID of the parent diet.
+ * @property name Name of the meal (e.g., "Breakfast", "Lunch").
+ * @property dayOfWeek Day of the week this meal is scheduled for (e.g., 1 for Monday).
+ * @property order The order of the meal during the day.
+ * @property time Scheduled time for the meal (format: "HH:mm").
+ * @property calories Estimated calories for this meal.
+ * @property protein Estimated protein content in grams.
+ * @property carbs Estimated carbohydrate content in grams.
+ * @property fats Estimated fat content in grams.
+ * @property foods List of [DietFood] items included in this meal.
+ */
 data class DietMeal(
     val id: String,
     val dietId: String,
@@ -26,6 +54,19 @@ data class DietMeal(
     val foods: List<DietFood> = emptyList()
 )
 
+/**
+ * Represents an individual food item within a [DietMeal].
+ *
+ * @property id Unique identifier for the food item entry.
+ * @property mealId The ID of the parent meal.
+ * @property name Name of the food item.
+ * @property quantity Numerical quantity of the food.
+ * @property unit Unit of measurement (e.g., "grams", "pieces").
+ * @property calories Calories for this specific quantity.
+ * @property protein Protein content for this specific quantity.
+ * @property carbs Carbohydrate content for this specific quantity.
+ * @property fats Fat content for this specific quantity.
+ */
 data class DietFood(
     val id: String,
     val mealId: String,
@@ -38,6 +79,13 @@ data class DietFood(
     val fats: Double?
 )
 
+/**
+ * Request object for creating a new dietary plan.
+ *
+ * @property name The name of the new diet.
+ * @property description Optional description.
+ * @property caloriesTarget Optional daily calorie target.
+ */
 data class CreateDietRequest(
     val name: String,
     val description: String?,

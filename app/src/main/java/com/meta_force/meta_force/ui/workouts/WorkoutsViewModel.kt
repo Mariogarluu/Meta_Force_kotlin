@@ -13,12 +13,21 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * UI State for the Workout list screen.
+ */
 sealed class WorkoutsUiState {
     object Loading : WorkoutsUiState()
     data class Success(val workouts: List<Workout>) : WorkoutsUiState()
     data class Error(val message: String) : WorkoutsUiState()
 }
 
+/**
+ * ViewModel for the user's Workout Plans screen.
+ * Handles fetching the list of workout plans and deleting them.
+ *
+ * @property workoutRepository Repository for workout operations.
+ */
 @HiltViewModel
 class WorkoutsViewModel @Inject constructor(
     private val workoutRepository: WorkoutRepository

@@ -14,6 +14,12 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+/**
+ * Implementation of [AuthRepository] that interacts with [AuthApi] and [SessionManager].
+ *
+ * @property api The authentication API interface.
+ * @property sessionManager Instance for local session/token persistence.
+ */
 class AuthRepositoryImpl @Inject constructor(
     private val api: AuthApi,
     private val sessionManager: SessionManager
