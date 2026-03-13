@@ -76,7 +76,7 @@ fun ClassesScreen(
             // Selector de centro
             if (centers.isNotEmpty()) {
                 ScrollableTabRow(
-                    selectedTabIndex = centers.indexOfFirst { it.id == selectedCenterId }.coerceAtLeast(0),
+                    selectedTabIndex = if (selectedCenterId == null) 0 else (centers.indexOfFirst { it.id == selectedCenterId } + 1).coerceAtLeast(0),
                     modifier = Modifier.fillMaxWidth(),
                     containerColor = DarkBg,
                     contentColor = PrimaryCyan
