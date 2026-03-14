@@ -275,7 +275,7 @@ fun MacroInfo(label: String, value: String, color: Color) {
 
 fun getDayName(day: Int?): String {
     return when(day) {
-        0 -> "Domingo"
+        0, 7 -> "Domingo"
         1 -> "Lunes"
         2 -> "Martes"
         3 -> "Miércoles"
