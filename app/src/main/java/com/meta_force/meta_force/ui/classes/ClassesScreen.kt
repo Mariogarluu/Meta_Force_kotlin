@@ -37,6 +37,7 @@ fun ClassesScreen(
     var selectedCenterId by remember { mutableStateOf<String?>(null) }
     
     var showCreateDialog by remember { mutableStateOf(false) }
+    var editingClass by remember { mutableStateOf<GymClass?>(null) }
 
     Scaffold(
         containerColor = DarkBg,
@@ -132,7 +133,7 @@ fun ClassesScreen(
                                         gymClass = gymClass,
                                         isAdmin = isAdmin,
                                         onJoin = { viewModel.joinClass(gymClass.id) },
-                                        onEdit = { /* Open edit dialog */ },
+                                        onEdit = { editingClass = gymClass },
                                         onDelete = { viewModel.deleteClass(gymClass.id) }
                                     )
                                 }
@@ -149,6 +150,19 @@ fun ClassesScreen(
                 onConfirm = { name, desc ->
                     viewModel.createClass(name, desc)
                     showCreateDialog = false
+                }
+            )
+        }
+
+        if (editingClass != null) {
+            ClassFormDialog(
+                initialClass = editingClass,
+                onDismiss = { editingClass = null },
+                onConfirm = { name, desc ->
+                    editingClass?.let { 
+                        viewModel.updateClass(it.id, name, desc)
+                    }
+                    editingClass = null
                 }
             )
         }

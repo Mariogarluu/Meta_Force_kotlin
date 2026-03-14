@@ -43,15 +43,27 @@ data class Diet(
 data class DietMeal(
     val id: String,
     val dietId: String,
-    val name: String, // e.g., "Breakfast", "Lunch"
-    val dayOfWeek: Int,
+    val mealId: String,
+    val name: String?, // Deprecated en favor de meal.name
+    val dayOfWeek: Int?,
     val order: Int,
     val time: String?, // "08:00"
-    val calories: Int?,
+    val mealType: String?, // "desayuno", "almuerzo", etc.
+    val quantity: Double?,
+    val notes: String?,
+    val meal: MealInfo? = null,
+    val foods: List<DietFood> = emptyList()
+)
+
+data class MealInfo(
+    val id: String,
+    val name: String,
+    val description: String?,
+    val calories: Double?,
     val protein: Double?,
     val carbs: Double?,
     val fats: Double?,
-    val foods: List<DietFood> = emptyList()
+    val imageUrl: String? = null
 )
 
 /**

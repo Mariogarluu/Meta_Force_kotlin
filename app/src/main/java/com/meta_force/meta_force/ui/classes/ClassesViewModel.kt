@@ -81,7 +81,8 @@ class ClassesViewModel @Inject constructor(
                 .onStart { _uiState.value = ClassesUiState.Loading }
                 .catch { e -> _uiState.value = ClassesUiState.Error(e.message ?: "Unknown error") }
                 .collect { classes ->
-                    _uiState.value = ClassesUiState.Success(classes)
+                    val sortedClasses = classes.sortedBy { it.name }
+                    _uiState.value = ClassesUiState.Success(sortedClasses)
                 }
         }
     }

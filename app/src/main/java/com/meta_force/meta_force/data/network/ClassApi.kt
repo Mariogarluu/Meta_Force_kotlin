@@ -51,7 +51,7 @@ interface ClassApi {
      * @param input The [UpdateClassInput] data.
      * @return The updated [GymClass].
      */
-    @PUT("classes/{id}")
+    @PATCH("classes/{id}")
     suspend fun updateClass(@Path("id") id: String, @Body input: UpdateClassInput): GymClass
 
     /**
@@ -80,7 +80,7 @@ interface ClassApi {
      * @param input The [UpdateClassInput] data.
      * @return The updated [GymClass].
      */
-    @PUT("classes/{classId}/centers/{centerId}")
+    @PATCH("classes/{classId}/centers/{centerId}")
     suspend fun updateCenterInClass(
         @Path("classId") classId: String, 
         @Path("centerId") centerId: String, 

@@ -87,9 +87,12 @@ fun DietDetailScreen(
 
 @Composable
 fun DietDetailContent(diet: Diet) {
+    // Blindaje total: Agrupamos de forma segura, manejando nulos en cada paso
+    val mealsByDay = (diet.meals ?: emptyList()).groupBy { it.dayOfWeek ?: 0 }.toSortedMap()
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            text = diet.name,
+            text = diet.name ?: "Sin nombre",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -111,105 +114,174 @@ fun DietDetailContent(diet: Diet) {
             }
         }
         
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = "Comidas",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = PrimaryCyan
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        if (diet.meals.isNullOrEmpty()) {
-            Text("No hay comidas en esta dieta.", color = Color.Gray)
+        if ((diet.meals ?: emptyList()).isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("No hay comidas en esta dieta.", color = Color.Gray)
+            }
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 32.dp)
             ) {
-                items(diet.meals ?: emptyList()) { meal ->
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = meal.name,
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    if (meal.time != null) {
-                                        Text(
-                                            text = "(${meal.time})",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.LightGray
-                                        )
-                                    }
-                                }
-                            }
-                            
-                            if (meal.foods.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(DarkBg)
-                                        .padding(12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    meal.foods.forEach { food ->
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(6.dp)
-                                                        .clip(RoundedCornerShape(50))
-                                                        .background(PrimaryCyan)
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Text(text = food.name, color = Color.White)
-                                            }
-                                            Text(
-                                                text = "${food.quantity} ${food.unit ?: "g"}",
-                                                color = Color.LightGray,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                        }
-                                        HorizontalDivider(color = DarkSurface, thickness = 1.dp)
-                                    }
-                                }
-                            }
-                            
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                Text(
-                                    text = "Total: ${meal.calories ?: 0} kcal",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = PrimaryCyan
-                                )
-                            }
-                        }
+                mealsByDay.forEach { (day, meals) ->
+                    item {
+                        Text(
+                            text = getDayName(day),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryCyan,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    items(meals ?: emptyList()) { meal ->
+                        MealCard(meal = meal)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = meal.meal?.name ?: meal.mealType?.replaceFirstChar { it.uppercase() } ?: "Comida",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    if (meal.time != null) {
+                        Text(
+                            text = "(${meal.time})",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.LightGray
+                        )
+                    }
+                }
+            }
+            
+            // Si hay notas, las mostramos
+            if (!meal.notes.isNullOrEmpty()) {
+                Text(
+                    text = meal.notes,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+            
+            val foods = meal.foods ?: emptyList()
+            if (foods.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(DarkBg)
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    foods.forEach { food ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(RoundedCornerShape(50))
+                                        .background(PrimaryCyan)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = food.name ?: "Ingrediente", color = Color.White)
+                            }
+                            Text(
+                                text = "${food.quantity ?: 0.0} ${food.unit ?: "g"}",
+                                color = Color.LightGray,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        if (foods.last() != food) {
+                            HorizontalDivider(color = DarkSurface, thickness = 1.dp)
+                        }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Macros (Protein, Carbs, Fats)
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    val mealInfo = meal.meal
+                    if (mealInfo != null && (mealInfo.protein != null || mealInfo.carbs != null || mealInfo.fats != null)) {
+                        MacroInfo("P", "${mealInfo.protein?.toInt() ?: 0}g", Color(0xFFE57373))
+                        MacroInfo("C", "${mealInfo.carbs?.toInt() ?: 0}g", Color(0xFF81C784))
+                        MacroInfo("G", "${mealInfo.fats?.toInt() ?: 0}g", Color(0xFFFFB74D))
+                    }
+                }
+
+                val totalCalories = ((meal.meal?.calories ?: 0.0) * (meal.quantity ?: 1.0)).toInt()
+                Text(
+                    text = "Total: $totalCalories kcal",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryCyan
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MacroInfo(label: String, value: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+        Spacer(modifier = Modifier.width(2.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.LightGray
+        )
+    }
+}
+
+fun getDayName(day: Int?): String {
+    return when(day) {
+        0 -> "Domingo"
+        1 -> "Lunes"
+        2 -> "Martes"
+        3 -> "Miércoles"
+        4 -> "Jueves"
+        5 -> "Viernes"
+        6 -> "Sábado"
+        else -> "Día ${day ?: 0}"
     }
 }

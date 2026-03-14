@@ -88,6 +88,8 @@ fun WorkoutDetailScreen(
 
 @Composable
 fun WorkoutDetailContent(workout: Workout) {
+    val exercisesByDay = workout.exercises.groupBy { it.dayOfWeek }.toSortedMap()
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
             text = workout.name,
@@ -104,66 +106,79 @@ fun WorkoutDetailContent(workout: Workout) {
             )
         }
         
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = "Ejercicios (${workout.exercises.size})",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = PrimaryCyan
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (workout.exercises.isEmpty()) {
-            Text("No hay ejercicios en esta rutina.", color = Color.Gray)
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("No hay ejercicios en esta rutina.", color = Color.Gray)
+            }
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 32.dp)
             ) {
-                items(workout.exercises) { exerciseRel ->
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                            Text(
-                                text = exerciseRel.exercise?.name ?: "Ejercicio desconocido",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                InfoChip(label = "Series", value = exerciseRel.sets)
-                                InfoChip(label = "Reps", value = exerciseRel.reps)
-                                if (exerciseRel.weight != null) {
-                                    InfoChip(label = "Peso", value = "${exerciseRel.weight}kg")
-                                }
-                            }
-
-                            if (!exerciseRel.notes.isNullOrEmpty()) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(DarkSurfaceVariant)
-                                        .padding(12.dp)
-                                ) {
-                                    Text(
-                                        text = "💡 ${exerciseRel.notes}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.LightGray
-                                    )
-                                }
-                            }
-                        }
+                exercisesByDay.forEach { (day, exercises) ->
+                    item {
+                        Text(
+                            text = getDayName(day),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryCyan,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
+                    items(exercises) { exerciseRel ->
+                        ExerciseCard(exerciseRel = exerciseRel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ExerciseCard(exerciseRel: com.meta_force.meta_force.data.model.WorkoutExercise) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+            Text(
+                text = exerciseRel.exercise?.name ?: "Ejercicio desconocido",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                InfoChip(label = "Series", value = exerciseRel.sets)
+                InfoChip(label = "Reps", value = exerciseRel.reps)
+                if (exerciseRel.weight != null) {
+                    InfoChip(label = "Peso", value = "${exerciseRel.weight}kg")
+                }
+            }
+
+            if (!exerciseRel.notes.isNullOrEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(DarkSurfaceVariant)
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = "💡 ${exerciseRel.notes}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.LightGray
+                    )
                 }
             }
         }
@@ -181,5 +196,18 @@ fun InfoChip(label: String, value: String) {
     ) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
         Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = PrimaryCyan)
+    }
+}
+
+fun getDayName(day: Int): String {
+    return when(day) {
+        0 -> "Domingo"
+        1 -> "Lunes"
+        2 -> "Martes"
+        3 -> "Miércoles"
+        4 -> "Jueves"
+        5 -> "Viernes"
+        6 -> "Sábado"
+        else -> "Día $day"
     }
 }
