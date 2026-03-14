@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.R
 import com.meta_force.meta_force.data.model.ChatSession
+import com.meta_force.meta_force.data.network.NetworkResult
 import kotlinx.coroutines.launch
 
 // Tailwind-like colors for the theme
@@ -41,16 +43,38 @@ fun AiChatScreen(
     viewModel: AiChatViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val saveStatus by viewModel.saveStatus.collectAsState()
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Auto-scroll to bottom when messages change
     LaunchedEffect(uiState.messages.size) {
         if (uiState.messages.isNotEmpty()) {
             coroutineScope.launch {
                 listState.animateScrollToItem(uiState.messages.size - 1)
+            }
+        }
+    }
+
+    // Handle save status feedback
+    LaunchedEffect(saveStatus) {
+        saveStatus?.let { result ->
+            when (result) {
+                is NetworkResult.Success -> {
+                    snackbarHostState.showSnackbar("Plan guardado con éxito")
+                    viewModel.clearSaveStatus()
+                }
+                is NetworkResult.Error -> {
+                    snackbarHostState.showSnackbar("Error al guardar: ${result.message}")
+                    viewModel.clearSaveStatus()
+                }
+                is NetworkResult.Exception -> {
+                    snackbarHostState.showSnackbar("Error inesperado al guardar")
+                    viewModel.clearSaveStatus()
+                }
             }
         }
     }
@@ -115,6 +139,7 @@ fun AiChatScreen(
         }
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = { 
@@ -241,7 +266,7 @@ fun AiChatScreen(
                     }
 
                     items(uiState.messages) { message ->
-                        MessageBubble(message = message)
+                        MessageBubble(message = message, onSavePlan = { plan -> viewModel.savePlan(plan) })
                     }
 
                     if (uiState.isLoading) {
@@ -296,7 +321,7 @@ fun AiChatScreen(
                                 unfocusedTextColor = Color.White,
                                 focusedContainerColor = DarkBg,
                                 unfocusedContainerColor = DarkBg
-                            )
+                              )
                         )
                         
                         Spacer(modifier = Modifier.width(12.dp))
@@ -394,7 +419,7 @@ fun SwipeToDeleteSessionItem(
 }
 
 @Composable
-fun MessageBubble(message: UiMessage) {
+fun MessageBubble(message: UiMessage, onSavePlan: (com.meta_force.meta_force.data.model.AiGeneratedPlan) -> Unit) {
     val isUser = message.role == "user"
     
     Row(
@@ -415,27 +440,60 @@ fun MessageBubble(message: UiMessage) {
             }
         }
         
-        Box(
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 20.dp,
-                        topEnd = 20.dp,
-                        bottomStart = if (isUser) 20.dp else 4.dp,
-                        bottomEnd = if (isUser) 4.dp else 20.dp
-                    )
-                )
-                .background(
-                    if (isUser) Brush.linearGradient(GradientColors) else Brush.linearGradient(listOf(DarkSurface, DarkSurface))
-                )
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+        Column(
+            modifier = Modifier.widthIn(max = 280.dp),
+            horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
         ) {
-            Text(
-                text = message.content,
-                color = Color.White,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Box(
+                modifier = Modifier
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 20.dp,
+                            topEnd = 20.dp,
+                            bottomStart = if (isUser) 20.dp else 4.dp,
+                            bottomEnd = if (isUser) 4.dp else 20.dp
+                        )
+                    )
+                    .background(
+                        if (isUser) Brush.linearGradient(GradientColors) else Brush.linearGradient(listOf(DarkSurface, DarkSurface))
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Column {
+                    Text(
+                        text = message.content,
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            // Save Plan Button
+            message.plan?.let { plan ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = { onSavePlan(plan) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryCyan.copy(alpha = 0.2f),
+                        contentColor = PrimaryCyan
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.height(40.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (plan.type == "DIET") "Guardar Dieta" else "Guardar Rutina",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
         
         if (isUser) {

@@ -36,10 +36,12 @@ data class AiChatUiState(
  *
  * @property role Role of the message sender (e.g., "user", "model").
  * @property content Text content of the message.
+ * @property plan Optional plan data if the message contains one.
  */
 data class UiMessage(
     val role: String,
-    val content: String
+    val content: String,
+    val plan: com.meta_force.meta_force.data.model.AiGeneratedPlan? = null
 )
 
 /**
@@ -55,6 +57,9 @@ class AiChatViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(AiChatUiState())
     val uiState: StateFlow<AiChatUiState> = _uiState.asStateFlow()
+
+    private val _saveStatus = MutableStateFlow<NetworkResult<Unit>?>(null)
+    val saveStatus: StateFlow<NetworkResult<Unit>?> = _saveStatus.asStateFlow()
 
     init {
         loadSessionsAndStart()
@@ -103,7 +108,7 @@ class AiChatViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            val request = ChatMessageRequest(
+            val request = com.meta_force.meta_force.data.model.ChatMessageRequest(
                 message = text,
                 sessionId = _uiState.value.currentSessionId
             )
@@ -113,13 +118,9 @@ class AiChatViewModel @Inject constructor(
                     val response = result.data
                     val updatedMessages = _uiState.value.messages.toMutableList()
                     
-                    updatedMessages.add(UiMessage("model", response.response.message))
+                    // Add the text response
+                    updatedMessages.add(UiMessage("model", response.response.message, response.response.plan))
                     
-                    // Simple text representation if plan exists
-                    response.response.plan?.let { plan ->
-                       updatedMessages.add(UiMessage("model", "Plan generado: ${plan.name} (${plan.type})\n${plan.description}"))
-                    }
-
                     _uiState.value = _uiState.value.copy(
                         currentSessionId = response.sessionId,
                         messages = updatedMessages,
@@ -134,6 +135,18 @@ class AiChatViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun savePlan(plan: com.meta_force.meta_force.data.model.AiGeneratedPlan) {
+        viewModelScope.launch {
+            _saveStatus.value = NetworkResult.Success(Unit) // Just to trigger some loading or state?
+            // Usually we'd want a separate "Saving" state if it takes time.
+            _saveStatus.value = repository.savePlan(com.meta_force.meta_force.data.model.SavePlanRequest(plan))
+        }
+    }
+
+    fun clearSaveStatus() {
+        _saveStatus.value = null
     }
     
     fun loadSession(sessionId: String) {
