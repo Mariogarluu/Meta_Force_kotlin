@@ -37,7 +37,6 @@ fun ClassesScreen(
     var selectedCenterId by remember { mutableStateOf<String?>(null) }
     
     var showCreateDialog by remember { mutableStateOf(false) }
-    var editingClass by remember { mutableStateOf<GymClass?>(null) }
 
     Scaffold(
         containerColor = DarkBg,
@@ -133,7 +132,6 @@ fun ClassesScreen(
                                         gymClass = gymClass,
                                         isAdmin = isAdmin,
                                         onJoin = { viewModel.joinClass(gymClass.id) },
-                                        onEdit = { editingClass = gymClass },
                                         onDelete = { viewModel.deleteClass(gymClass.id) }
                                     )
                                 }
@@ -153,19 +151,6 @@ fun ClassesScreen(
                 }
             )
         }
-
-        if (editingClass != null) {
-            ClassFormDialog(
-                initialClass = editingClass,
-                onDismiss = { editingClass = null },
-                onConfirm = { name, desc ->
-                    editingClass?.let { 
-                        viewModel.updateClass(it.id, name, desc)
-                    }
-                    editingClass = null
-                }
-            )
-        }
     }
 }
 
@@ -174,7 +159,6 @@ fun ClassCard(
     gymClass: GymClass,
     isAdmin: Boolean,
     onJoin: () -> Unit,
-    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -198,13 +182,8 @@ fun ClassCard(
                     color = Color.White
                 )
                 if (isAdmin) {
-                    Row {
-                        IconButton(onClick = onEdit) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PrimaryCyan)
-                        }
-                        IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color(0xFFef4444))
-                        }
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color(0xFFef4444))
                     }
                 }
             }

@@ -114,15 +114,6 @@ class ClassesViewModel @Inject constructor(
         }
     }
 
-    fun updateClass(id: String, name: String?, description: String?) {
-        if (!_isAdmin.value) return
-        viewModelScope.launch {
-            classRepository.updateClass(id, UpdateClassInput(name, description))
-                .catch { e -> _uiState.value = ClassesUiState.Error(e.message ?: "Error updating class") }
-                .collect { loadClasses() }
-        }
-    }
-
     fun deleteClass(id: String) {
         if (!_isAdmin.value) return
         viewModelScope.launch {
