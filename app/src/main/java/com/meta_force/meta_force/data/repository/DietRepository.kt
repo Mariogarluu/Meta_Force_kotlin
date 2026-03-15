@@ -24,7 +24,12 @@ interface DietRepository {
     /**
      * Creates a new dietary plan.
      */
-    fun createDiet(request: CreateDietRequest): Flow<Diet>
+    fun createDiet(
+        name: String,
+        description: String?,
+        caloriesTarget: Int?,
+        userId: String
+    ): Flow<Diet>
 
     /**
      * Deletes a dietary plan.
@@ -46,8 +51,19 @@ class DietRepositoryImpl @Inject constructor(
         emit(api.getDiet(id))
     }
 
-    override fun createDiet(request: CreateDietRequest): Flow<Diet> = flow {
-        emit(api.createDiet(request))
+    override fun createDiet(
+        name: String,
+        description: String?,
+        caloriesTarget: Int?,
+        userId: String
+    ): Flow<Diet> = flow {
+        emit(api.createDiet(
+            CreateDietRequest(
+                name = name,
+                description = description,
+                caloriesTarget = caloriesTarget
+            )
+        ))
     }
 
     override fun deleteDiet(id: String): Flow<Unit> = flow {

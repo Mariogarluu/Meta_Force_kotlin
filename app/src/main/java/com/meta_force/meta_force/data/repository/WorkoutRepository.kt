@@ -24,7 +24,14 @@ interface WorkoutRepository {
     /**
      * Creates a new workout plan.
      */
-    fun createWorkout(request: CreateWorkoutRequest): Flow<Workout>
+    fun createWorkout(
+        name: String,
+        description: String?,
+        goal: String?,
+        level: String?,
+        daysPerWeek: Int?,
+        userId: String
+    ): Flow<Workout>
 
     /**
      * Deletes a workout plan.
@@ -46,8 +53,23 @@ class WorkoutRepositoryImpl @Inject constructor(
         emit(api.getWorkout(id))
     }
 
-    override fun createWorkout(request: CreateWorkoutRequest): Flow<Workout> = flow {
-        emit(api.createWorkout(request))
+    override fun createWorkout(
+        name: String,
+        description: String?,
+        goal: String?,
+        level: String?,
+        daysPerWeek: Int?,
+        userId: String
+    ): Flow<Workout> = flow {
+        emit(api.createWorkout(
+            CreateWorkoutRequest(
+                name = name,
+                description = description,
+                goal = goal,
+                level = level,
+                daysPerWeek = daysPerWeek
+            )
+        ))
     }
 
     override fun deleteWorkout(id: String): Flow<Unit> = flow {

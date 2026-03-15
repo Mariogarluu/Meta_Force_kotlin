@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meta_force.meta_force.data.model.Diet
 import com.meta_force.meta_force.data.repository.DietRepository
+import com.meta_force.meta_force.ui.diets.DayUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,10 @@ class DietDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<DietDetailUiState>(DietDetailUiState.Loading)
     val uiState: StateFlow<DietDetailUiState> = _uiState.asStateFlow()
 
+    // Estado para rastrear el día actual que se está viendo (0 = Domingo, 6 = Sábado)
+    private val _currentDayIndex = MutableStateFlow(0)
+    val currentDayIndex: StateFlow<Int> = _currentDayIndex.asStateFlow()
+
     fun loadDiet(id: String) {
         viewModelScope.launch {
             dietRepository.getDiet(id)
@@ -44,5 +49,20 @@ class DietDetailViewModel @Inject constructor(
                     _uiState.value = DietDetailUiState.Success(diet)
                 }
         }
+    }
+
+    /** Cambia al día siguiente, con bucle de sábado a domingo */
+    fun nextDay() {
+        _currentDayIndex.value = DayUtils.getNextDay(_currentDayIndex.value)
+    }
+
+    /** Cambia al día anterior, con bucle de domingo a sábado */
+    fun previousDay() {
+        _currentDayIndex.value = DayUtils.getPreviousDay(_currentDayIndex.value)
+    }
+
+    /** Establece un día específico */
+    fun setDay(dayOfWeek: Int) {
+        _currentDayIndex.value = dayOfWeek
     }
 }

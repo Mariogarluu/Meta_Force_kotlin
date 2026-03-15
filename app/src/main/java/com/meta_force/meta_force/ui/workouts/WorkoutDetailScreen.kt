@@ -4,26 +4,32 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.data.model.Workout
+import com.meta_force.meta_force.ui.diets.DayUtils
+import kotlinx.coroutines.launch
 
 // Theme Colors
 private val PrimaryCyan = Color(0xFF22d3ee)
-private val PrimaryBlue = Color(0xFF3b82f6)
 private val DarkBg = Color(0xFF0f172a)
 private val DarkSurface = Color(0xFF1e293b)
 private val DarkSurfaceVariant = Color(0xFF334155)
@@ -36,6 +42,7 @@ fun WorkoutDetailScreen(
     viewModel: WorkoutDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val currentDayIndex by viewModel.currentDayIndex.collectAsState()
 
     LaunchedEffect(workoutId) {
         viewModel.loadWorkout(workoutId)
@@ -44,21 +51,25 @@ fun WorkoutDetailScreen(
     Scaffold(
         containerColor = DarkBg,
         topBar = {
-            TopAppBar(
-                title = { 
+            CenterAlignedTopAppBar(
+                title = {
                     Text(
                         text = "Detalle de Rutina",
-                        color = PrimaryCyan,
+                        color = Color.White,
                         fontWeight = FontWeight.ExtraBold
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Atrás",
+                            tint = Color.White
+                        )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface.copy(alpha = 0.95f)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
@@ -66,20 +77,37 @@ fun WorkoutDetailScreen(
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when (val state = uiState) {
                 is WorkoutDetailUiState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = PrimaryCyan
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(DarkBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = PrimaryCyan
+                        )
+                    }
                 }
                 is WorkoutDetailUiState.Error -> {
-                    Text(
-                        text = "Error: ${state.message}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(DarkBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error: ${state.message}",
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
                 is WorkoutDetailUiState.Success -> {
-                    WorkoutDetailContent(workout = state.workout)
+                    WorkoutDetailContent(
+                        workout = state.workout,
+                        currentDayIndex = currentDayIndex,
+                        onDayChanged = { viewModel.setDay(it) }
+                    )
                 }
             }
         }
@@ -87,51 +115,109 @@ fun WorkoutDetailScreen(
 }
 
 @Composable
-fun WorkoutDetailContent(workout: Workout) {
-    val exercisesByDay = workout.exercises.groupBy { it.dayOfWeek }.toSortedMap()
+fun WorkoutDetailContent(
+    workout: Workout,
+    currentDayIndex: Int,
+    onDayChanged: (Int) -> Unit
+) {
+    val pagerState = rememberPagerState(initialPage = currentDayIndex, pageCount = { 7 })
+    val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = workout.name,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        if (!workout.description.isNullOrEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = workout.description,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.LightGray
-            )
+    // Sincronizar el estado del pager con el ViewModel
+    LaunchedEffect(pagerState.currentPage) {
+        onDayChanged(pagerState.currentPage)
+    }
+    
+    // Sincronizar el ViewModel con el pager (cuando se usan los botones de flecha)
+    LaunchedEffect(currentDayIndex) {
+        if (pagerState.currentPage != currentDayIndex) {
+            pagerState.animateScrollToPage(currentDayIndex)
         }
-        
-        Spacer(modifier = Modifier.height(24.dp))
+    }
 
-        if (workout.exercises.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No hay ejercicios en esta rutina.", color = Color.Gray)
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Cabecera de la rutina
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = workout.name,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            if (!workout.description.isNullOrEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = workout.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.LightGray
+                )
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                exercisesByDay.forEach { (day, exercises) ->
-                    item {
-                        Text(
-                            text = getDayName(day),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryCyan,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                    items(exercises) { exerciseRel ->
-                        ExerciseCard(exerciseRel = exerciseRel)
-                    }
+        }
+
+        // Indicadores de día con navegación
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = { 
+                scope.launch { 
+                    val prev = if (pagerState.currentPage == 0) 6 else pagerState.currentPage - 1
+                    pagerState.animateScrollToPage(prev)
                 }
+            }) {
+                Icon(Icons.Default.ArrowBack, "Día anterior", tint = PrimaryCyan)
+            }
+
+            Text(
+                text = DayUtils.getDayName(pagerState.currentPage),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            IconButton(onClick = { 
+                scope.launch { 
+                    val next = if (pagerState.currentPage == 6) 0 else pagerState.currentPage + 1
+                    pagerState.animateScrollToPage(next)
+                }
+            }) {
+                Icon(Icons.Default.ArrowForward, "Día siguiente", tint = PrimaryCyan)
+            }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            DayWorkoutContent(workout = workout, dayIndex = page)
+        }
+    }
+}
+
+@Composable
+fun DayWorkoutContent(workout: Workout, dayIndex: Int) {
+    val exercisesByDay = workout.exercises.groupBy { it.dayOfWeek }
+    val exercisesForCurrentDay = exercisesByDay[dayIndex] ?: emptyList()
+
+    if (exercisesForCurrentDay.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("No hay ejercicios programados para este día.", color = Color.Gray)
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(exercisesForCurrentDay) { exerciseRel ->
+                ExerciseCard(exerciseRel = exerciseRel)
             }
         }
     }
@@ -196,18 +282,5 @@ fun InfoChip(label: String, value: String) {
     ) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
         Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = PrimaryCyan)
-    }
-}
-
-fun getDayName(day: Int): String {
-    return when(day) {
-        0 -> "Domingo"
-        1 -> "Lunes"
-        2 -> "Martes"
-        3 -> "Miércoles"
-        4 -> "Jueves"
-        5 -> "Viernes"
-        6 -> "Sábado"
-        else -> "Día $day"
     }
 }

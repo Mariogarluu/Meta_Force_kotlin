@@ -1,0 +1,58 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :app:kaptDebugKotlin UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationScreen.kt:37:20 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationScreen.kt:37:20 Property delegate must have a 'getValue(Nothing?, KProperty0<ERROR CLASS: Cannot infer argument for type parameter T>)' method. None of the following functions is applicable:
+fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationScreen.kt:37:20 Not enough information to infer type argument for 'T'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationScreen.kt:37:38 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationScreen.kt:37:38 Not enough information to infer type argument for 'T'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationViewModel.kt:24:28 Unresolved reference 'MutableStateFlow'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationViewModel.kt:25:18 Unresolved reference 'StateFlow'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/diets/DietCreationViewModel.kt:25:56 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationScreen.kt:37:20 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationScreen.kt:37:20 Property delegate must have a 'getValue(Nothing?, KProperty0<ERROR CLASS: Cannot infer argument for type parameter T>)' method. None of the following functions is applicable:
+fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationScreen.kt:37:20 Not enough information to infer type argument for 'T'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationScreen.kt:37:38 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationScreen.kt:37:38 Not enough information to infer type argument for 'T'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationViewModel.kt:24:28 Unresolved reference 'MutableStateFlow'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationViewModel.kt:25:18 Unresolved reference 'StateFlow'.
+e: file:///C:/Users/mario/Desktop/Programacion/DAM/Meta-force/kotlin/app/src/main/java/com/meta_force/meta_force/ui/workouts/WorkoutCreationViewModel.kt:25:56 Cannot infer type for this parameter. Please specify it explicitly.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 9s
+18 actionable tasks: 1 executed, 17 up-to-date

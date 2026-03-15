@@ -32,6 +32,7 @@ private val DarkSurfaceVariant = Color(0xFF334155) // slate-700
 fun WorkoutsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
+    onNavigateToCreate: () -> Unit,
     viewModel: WorkoutsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,7 +54,7 @@ fun WorkoutsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Create Workout */ }) {
+                    IconButton(onClick = onNavigateToCreate) {
                         Icon(Icons.Default.Add, contentDescription = "Add Workout", tint = PrimaryCyan)
                     }
                 },

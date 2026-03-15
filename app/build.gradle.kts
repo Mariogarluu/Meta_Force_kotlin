@@ -50,11 +50,16 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    
+    // Foundation para HorizontalPager
+    implementation("androidx.compose.foundation:foundation")
+    // Paginador horizontal para navegación entre días - usando ViewPager2 (legacy but kept if needed, though we will use HorizontalPager)
+    implementation(libs.viewpager2)
     // Añade esta línea para el interceptor de logs
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.retrofit)

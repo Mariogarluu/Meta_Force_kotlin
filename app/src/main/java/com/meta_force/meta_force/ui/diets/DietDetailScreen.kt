@@ -4,22 +4,29 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.data.model.Diet
+import com.meta_force.meta_force.ui.diets.DayUtils
+import kotlinx.coroutines.launch
 
 // Theme Colors
 private val PrimaryCyan = Color(0xFF22d3ee)
@@ -35,6 +42,7 @@ fun DietDetailScreen(
     viewModel: DietDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val currentDayIndex by viewModel.currentDayIndex.collectAsState()
 
     LaunchedEffect(dietId) {
         viewModel.loadDiet(dietId)
@@ -43,21 +51,25 @@ fun DietDetailScreen(
     Scaffold(
         containerColor = DarkBg,
         topBar = {
-            TopAppBar(
-                title = { 
+            CenterAlignedTopAppBar(
+                title = {
                     Text(
                         text = "Detalle de Dieta",
-                        color = PrimaryCyan,
+                        color = Color.White,
                         fontWeight = FontWeight.ExtraBold
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Atrás",
+                            tint = Color.White
+                        )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkSurface.copy(alpha = 0.95f)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
@@ -65,20 +77,37 @@ fun DietDetailScreen(
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when (val state = uiState) {
                 is DietDetailUiState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = PrimaryCyan
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(DarkBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = PrimaryCyan
+                        )
+                    }
                 }
                 is DietDetailUiState.Error -> {
-                    Text(
-                        text = "Error: ${state.message}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(DarkBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error: ${state.message}",
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
                 is DietDetailUiState.Success -> {
-                    DietDetailContent(diet = state.diet)
+                    DietDetailContent(
+                        diet = state.diet,
+                        currentDayIndex = currentDayIndex,
+                        onDayChanged = { viewModel.setDay(it) }
+                    )
                 }
             }
         }
@@ -86,60 +115,117 @@ fun DietDetailScreen(
 }
 
 @Composable
-fun DietDetailContent(diet: Diet) {
-    // Blindaje total: Agrupamos de forma segura, manejando nulos en cada paso
-    val mealsByDay = (diet.meals ?: emptyList()).groupBy { it.dayOfWeek ?: 0 }.toSortedMap()
+fun DietDetailContent(
+    diet: Diet,
+    currentDayIndex: Int,
+    onDayChanged: (Int) -> Unit
+) {
+    val pagerState = rememberPagerState(initialPage = currentDayIndex, pageCount = { 7 })
+    val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = diet.name ?: "Sin nombre",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        if (diet.caloriesTarget != null) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(PrimaryCyan.copy(alpha = 0.15f))
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = "🎯 Objetivo: ${diet.caloriesTarget} kcal",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = PrimaryCyan,
-                    fontWeight = FontWeight.Bold
-                )
+    // Sincronizar el estado del pager con el ViewModel
+    LaunchedEffect(pagerState.currentPage) {
+        onDayChanged(pagerState.currentPage)
+    }
+    
+    // Sincronizar el ViewModel con el pager (cuando se usan los botones de flecha)
+    LaunchedEffect(currentDayIndex) {
+        if (pagerState.currentPage != currentDayIndex) {
+            pagerState.animateScrollToPage(currentDayIndex)
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Cabecera de la dieta
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = diet.name ?: "Sin nombre",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            if (diet.caloriesTarget != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(PrimaryCyan.copy(alpha = 0.15f))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "🎯 Objetivo: ${diet.caloriesTarget} kcal",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = PrimaryCyan,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
-        
-        Spacer(modifier = Modifier.height(24.dp))
 
-        if ((diet.meals ?: emptyList()).isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No hay comidas en esta dieta.", color = Color.Gray)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                mealsByDay.forEach { (day, meals) ->
-                    item {
-                        Text(
-                            text = getDayName(day),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryCyan,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                    items(meals ?: emptyList()) { meal ->
-                        MealCard(meal = meal)
-                    }
+        // Indicadores de día con navegación
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = { 
+                scope.launch { 
+                    val prev = if (pagerState.currentPage == 0) 6 else pagerState.currentPage - 1
+                    pagerState.animateScrollToPage(prev)
                 }
+            }) {
+                Icon(Icons.Default.ArrowBack, "Día anterior", tint = PrimaryCyan)
+            }
+
+            Text(
+                text = DayUtils.getDayName(pagerState.currentPage),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            IconButton(onClick = { 
+                scope.launch { 
+                    val next = if (pagerState.currentPage == 6) 0 else pagerState.currentPage + 1
+                    pagerState.animateScrollToPage(next)
+                }
+            }) {
+                Icon(Icons.Default.ArrowForward, "Día siguiente", tint = PrimaryCyan)
+            }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            DayContent(diet = diet, dayIndex = page)
+        }
+    }
+}
+
+@Composable
+fun DayContent(diet: Diet, dayIndex: Int) {
+    val mealsByDay = (diet.meals ?: emptyList()).groupBy { it.dayOfWeek ?: 0 }
+    val mealsForCurrentDay = mealsByDay[dayIndex] ?: emptyList()
+
+    if (mealsForCurrentDay.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("No hay comidas programadas para este día.", color = Color.Gray)
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(mealsForCurrentDay) { meal ->
+                MealCard(meal = meal)
             }
         }
     }
@@ -166,8 +252,8 @@ fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     if (meal.time != null) {
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "(${meal.time})",
                             style = MaterialTheme.typography.bodyMedium,
@@ -177,7 +263,6 @@ fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
                 }
             }
             
-            // Si hay notas, las mostramos
             if (!meal.notes.isNullOrEmpty()) {
                 Text(
                     text = meal.notes,
@@ -233,10 +318,9 @@ fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Macros (Protein, Carbs, Fats)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     val mealInfo = meal.meal
-                    if (mealInfo != null && (mealInfo.protein != null || mealInfo.carbs != null || mealInfo.fats != null)) {
+                    if (mealInfo != null) {
                         MacroInfo("P", "${mealInfo.protein?.toInt() ?: 0}g", Color(0xFFE57373))
                         MacroInfo("C", "${mealInfo.carbs?.toInt() ?: 0}g", Color(0xFF81C784))
                         MacroInfo("G", "${mealInfo.fats?.toInt() ?: 0}g", Color(0xFFFFB74D))
@@ -270,18 +354,5 @@ fun MacroInfo(label: String, value: String, color: Color) {
             style = MaterialTheme.typography.labelSmall,
             color = Color.LightGray
         )
-    }
-}
-
-fun getDayName(day: Int?): String {
-    return when(day) {
-        0, 7 -> "Domingo"
-        1 -> "Lunes"
-        2 -> "Martes"
-        3 -> "Miércoles"
-        4 -> "Jueves"
-        5 -> "Viernes"
-        6 -> "Sábado"
-        else -> "Día ${day ?: 0}"
     }
 }

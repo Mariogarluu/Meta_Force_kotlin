@@ -105,6 +105,18 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateToDetail = { workoutId -> 
                                     navController.navigate("workout_detail/$workoutId")
+                                },
+                                onNavigateToCreate = {
+                                    navController.navigate("workout_create")
+                                }
+                            )
+                        }
+                        composable("workout_create") {
+                            com.meta_force.meta_force.ui.workouts.WorkoutCreationScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onWorkoutCreated = { workout ->
+                                    // Regresar a la lista y actualizar
+                                    navController.popBackStack()
                                 }
                             )
                         }
@@ -120,6 +132,18 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateToDetail = { dietId ->
                                     navController.navigate("diet_detail/$dietId")
+                                },
+                                onNavigateToCreate = {
+                                    navController.navigate("diet_create")
+                                }
+                            )
+                        }
+                        composable("diet_create") {
+                            com.meta_force.meta_force.ui.diets.DietCreationScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onDietCreated = { diet ->
+                                    // Regresar a la lista y actualizar
+                                    navController.popBackStack()
                                 }
                             )
                         }

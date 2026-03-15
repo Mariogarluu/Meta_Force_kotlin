@@ -32,6 +32,7 @@ private val DarkSurfaceVariant = Color(0xFF334155) // slate-700
 fun DietsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
+    onNavigateToCreate: () -> Unit,
     viewModel: DietsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,7 +54,7 @@ fun DietsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Create Diet */ }) {
+                    IconButton(onClick = onNavigateToCreate) {
                         Icon(Icons.Default.Add, contentDescription = "Add Diet", tint = PrimaryCyan)
                     }
                 },
