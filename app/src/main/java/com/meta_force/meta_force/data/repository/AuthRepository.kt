@@ -37,15 +37,15 @@ interface AuthRepository {
     /**
      * Fetches the current user's profile information.
      */
-    suspend fun getProfile(): NetworkResult<User>
+    suspend fun getProfile(): NetworkResult<com.meta_force.meta_force.data.model.UserProfile>
 
     /**
-     * Updates the user's profile name.
+     * Updates the user's profile information.
      */
-    suspend fun updateProfile(name: String): NetworkResult<User>
+    suspend fun updateProfile(request: com.meta_force.meta_force.data.model.UpdateProfileRequest): NetworkResult<com.meta_force.meta_force.data.model.UserProfile>
 
     /**
      * Uploads a new profile image.
      */
-    suspend fun uploadAvatar(file: java.io.File): NetworkResult<User>
+    suspend fun uploadAvatar(file: java.io.File): NetworkResult<com.meta_force.meta_force.data.model.UserProfile>
 }

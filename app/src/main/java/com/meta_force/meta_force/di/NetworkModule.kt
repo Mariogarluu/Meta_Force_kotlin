@@ -96,4 +96,10 @@ object NetworkModule {
     fun provideMachineApi(retrofit: Retrofit): MachineApi {
         return retrofit.create(MachineApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideProgressApi(retrofit: Retrofit): com.meta_force.meta_force.data.network.ProgressApi {
+        return retrofit.create(com.meta_force.meta_force.data.network.ProgressApi::class.java)
+    }
 }

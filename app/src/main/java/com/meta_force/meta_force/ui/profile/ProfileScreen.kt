@@ -111,57 +111,152 @@ fun ProfileScreen(
             }
             is ProfileUiState.Success -> {
                 val user = state.user
+                
+                // State for editable fields
+                var name by remember { mutableStateOf(user.name) }
+                var height by remember { mutableStateOf(user.height?.toString() ?: "") }
+                var weight by remember { mutableStateOf(user.currentWeight?.toString() ?: "") }
+                var gender by remember { mutableStateOf(user.gender ?: "other") }
+                var birthDate by remember { mutableStateOf(user.birthDate ?: "") }
+                var medicalNotes by remember { mutableStateOf(user.medicalNotes ?: "") }
 
-                // Avatar
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                        .clickable { showBigImageDialog = true }
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (user.profileImageUrl != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(user.profileImageUrl)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Profile Photo",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
+                    // Avatar
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            .clickable { showBigImageDialog = true }
+                    ) {
+                        if (user.profileImageUrl != null) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(user.profileImageUrl)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "Profile Photo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Default Avatar",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // User Details
+                    OutlinedTextField(
+                        value = name ?: "",
+                        onValueChange = { name = it },
+                        label = { Text("Nombre") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = user.email ?: "",
+                        onValueChange = {},
+                        label = { Text("Email (No editable)") },
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Default Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text("Datos Físicos", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(modifier = Modifier.fillMaxWidth(), gap = 8.dp) {
+                        OutlinedTextField(
+                            value = height,
+                            onValueChange = { height = it },
+                            label = { Text("Altura (cm)") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                        )
+                        OutlinedTextField(
+                            value = weight,
+                            onValueChange = { weight = it },
+                            label = { Text("Peso (kg)") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = birthDate,
+                        onValueChange = { birthDate = it },
+                        label = { Text("Fecha Nacimiento (YYYY-MM-DD)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("1990-01-01") }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text("Género", style = MaterialTheme.typography.labelMedium)
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        listOf("male", "female", "other").forEach { g ->
+                            FilterChip(
+                                selected = gender == g,
+                                onClick = { gender = g },
+                                label = { Text(g.capitalize()) }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = medicalNotes,
+                        onValueChange = { medicalNotes = it },
+                        label = { Text("Notas Médicas / Alergias") },
+                        modifier = Modifier.fillMaxWidth().height(120.dp),
+                        multiline = true
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Button(
+                        onClick = {
+                            viewModel.updateProfile(
+                                UpdateProfileRequest(
+                                    name = name,
+                                    height = height.toDoubleOrNull(),
+                                    currentWeight = weight.toDoubleOrNull(),
+                                    birthDate = if (birthDate.isEmpty()) null else birthDate,
+                                    gender = gender,
+                                    medicalNotes = medicalNotes,
+                                    activityLevel = user.activityLevel,
+                                    goal = user.goal
+                                )
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text("GUARDAR PERFIL")
+                    }
+                    
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // User Details
-                OutlinedTextField(
-                    value = user.name ?: "Unknown",
-                    onValueChange = { /* TODO Implementation for instant edit or save button */ },
-                    label = { Text("Name") },
-                    readOnly = true, // Readonly for now, can implement edit mode later
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = user.email ?: "",
-                    onValueChange = {},
-                    label = { Text("Email") },
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
 
                 // Dialog for Big Image & Edit
                 if (showBigImageDialog) {

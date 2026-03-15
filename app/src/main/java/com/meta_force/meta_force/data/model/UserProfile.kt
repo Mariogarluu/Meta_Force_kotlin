@@ -22,31 +22,24 @@ data class UserProfile(
     val role: String,
     val profileImageUrl: String?,
     val height: Double?,
-    val weight: Double?,
-    val age: Int?,
-    val gender: String?, // 'MALE', 'FEMALE', 'OTHER'
+    val currentWeight: Double?,
+    val birthDate: String?, // ISO Date string
+    val gender: String?, // 'male', 'female', 'other'
+    val medicalNotes: String?,
     val activityLevel: String?,
     val goal: String?
 )
 
 /**
  * Request object for updating user profile information.
- * All fields are optional; only provided fields will be modified.
- *
- * @property name New name for the user.
- * @property height New height.
- * @property weight New weight.
- * @property age New age.
- * @property gender New gender designation.
- * @property activityLevel New activity level.
- * @property goal New primary goal.
  */
 data class UpdateProfileRequest(
     val name: String?,
     val height: Double?,
-    val weight: Double?,
-    val age: Int?,
+    val currentWeight: Double?,
+    val birthDate: String?,
     val gender: String?,
+    val medicalNotes: String?,
     val activityLevel: String?,
     val goal: String?
 )

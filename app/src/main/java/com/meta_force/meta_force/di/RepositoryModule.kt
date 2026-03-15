@@ -63,4 +63,10 @@ abstract class RepositoryModule {
     abstract fun bindMachineRepository(
         machineRepositoryImpl: MachineRepositoryImpl
     ): MachineRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProgressRepository(
+        progressRepositoryImpl: com.meta_force.meta_force.data.repository.ProgressRepositoryImpl
+    ): com.meta_force.meta_force.data.repository.ProgressRepository
 }

@@ -49,20 +49,19 @@ class AuthRepositoryImpl @Inject constructor(
         return sessionManager.authToken
     }
 
-    override suspend fun getProfile(): NetworkResult<User> {
+    override suspend fun getProfile(): NetworkResult<UserProfile> {
         return safeApiCall {
             api.getProfile()
         }
     }
 
-    override suspend fun updateProfile(name: String): NetworkResult<User> {
+    override suspend fun updateProfile(request: UpdateProfileRequest): NetworkResult<UserProfile> {
         return safeApiCall {
-            val user = User(id = "", name = name, email = "", role = "")
-            api.updateProfile(user)
+            api.updateProfile(request)
         }
     }
 
-    override suspend fun uploadAvatar(file: java.io.File): NetworkResult<User> {
+    override suspend fun uploadAvatar(file: java.io.File): NetworkResult<UserProfile> {
         return safeApiCall {
             val extension = file.extension
             val mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "image/jpeg"

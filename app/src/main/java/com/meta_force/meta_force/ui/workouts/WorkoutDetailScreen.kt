@@ -6,33 +6,35 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.data.model.Workout
 import com.meta_force.meta_force.ui.diets.DayUtils
+import com.meta_force.meta_force.ui.theme.*
 import kotlinx.coroutines.launch
 
-// Theme Colors
-private val PrimaryCyan = Color(0xFF22d3ee)
-private val DarkBg = Color(0xFF0f172a)
-private val DarkSurface = Color(0xFF1e293b)
-private val DarkSurfaceVariant = Color(0xFF334155)
+// Brand Colors
+private val PrimaryCyan = MF_Teal
+private val DarkBg = MF_BlueDeep
+private val DarkSurface = MF_BlueLight
+private val DarkSurfaceVariant = Color(0xFF1D2D44)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +71,7 @@ fun WorkoutDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = DarkSurface
                 )
             )
         }
@@ -78,21 +80,15 @@ fun WorkoutDetailScreen(
             when (val state = uiState) {
                 is WorkoutDetailUiState.Loading -> {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(DarkBg),
+                        modifier = Modifier.fillMaxSize().background(DarkBg),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = PrimaryCyan
-                        )
+                        CircularProgressIndicator(color = PrimaryCyan)
                     }
                 }
                 is WorkoutDetailUiState.Error -> {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(DarkBg),
+                        modifier = Modifier.fillMaxSize().background(DarkBg),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -106,7 +102,8 @@ fun WorkoutDetailScreen(
                     WorkoutDetailContent(
                         workout = state.workout,
                         currentDayIndex = currentDayIndex,
-                        onDayChanged = { viewModel.setDay(it) }
+                        onDayChanged = { viewModel.setDay(it) },
+                        viewModel = viewModel
                     )
                 }
             }
@@ -118,17 +115,16 @@ fun WorkoutDetailScreen(
 fun WorkoutDetailContent(
     workout: Workout,
     currentDayIndex: Int,
-    onDayChanged: (Int) -> Unit
+    onDayChanged: (Int) -> Unit,
+    viewModel: WorkoutDetailViewModel
 ) {
     val pagerState = rememberPagerState(initialPage = currentDayIndex, pageCount = { 7 })
     val scope = rememberCoroutineScope()
 
-    // Sincronizar el estado del pager con el ViewModel
     LaunchedEffect(pagerState.currentPage) {
         onDayChanged(pagerState.currentPage)
     }
     
-    // Sincronizar el ViewModel con el pager (cuando se usan los botones de flecha)
     LaunchedEffect(currentDayIndex) {
         if (pagerState.currentPage != currentDayIndex) {
             pagerState.animateScrollToPage(currentDayIndex)
@@ -136,7 +132,6 @@ fun WorkoutDetailContent(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Cabecera de la rutina
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = workout.name,
@@ -154,12 +149,8 @@ fun WorkoutDetailContent(
             }
         }
 
-        // Indicadores de día con navegación
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .height(56.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(56.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -193,21 +184,23 @@ fun WorkoutDetailContent(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            DayWorkoutContent(workout = workout, dayIndex = page)
+            DayWorkoutContent(workout = workout, dayIndex = page, viewModel = viewModel)
         }
     }
 }
 
 @Composable
-fun DayWorkoutContent(workout: Workout, dayIndex: Int) {
-    val exercisesByDay = workout.exercises.groupBy { it.dayOfWeek }
-    val exercisesForCurrentDay = exercisesByDay[dayIndex] ?: emptyList()
+fun DayWorkoutContent(workout: Workout, dayIndex: Int, viewModel: WorkoutDetailViewModel) {
+    val exercisesForDay = workout.exercises.filter { it.dayOfWeek == dayIndex }
+        .sortedBy { it.order }
 
-    if (exercisesForCurrentDay.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+    var showLogDialog by remember { mutableStateOf(false) }
+    var selectedExerciseId by remember { mutableStateOf<String?>(null) }
+    var selectedExerciseName by remember { mutableStateOf("") }
+    val exerciseHistory by viewModel.exerciseHistory.collectAsState()
+
+    if (exercisesForDay.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("No hay ejercicios programados para este día.", color = Color.Gray)
         }
     } else {
@@ -216,58 +209,159 @@ fun DayWorkoutContent(workout: Workout, dayIndex: Int) {
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(exercisesForCurrentDay) { exerciseRel ->
-                ExerciseCard(exerciseRel = exerciseRel)
+            items(exercisesForDay) { item ->
+                val exercise = item.exercise
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                        Text(
+                            text = exercise?.name ?: "Ejercicio desconocido",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            InfoChip(label = "Series", value = item.sets?.toString() ?: "-")
+                            InfoChip(label = "Reps", value = item.reps?.toString() ?: "-")
+                            if (item.weight != null) {
+                                InfoChip(label = "Peso", value = "${item.weight}kg")
+                            }
+                        }
+
+                        if (!item.notes.isNullOrEmpty()) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(DarkSurfaceVariant)
+                                    .padding(12.dp)
+                            ) {
+                                Text(
+                                    text = "💡 ${item.notes}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.LightGray
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                selectedExerciseId = exercise?.id
+                                selectedExerciseName = exercise?.name ?: ""
+                                viewModel.loadExerciseHistory(exercise?.id ?: "")
+                                showLogDialog = true
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
+                        ) {
+                            Text("Registrar Rendimiento", color = DarkBg)
+                        }
+                    }
+                }
             }
         }
     }
-}
 
-@Composable
-fun ExerciseCard(exerciseRel: com.meta_force.meta_force.data.model.WorkoutExercise) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-            Text(
-                text = exerciseRel.exercise?.name ?: "Ejercicio desconocido",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                InfoChip(label = "Series", value = exerciseRel.sets)
-                InfoChip(label = "Reps", value = exerciseRel.reps)
-                if (exerciseRel.weight != null) {
-                    InfoChip(label = "Peso", value = "${exerciseRel.weight}kg")
-                }
-            }
+    if (showLogDialog && selectedExerciseId != null) {
+        var sets by remember { mutableStateOf("3") }
+        var reps by remember { mutableStateOf("10") }
+        var weight by remember { mutableStateOf("") }
+        var logNotes by remember { mutableStateOf("") }
 
-            if (!exerciseRel.notes.isNullOrEmpty()) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(DarkSurfaceVariant)
-                        .padding(12.dp)
-                ) {
-                    Text(
-                        text = "💡 ${exerciseRel.notes}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.LightGray
+        AlertDialog(
+            onDismissRequest = { showLogDialog = false },
+            title = { Text("Registrar: $selectedExerciseName", color = Color.White) },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = sets,
+                            onValueChange = { sets = it },
+                            label = { Text("Series") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = reps,
+                            onValueChange = { reps = it },
+                            label = { Text("Reps") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = weight,
+                        onValueChange = { weight = it },
+                        label = { Text("Peso (kg)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = logNotes,
+                        onValueChange = { logNotes = it },
+                        label = { Text("Notas") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Último Historial", style = MaterialTheme.typography.labelMedium, color = PrimaryCyan)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    
+                    if (exerciseHistory.isEmpty()) {
+                        Text("Sin registros previos", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                    } else {
+                        exerciseHistory.take(3).forEach { log ->
+                            Text(
+                                text = "${log.date.take(10)}: ${log.weight}kg | ${log.sets}x${log.reps}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.LightGray
+                            )
+                        }
+                    }
                 }
-            }
-        }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.logPerformance(
+                            selectedExerciseId!!,
+                            sets.toIntOrNull(),
+                            reps.toIntOrNull(),
+                            weight.toDoubleOrNull(),
+                            logNotes
+                        ) {
+                            showLogDialog = false
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
+                ) {
+                    Text("Guardar", color = DarkBg)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogDialog = false }) {
+                    Text("Cancelar", color = Color.White)
+                }
+            },
+            containerColor = DarkSurface,
+            titleContentColor = Color.White,
+            textContentColor = Color.LightGray
+        )
     }
 }
 

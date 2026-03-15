@@ -208,6 +208,8 @@ fun DietDetailContent(
 
 @Composable
 fun DayContent(diet: Diet, dayIndex: Int) {
+    // Mapeo: 0=Lun, 1=Mar, 2=Mié, 3=Jue, 4=Vie, 5=Sáb, 6=Dom
+    // Si el backend usa otra convención, habría que ajustar aquí.
     val mealsByDay = (diet.meals ?: emptyList()).groupBy { it.dayOfWeek ?: 0 }
     val mealsForCurrentDay = mealsByDay[dayIndex] ?: emptyList()
 

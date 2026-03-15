@@ -1,8 +1,7 @@
-package com.meta_force.meta_force.ui.workouts
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.meta_force.meta_force.data.model.Workout
+import com.meta_force.meta_force.data.model.ExercisePerformanceLog
+import com.meta_force.meta_force.data.model.LogPerformanceRequest
+import com.meta_force.meta_force.data.network.NetworkResult
+import com.meta_force.meta_force.data.repository.ProgressRepository
 import com.meta_force.meta_force.data.repository.WorkoutRepository
 import com.meta_force.meta_force.ui.diets.DayUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,20 +24,25 @@ sealed class WorkoutDetailUiState {
 
 /**
  * ViewModel for viewing details of a specific workout plan.
- *
- * @property workoutRepository Repository for workout data.
  */
 @HiltViewModel
 class WorkoutDetailViewModel @Inject constructor(
-    private val workoutRepository: WorkoutRepository
+    private val workoutRepository: WorkoutRepository,
+    private val progressRepository: ProgressRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WorkoutDetailUiState>(WorkoutDetailUiState.Loading)
     val uiState: StateFlow<WorkoutDetailUiState> = _uiState.asStateFlow()
 
-    // Estado para rastrear el día actual que se está viendo (0 = Domingo, 6 = Sábado)
     private val _currentDayIndex = MutableStateFlow(0)
     val currentDayIndex: StateFlow<Int> = _currentDayIndex.asStateFlow()
+
+    // Historial del ejercicio seleccionado
+    private val _exerciseHistory = MutableStateFlow<List<ExercisePerformanceLog>>(emptyList())
+    val exerciseHistory: StateFlow<List<ExercisePerformanceLog>> = _exerciseHistory.asStateFlow()
+
+    private val _isLogging = MutableStateFlow(false)
+    val isLogging: StateFlow<Boolean> = _isLogging.asStateFlow()
 
     fun loadWorkout(id: String) {
         viewModelScope.launch {
@@ -51,12 +55,49 @@ class WorkoutDetailViewModel @Inject constructor(
         }
     }
 
-    /** Cambia al día siguiente, con bucle de sábado a domingo */
+    fun loadExerciseHistory(exerciseId: String) {
+        viewModelScope.launch {
+            when (val result = progressRepository.getExerciseHistory(exerciseId)) {
+                is NetworkResult.Success -> {
+                    _exerciseHistory.value = result.data
+                }
+                else -> {
+                    // Fail silently or handle error
+                }
+            }
+        }
+    }
+
+    fun logPerformance(
+        exerciseId: String,
+        sets: Int?,
+        reps: Int?,
+        weight: Double?,
+        notes: String?,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLogging.value = true
+            val request = LogPerformanceRequest(exerciseId, sets, reps, weight, notes)
+            when (val result = progressRepository.logPerformance(request)) {
+                is NetworkResult.Success -> {
+                    onSuccess()
+                    loadExerciseHistory(exerciseId) // Refresh history
+                }
+                else -> {
+                    // Handle error
+                }
+            }
+            _isLogging.value = false
+        }
+    }
+
+    /** Cambia al día siguiente, con bucle */
     fun nextDay() {
         _currentDayIndex.value = DayUtils.getNextDay(_currentDayIndex.value)
     }
 
-    /** Cambia al día anterior, con bucle de domingo a sábado */
+    /** Cambia al día anterior, con bucle */
     fun previousDay() {
         _currentDayIndex.value = DayUtils.getPreviousDay(_currentDayIndex.value)
     }

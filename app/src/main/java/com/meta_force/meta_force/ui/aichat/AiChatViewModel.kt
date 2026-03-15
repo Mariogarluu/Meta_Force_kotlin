@@ -139,9 +139,15 @@ class AiChatViewModel @Inject constructor(
 
     fun savePlan(plan: com.meta_force.meta_force.data.model.AiGeneratedPlan) {
         viewModelScope.launch {
-            _saveStatus.value = NetworkResult.Success(Unit) // Just to trigger some loading or state?
-            // Usually we'd want a separate "Saving" state if it takes time.
-            _saveStatus.value = repository.savePlan(com.meta_force.meta_force.data.model.SavePlanRequest(plan))
+            _saveStatus.value = NetworkResult.Success(Unit)
+            
+            val sanitizedPlan = plan.copy(
+                days = plan.days.map { d ->
+                    d.copy(dayOfWeek = d.dayOfWeek)
+                }
+            )
+            
+            _saveStatus.value = repository.savePlan(com.meta_force.meta_force.data.model.SavePlanRequest(sanitizedPlan))
         }
     }
 

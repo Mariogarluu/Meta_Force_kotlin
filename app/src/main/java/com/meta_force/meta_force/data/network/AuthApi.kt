@@ -38,27 +38,27 @@ interface AuthApi {
     /**
      * Fetches the current authenticated user's profile information.
      *
-     * @return The [User] object representing the current user.
+     * @return The [UserProfile] object representing the current user.
      */
     @GET("users/me")
-    suspend fun getProfile(): User
+    suspend fun getProfile(): UserProfile
 
     /**
      * Updates the current user's profile details.
      *
-     * @param user The [User] object with updated fields.
-     * @return The updated [User] information.
+     * @param request The [UpdateProfileRequest] object with updated fields.
+     * @return The updated [UserProfile] information.
      */
     @PUT("users/me")
-    suspend fun updateProfile(@Body user: User): User
+    suspend fun updateProfile(@Body request: UpdateProfileRequest): UserProfile
 
     /**
      * Uploads a new profile image for the current user.
      *
      * @param avatar The image file part in a multipart request.
-     * @return The updated [User] information including the new image URL.
+     * @return The updated [UserProfile] information including the new image URL.
      */
     @Multipart
     @POST("users/me/profile-image")
-    suspend fun uploadAvatar(@Part avatar: MultipartBody.Part): User
+    suspend fun uploadAvatar(@Part avatar: MultipartBody.Part): UserProfile
 }

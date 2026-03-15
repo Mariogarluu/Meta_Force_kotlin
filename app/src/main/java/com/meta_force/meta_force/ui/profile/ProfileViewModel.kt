@@ -13,20 +13,30 @@ import java.io.File
 import javax.inject.Inject
 import com.meta_force.meta_force.data.network.NetworkResult
 
+import com.meta_force.meta_force.data.model.UserProfile
+import com.meta_force.meta_force.data.model.UpdateProfileRequest
+import com.meta_force.meta_force.data.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.io.File
+import javax.inject.Inject
+import com.meta_force.meta_force.data.network.NetworkResult
+
 /**
  * UI State for the User Profile screen.
  */
 sealed class ProfileUiState {
     object Loading : ProfileUiState()
-    data class Success(val user: User) : ProfileUiState()
+    data class Success(val user: UserProfile) : ProfileUiState()
     data class Error(val message: String) : ProfileUiState()
 }
 
 /**
  * ViewModel for the User Profile screen.
  * Handles displaying and updating user information, including profile image uploads.
- *
- * @property repository Repository for user profile and authentication data.
  */
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -43,34 +53,34 @@ class ProfileViewModel @Inject constructor(
     fun loadProfile() {
         viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
-            when (val userResult = repository.getProfile()) {
+            when (val result = repository.getProfile()) {
                 is NetworkResult.Success -> {
-                    _uiState.value = ProfileUiState.Success(userResult.data)
+                    _uiState.value = ProfileUiState.Success(result.data)
                 }
                 is NetworkResult.Error -> {
-                    _uiState.value = ProfileUiState.Error(userResult.message)
+                    _uiState.value = ProfileUiState.Error(result.message)
                 }
                 is NetworkResult.Exception -> {
-                    _uiState.value = ProfileUiState.Error(userResult.e.message ?: "Error loading profile")
+                    _uiState.value = ProfileUiState.Error(result.e.message ?: "Error loading profile")
                 }
             }
         }
     }
 
-    fun updateName(newName: String) {
+    fun updateProfile(request: UpdateProfileRequest) {
         viewModelScope.launch {
-            // Keep current state but maybe show loading indicator overlay
-            // For simplicity, we stick to main state or could add a separate loading channel
-            when (val userResult = repository.updateProfile(newName)) {
+            // Optimistic update or show loading overlay? 
+            // For now, let's just perform the call and update on success
+            when (val result = repository.updateProfile(request)) {
                 is NetworkResult.Success -> {
-                    _uiState.value = ProfileUiState.Success(userResult.data)
+                    _uiState.value = ProfileUiState.Success(result.data)
                 }
                 is NetworkResult.Error -> {
-                    // Show error but keep current data if possible, or transition to error
-                    // Ideally we use a UI Event for one-shot errors
+                    // In a real app, we might want to pulse an error message without clearing current success data
+                    _uiState.value = ProfileUiState.Error(result.message)
                 }
                 is NetworkResult.Exception -> {
-                    // Same as above
+                    _uiState.value = ProfileUiState.Error(result.e.message ?: "Update failed")
                 }
             }
         }
@@ -79,15 +89,15 @@ class ProfileViewModel @Inject constructor(
     fun uploadAvatar(file: File) {
         viewModelScope.launch {
             _uiState.value = ProfileUiState.Loading
-            when (val userResult = repository.uploadAvatar(file)) {
+            when (val result = repository.uploadAvatar(file)) {
                 is NetworkResult.Success -> {
-                    _uiState.value = ProfileUiState.Success(userResult.data)
+                    _uiState.value = ProfileUiState.Success(result.data)
                 }
                 is NetworkResult.Error -> {
-                    _uiState.value = ProfileUiState.Error(userResult.message)
+                    _uiState.value = ProfileUiState.Error(result.message)
                 }
                 is NetworkResult.Exception -> {
-                    _uiState.value = ProfileUiState.Error(userResult.e.message ?: "Failed to upload avatar")
+                    _uiState.value = ProfileUiState.Error(result.e.message ?: "Failed to upload avatar")
                 }
             }
         }
