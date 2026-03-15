@@ -9,7 +9,7 @@ import retrofit2.http.*
 /**
  * Retrofit interface for gym class management and participation API endpoints.
  */
-interface ClassApi {
+interface GymClassApi {
     /**
      * Retrieves a list of available gym classes, optionally filtered by center.
      *

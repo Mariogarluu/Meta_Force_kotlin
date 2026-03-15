@@ -2,16 +2,20 @@ package com.meta_force.meta_force.di
 
 import com.meta_force.meta_force.data.repository.AuthRepository
 import com.meta_force.meta_force.data.repository.AuthRepositoryImpl
+import com.meta_force.meta_force.data.repository.CenterRepository
+import com.meta_force.meta_force.data.repository.CenterRepositoryImpl
 import com.meta_force.meta_force.data.repository.WorkoutRepository
 import com.meta_force.meta_force.data.repository.WorkoutRepositoryImpl
 import com.meta_force.meta_force.data.repository.DietRepository
 import com.meta_force.meta_force.data.repository.DietRepositoryImpl
 import com.meta_force.meta_force.data.repository.AiRepository
 import com.meta_force.meta_force.data.repository.AiRepositoryImpl
-import com.meta_force.meta_force.data.repository.CenterRepository
-import com.meta_force.meta_force.data.repository.CenterRepositoryImpl
 import com.meta_force.meta_force.data.repository.MachineRepository
 import com.meta_force.meta_force.data.repository.MachineRepositoryImpl
+import com.meta_force.meta_force.data.repository.GymClassRepository
+import com.meta_force.meta_force.data.repository.GymClassRepositoryImpl
+import com.meta_force.meta_force.data.repository.ProgressRepository
+import com.meta_force.meta_force.data.repository.ProgressRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -30,9 +34,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindClassRepository(
-        classRepositoryImpl: com.meta_force.meta_force.data.repository.ClassRepositoryImpl
-    ): com.meta_force.meta_force.data.repository.ClassRepository
+    abstract fun bindGymClassRepository(
+        gymClassRepositoryImpl: GymClassRepositoryImpl
+    ): GymClassRepository
 
     @Binds
     @Singleton
@@ -67,6 +71,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindProgressRepository(
-        progressRepositoryImpl: com.meta_force.meta_force.data.repository.ProgressRepositoryImpl
-    ): com.meta_force.meta_force.data.repository.ProgressRepository
+        progressRepositoryImpl: ProgressRepositoryImpl
+    ): ProgressRepository
 }

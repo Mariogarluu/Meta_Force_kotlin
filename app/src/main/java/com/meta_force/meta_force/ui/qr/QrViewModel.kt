@@ -2,7 +2,7 @@ package com.meta_force.meta_force.ui.qr
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.meta_force.meta_force.data.model.User
+import com.meta_force.meta_force.data.model.UserProfile
 import com.meta_force.meta_force.data.network.NetworkResult
 import com.meta_force.meta_force.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +25,7 @@ import javax.inject.Inject
  */
 sealed class QrUiState {
     object Loading : QrUiState()
-    data class Success(val user: User, val timestamp: String) : QrUiState()
+    data class Success(val user: UserProfile, val timestamp: String) : QrUiState()
     data class Error(val message: String) : QrUiState()
 }
 
@@ -64,7 +64,7 @@ class QrViewModel @Inject constructor(
         }
     }
 
-    private fun startTimestampUpdates(user: User) {
+    private fun startTimestampUpdates(user: UserProfile) {
         viewModelScope.launch {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
                 timeZone = TimeZone.getTimeZone("UTC")

@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.meta_force.meta_force.data.model.User
+import com.meta_force.meta_force.data.model.UserProfile
 import org.json.JSONObject
 import java.net.URLEncoder
 
@@ -105,7 +105,7 @@ fun QrScreen(
 @Composable
 private fun QrContent(
     paddingValues: PaddingValues,
-    user: User,
+    user: UserProfile,
     timestamp: String
 ) {
     val qrData = JSONObject().apply {

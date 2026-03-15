@@ -1,10 +1,15 @@
+package com.meta_force.meta_force.ui.workouts
+
 import com.meta_force.meta_force.data.model.ExercisePerformanceLog
 import com.meta_force.meta_force.data.model.LogPerformanceRequest
 import com.meta_force.meta_force.data.network.NetworkResult
+import com.meta_force.meta_force.data.model.Workout
 import com.meta_force.meta_force.data.repository.ProgressRepository
 import com.meta_force.meta_force.data.repository.WorkoutRepository
 import com.meta_force.meta_force.ui.diets.DayUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

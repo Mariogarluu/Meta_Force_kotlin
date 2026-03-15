@@ -4,14 +4,15 @@ import com.meta_force.meta_force.data.model.LoginRequest
 import com.meta_force.meta_force.data.model.LoginResponse
 import com.meta_force.meta_force.data.model.RegisterRequest
 import com.meta_force.meta_force.data.model.RegisterResponse
+import com.meta_force.meta_force.data.model.UserProfile
+import com.meta_force.meta_force.data.model.UpdateProfileRequest
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.GET
-import retrofit2.http.PUT
+import retrofit2.http.PATCH
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 import okhttp3.MultipartBody
-import com.meta_force.meta_force.data.model.User
 
 /**
  * Retrofit interface for authentication and user profile API endpoints.
@@ -49,7 +50,7 @@ interface AuthApi {
      * @param request The [UpdateProfileRequest] object with updated fields.
      * @return The updated [UserProfile] information.
      */
-    @PUT("users/me")
+    @PATCH("users/me")
     suspend fun updateProfile(@Body request: UpdateProfileRequest): UserProfile
 
     /**

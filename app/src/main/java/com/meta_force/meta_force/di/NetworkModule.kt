@@ -63,8 +63,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideClassApi(retrofit: Retrofit): com.meta_force.meta_force.data.network.ClassApi {
-        return retrofit.create(com.meta_force.meta_force.data.network.ClassApi::class.java)
+    fun provideGymClassApi(retrofit: Retrofit): com.meta_force.meta_force.data.network.GymClassApi {
+        return retrofit.create(com.meta_force.meta_force.data.network.GymClassApi::class.java)
     }
 
     @Provides

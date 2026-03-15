@@ -7,6 +7,8 @@ import com.meta_force.meta_force.data.model.RegisterRequest
 import com.meta_force.meta_force.data.model.RegisterResponse
 import com.meta_force.meta_force.data.network.AuthApi
 import com.meta_force.meta_force.data.model.User
+import com.meta_force.meta_force.data.model.UserProfile
+import com.meta_force.meta_force.data.model.UpdateProfileRequest
 import com.meta_force.meta_force.data.network.NetworkResult
 import com.meta_force.meta_force.data.network.safeApiCall
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

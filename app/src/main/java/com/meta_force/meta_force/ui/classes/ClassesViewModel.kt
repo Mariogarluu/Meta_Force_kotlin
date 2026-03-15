@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.meta_force.meta_force.data.model.*
 import com.meta_force.meta_force.data.repository.AuthRepository
 import com.meta_force.meta_force.data.repository.CenterRepository
-import com.meta_force.meta_force.data.repository.ClassRepository
+import com.meta_force.meta_force.data.repository.GymClassRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ sealed class ClassesUiState {
  */
 @HiltViewModel
 class ClassesViewModel @Inject constructor(
-    private val classRepository: ClassRepository,
+    private val classRepository: GymClassRepository,
     private val centerRepository: CenterRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {

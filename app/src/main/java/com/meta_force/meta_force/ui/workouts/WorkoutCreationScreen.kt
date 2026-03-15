@@ -34,7 +34,7 @@ fun WorkoutCreationScreen(
     onWorkoutCreated: (Workout) -> Unit,
     viewModel: WorkoutCreationViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState(initial = WorkoutCreationViewModel.CreationUiState.Idle)
 
     // Estado del formulario usando rememberSaveable para sobrevivir a configuraciones
     var name by rememberSaveable { mutableStateOf("") }

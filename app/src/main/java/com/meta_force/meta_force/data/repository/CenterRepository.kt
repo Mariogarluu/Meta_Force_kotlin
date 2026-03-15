@@ -3,6 +3,7 @@ package com.meta_force.meta_force.data.repository
 import com.meta_force.meta_force.data.model.Center
 import com.meta_force.meta_force.data.model.CreateCenterInput
 import com.meta_force.meta_force.data.model.UpdateCenterInput
+import kotlin.Result
 
 /**
  * Repository interface for managing fitness center data.

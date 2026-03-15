@@ -4,7 +4,7 @@ import com.meta_force.meta_force.data.model.GymClass
 import com.meta_force.meta_force.data.model.CreateClassInput
 import com.meta_force.meta_force.data.model.AddCenterToClassInput
 import com.meta_force.meta_force.data.model.UpdateClassInput
-import com.meta_force.meta_force.data.network.ClassApi
+import com.meta_force.meta_force.data.network.GymClassApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -12,7 +12,7 @@ import javax.inject.Inject
 /**
  * Repository interface for gym class operations.
  */
-interface ClassRepository {
+interface GymClassRepository {
     /**
      * Retrieves all gym classes, optionally filtered by center.
      * @param centerId Optional ID to filter classes.
@@ -67,9 +67,9 @@ interface ClassRepository {
 /**
  * Implementation of [ClassRepository] using [ClassApi].
  */
-class ClassRepositoryImpl @Inject constructor(
-    private val api: ClassApi
-) : ClassRepository {
+class GymClassRepositoryImpl @Inject constructor(
+    private val api: GymClassApi
+) : GymClassRepository {
     override fun getClasses(centerId: String?): Flow<List<GymClass>> = flow {
         emit(api.getClasses(centerId))
     }

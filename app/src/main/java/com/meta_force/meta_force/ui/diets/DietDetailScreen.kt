@@ -314,6 +314,16 @@ fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
                 }
             }
             
+            val calculatedCalories = if (foods.isNotEmpty()) {
+                foods.sumBy { it.calories ?: 0 }
+            } else {
+                ((meal.meal?.calories ?: 0.0) * (meal.quantity ?: 1.0)).toInt()
+            }
+
+            val calculatedProtein = if (foods.isNotEmpty()) foods.sumOf { it.protein ?: 0.0 } else (meal.meal?.protein ?: 0.0)
+            val calculatedCarbs = if (foods.isNotEmpty()) foods.sumOf { it.carbs ?: 0.0 } else (meal.meal?.carbs ?: 0.0)
+            val calculatedFats = if (foods.isNotEmpty()) foods.sumOf { it.fats ?: 0.0 } else (meal.meal?.fats ?: 0.0)
+
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -321,17 +331,13 @@ fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    val mealInfo = meal.meal
-                    if (mealInfo != null) {
-                        MacroInfo("P", "${mealInfo.protein?.toInt() ?: 0}g", Color(0xFFE57373))
-                        MacroInfo("C", "${mealInfo.carbs?.toInt() ?: 0}g", Color(0xFF81C784))
-                        MacroInfo("G", "${mealInfo.fats?.toInt() ?: 0}g", Color(0xFFFFB74D))
-                    }
+                    MacroInfo("P", "${calculatedProtein.toInt()}g", Color(0xFFE57373))
+                    MacroInfo("C", "${calculatedCarbs.toInt()}g", Color(0xFF81C784))
+                    MacroInfo("G", "${calculatedFats.toInt()}g", Color(0xFFFFB74D))
                 }
 
-                val totalCalories = ((meal.meal?.calories ?: 0.0) * (meal.quantity ?: 1.0)).toInt()
                 Text(
-                    text = "Total: $totalCalories kcal",
+                    text = "Total: $calculatedCalories kcal",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = PrimaryCyan

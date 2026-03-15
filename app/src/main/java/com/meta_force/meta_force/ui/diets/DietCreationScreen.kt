@@ -34,7 +34,7 @@ fun DietCreationScreen(
     onDietCreated: (Diet) -> Unit,
     viewModel: DietCreationViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState(initial = DietCreationViewModel.CreationUiState.Idle)
 
     // Estado del formulario usando rememberSaveable para sobrevivir a configuraciones
     var name by rememberSaveable { mutableStateOf("") }

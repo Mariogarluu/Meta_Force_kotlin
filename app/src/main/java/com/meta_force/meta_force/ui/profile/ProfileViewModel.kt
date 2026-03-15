@@ -2,20 +2,10 @@ package com.meta_force.meta_force.ui.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.meta_force.meta_force.data.model.User
-import com.meta_force.meta_force.data.repository.AuthRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import java.io.File
-import javax.inject.Inject
-import com.meta_force.meta_force.data.network.NetworkResult
-
 import com.meta_force.meta_force.data.model.UserProfile
 import com.meta_force.meta_force.data.model.UpdateProfileRequest
 import com.meta_force.meta_force.data.repository.AuthRepository
+import com.meta_force.meta_force.data.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
-import com.meta_force.meta_force.data.network.NetworkResult
 
 /**
  * UI State for the User Profile screen.

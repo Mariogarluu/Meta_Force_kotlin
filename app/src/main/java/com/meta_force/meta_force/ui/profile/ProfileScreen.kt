@@ -9,12 +9,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
+import com.meta_force.meta_force.data.model.UpdateProfileRequest
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +33,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,6 +127,41 @@ fun ProfileScreen(
                 var birthDate by remember { mutableStateOf(user.birthDate ?: "") }
                 var medicalNotes by remember { mutableStateOf(user.medicalNotes ?: "") }
 
+                // Validation Errors
+                var heightError by remember { mutableStateOf<String?>(null) }
+                var weightError by remember { mutableStateOf<String?>(null) }
+
+                // Date Picker State
+                val datePickerState = rememberDatePickerState()
+                var showDatePicker by remember { mutableStateOf(false) }
+
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    val calendar = Calendar.getInstance().apply {
+                                        timeInMillis = millis
+                                    }
+                                    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                    birthDate = sdf.format(calendar.time)
+                                }
+                                showDatePicker = false
+                            }) {
+                                Text("Aceptar")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text("Cancelar")
+                            }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
+                    }
+                }
+
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -157,56 +199,84 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // User Details
-                    OutlinedTextField(
-                        value = name ?: "",
-                        onValueChange = { name = it },
-                        label = { Text("Nombre") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                     OutlinedTextField(
+                         value = name ?: "",
+                         onValueChange = { newValue: String -> name = newValue },
+                         label = { Text("Nombre") },
+                         modifier = Modifier.fillMaxWidth()
+                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(
-                        value = user.email ?: "",
-                        onValueChange = {},
-                        label = { Text("Email (No editable)") },
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
+                     OutlinedTextField(
+                         value = user.email ?: "",
+                         onValueChange = {},
+                         label = { Text("Email (No editable)") },
+                         readOnly = true,
+                         modifier = Modifier.fillMaxWidth()
+                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text("Datos Físicos", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row(modifier = Modifier.fillMaxWidth(), gap = 8.dp) {
-                        OutlinedTextField(
-                            value = height,
-                            onValueChange = { height = it },
-                            label = { Text("Altura (cm)") },
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                        )
-                        OutlinedTextField(
-                            value = weight,
-                            onValueChange = { weight = it },
-                            label = { Text("Peso (kg)") },
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-                        )
-                    }
+                     Row(
+                         modifier = Modifier.fillMaxWidth(),
+                         horizontalArrangement = Arrangement.spacedBy(8.dp)
+                     ) {
+                      OutlinedTextField(
+                          value = height,
+                          onValueChange = { 
+                              if (it.isEmpty() || it.toDoubleOrNull() != null) {
+                                  height = it
+                                  val h = it.toDoubleOrNull()
+                                  heightError = if (h != null && (h < 50 || h > 250)) "50-250 cm" else null
+                              }
+                          },
+                          label = { Text("Altura (cm)") },
+                          isError = heightError != null,
+                          supportingText = { if (heightError != null) Text(heightError!!) },
+                          modifier = Modifier.weight(1f),
+                          keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                      )
+                          OutlinedTextField(
+                              value = weight,
+                              onValueChange = { 
+                                  if (it.isEmpty() || it.toDoubleOrNull() != null) {
+                                      weight = it
+                                      val w = it.toDoubleOrNull()
+                                      weightError = if (w != null && (w < 30 || w > 300)) "30-300 kg" else null
+                                  }
+                              },
+                              label = { Text("Peso (kg)") },
+                              isError = weightError != null,
+                              supportingText = { if (weightError != null) Text(weightError!!) },
+                              modifier = Modifier.weight(1f),
+                              keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                          )
+                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
                         value = birthDate,
-                        onValueChange = { birthDate = it },
-                        label = { Text("Fecha Nacimiento (YYYY-MM-DD)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("1990-01-01") }
+                        onValueChange = { },
+                        label = { Text("Fecha Nacimiento") },
+                        modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
+                        enabled = false,
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                        trailingIcon = {
+                            Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha", Modifier.clickable { showDatePicker = true })
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -217,38 +287,41 @@ fun ProfileScreen(
                             FilterChip(
                                 selected = gender == g,
                                 onClick = { gender = g },
-                                label = { Text(g.capitalize()) }
+                                label = { Text(g.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }) }
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    OutlinedTextField(
-                        value = medicalNotes,
-                        onValueChange = { medicalNotes = it },
-                        label = { Text("Notas Médicas / Alergias") },
-                        modifier = Modifier.fillMaxWidth().height(120.dp),
-                        multiline = true
-                    )
+                      OutlinedTextField(
+                          value = medicalNotes,
+                          onValueChange = { newValue: String -> medicalNotes = newValue },
+                          label = { Text("Notas Médicas / Alergias") },
+                          modifier = Modifier.fillMaxWidth().height(120.dp),
+                          maxLines = 5
+                      )
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
                         onClick = {
-                            viewModel.updateProfile(
-                                UpdateProfileRequest(
-                                    name = name,
-                                    height = height.toDoubleOrNull(),
-                                    currentWeight = weight.toDoubleOrNull(),
-                                    birthDate = if (birthDate.isEmpty()) null else birthDate,
-                                    gender = gender,
-                                    medicalNotes = medicalNotes,
-                                    activityLevel = user.activityLevel,
-                                    goal = user.goal
+                            if (heightError == null && weightError == null) {
+                                viewModel.updateProfile(
+                                    UpdateProfileRequest(
+                                        name = name,
+                                        height = height.toDoubleOrNull(),
+                                        currentWeight = weight.toDoubleOrNull(),
+                                        birthDate = if (birthDate.isEmpty()) null else birthDate,
+                                        gender = gender,
+                                        medicalNotes = medicalNotes,
+                                        activityLevel = user.activityLevel,
+                                        goal = user.goal
+                                    )
                                 )
-                            )
+                            }
                         },
+                        enabled = heightError == null && weightError == null,
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = MaterialTheme.shapes.medium
                     ) {

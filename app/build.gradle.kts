@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.dagger.hilt.android")
-    id("kotlin-kapt")
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -59,7 +59,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.retrofit)
@@ -81,6 +81,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
-kapt {
-    correctErrorTypes = true
-}
+// Kapt configuration removed as we migrated to KSP
+// hilt annotation processor in ksp does not require correctErrorTypes as kapt did
