@@ -54,7 +54,10 @@ class DietsViewModel @Inject constructor(
     fun deleteDiet(id: String) {
         viewModelScope.launch {
             dietRepository.deleteDiet(id)
-                .catch { /* Handle error */ }
+                .catch { e -> 
+                    // Optional: Update UI with error message
+                    _uiState.value = DietsUiState.Error(e.message ?: "Error deleting diet")
+                }
                 .collect {
                     loadDiets()
                 }

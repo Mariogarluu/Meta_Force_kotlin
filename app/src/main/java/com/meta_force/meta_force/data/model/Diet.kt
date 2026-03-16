@@ -93,13 +93,44 @@ data class DietFood(
 
 /**
  * Request object for creating a new dietary plan.
- *
- * @property name The name of the new diet.
- * @property description Optional description.
- * @property caloriesTarget Optional daily calorie target.
  */
 data class CreateDietRequest(
     val name: String,
-    val description: String?,
-    val caloriesTarget: Int?
+    val description: String? = null,
+    val caloriesTarget: Int? = null
+)
+
+/**
+ * Request object for updating a dietary plan.
+ */
+data class UpdateDietRequest(
+    val name: String? = null,
+    val description: String? = null,
+    val caloriesTarget: Int? = null,
+    val active: Boolean? = null
+)
+
+/**
+ * Request object for adding a meal to a diet.
+ */
+data class AddMealToDietRequest(
+    val mealId: String,
+    val dayOfWeek: Int,
+    val order: Int? = null,
+    val time: String? = null,
+    val mealType: String? = null,
+    val quantity: Double? = null,
+    val notes: String? = null
+)
+
+/**
+ * Request object for updating a meal in a diet.
+ */
+data class UpdateDietMealRequest(
+    val dayOfWeek: Int? = null,
+    val order: Int? = null,
+    val time: String? = null,
+    val mealType: String? = null,
+    val quantity: Double? = null,
+    val notes: String? = null
 )

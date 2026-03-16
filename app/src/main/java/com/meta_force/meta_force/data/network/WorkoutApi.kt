@@ -1,7 +1,6 @@
 package com.meta_force.meta_force.data.network
 
-import com.meta_force.meta_force.data.model.CreateWorkoutRequest
-import com.meta_force.meta_force.data.model.Workout
+import com.meta_force.meta_force.data.model.*
 import retrofit2.http.*
 
 /**
@@ -35,9 +34,31 @@ interface WorkoutApi {
     suspend fun createWorkout(@Body request: CreateWorkoutRequest): Workout
 
     /**
-     * Deletes a specific workout plan.
-     *
-     * @param id The ID of the workout to delete.
+     * Updates an existing workout plan.
+     */
+    @PATCH("workouts/{id}")
+    suspend fun updateWorkout(@Path("id") id: String, @Body request: UpdateWorkoutRequest): Workout
+
+    /**
+     * Adds an exercise to a workout.
+     */
+    @POST("workouts/{id}/exercises")
+    suspend fun addExerciseToWorkout(@Path("id") id: String, @Body request: AddExerciseToWorkoutRequest): WorkoutExercise
+
+    /**
+     * Updates an exercise within a workout.
+     */
+    @PATCH("workouts/exercises/{exerciseId}")
+    suspend fun updateWorkoutExercise(@Path("exerciseId") exerciseId: String, @Body request: UpdateWorkoutExerciseRequest): WorkoutExercise
+
+    /**
+     * Removes an exercise from a workout.
+     */
+    @DELETE("workouts/exercises/{exerciseId}")
+    suspend fun removeExerciseFromWorkout(@Path("exerciseId") exerciseId: String)
+
+    /**
+     * Deletes a workout plan.
      */
     @DELETE("workouts/{id}")
     suspend fun deleteWorkout(@Path("id") id: String)

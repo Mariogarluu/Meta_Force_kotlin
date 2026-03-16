@@ -1,7 +1,6 @@
 package com.meta_force.meta_force.data.repository
 
-import com.meta_force.meta_force.data.model.CreateWorkoutRequest
-import com.meta_force.meta_force.data.model.Workout
+import com.meta_force.meta_force.data.model.*
 import com.meta_force.meta_force.data.network.WorkoutApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -42,5 +41,21 @@ class WorkoutRepositoryImpl @Inject constructor(
 
     override fun deleteWorkout(id: String): Flow<Unit> = flow {
         emit(api.deleteWorkout(id))
+    }
+
+    override fun updateWorkout(id: String, request: UpdateWorkoutRequest): Flow<Workout> = flow {
+        emit(api.updateWorkout(id, request))
+    }
+
+    override fun addExerciseToWorkout(id: String, request: AddExerciseToWorkoutRequest): Flow<WorkoutExercise> = flow {
+        emit(api.addExerciseToWorkout(id, request))
+    }
+
+    override fun updateWorkoutExercise(exerciseId: String, request: UpdateWorkoutExerciseRequest): Flow<WorkoutExercise> = flow {
+        emit(api.updateWorkoutExercise(exerciseId, request))
+    }
+
+    override fun removeExerciseFromWorkout(exerciseId: String): Flow<Unit> = flow {
+        emit(api.removeExerciseFromWorkout(exerciseId))
     }
 }

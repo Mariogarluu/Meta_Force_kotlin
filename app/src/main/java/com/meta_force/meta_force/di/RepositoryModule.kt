@@ -1,21 +1,6 @@
 package com.meta_force.meta_force.di
 
-import com.meta_force.meta_force.data.repository.AuthRepository
-import com.meta_force.meta_force.data.repository.AuthRepositoryImpl
-import com.meta_force.meta_force.data.repository.CenterRepository
-import com.meta_force.meta_force.data.repository.CenterRepositoryImpl
-import com.meta_force.meta_force.data.repository.WorkoutRepository
-import com.meta_force.meta_force.data.repository.WorkoutRepositoryImpl
-import com.meta_force.meta_force.data.repository.DietRepository
-import com.meta_force.meta_force.data.repository.DietRepositoryImpl
-import com.meta_force.meta_force.data.repository.AiRepository
-import com.meta_force.meta_force.data.repository.AiRepositoryImpl
-import com.meta_force.meta_force.data.repository.MachineRepository
-import com.meta_force.meta_force.data.repository.MachineRepositoryImpl
-import com.meta_force.meta_force.data.repository.GymClassRepository
-import com.meta_force.meta_force.data.repository.GymClassRepositoryImpl
-import com.meta_force.meta_force.data.repository.ProgressRepository
-import com.meta_force.meta_force.data.repository.ProgressRepositoryImpl
+import com.meta_force.meta_force.data.repository.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -73,4 +58,16 @@ abstract class RepositoryModule {
     abstract fun bindProgressRepository(
         progressRepositoryImpl: ProgressRepositoryImpl
     ): ProgressRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMealRepository(
+        mealRepositoryImpl: MealRepositoryImpl
+    ): MealRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindExerciseRepository(
+        exerciseRepositoryImpl: ExerciseRepositoryImpl
+    ): ExerciseRepository
 }

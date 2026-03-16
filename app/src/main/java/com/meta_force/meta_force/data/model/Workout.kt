@@ -43,8 +43,8 @@ data class WorkoutExercise(
     val exercise: Exercise?, // Nested object often returned
     val dayOfWeek: Int,
     val order: Int,
-    val sets: String,
-    val reps: String,
+    val sets: Int?,
+    val reps: Int?,
     val weight: Double?,
     val restSeconds: Int?,
     val notes: String?
@@ -84,4 +84,42 @@ data class CreateWorkoutRequest(
     val goal: String?,
     val level: String?,
     val daysPerWeek: Int?
+)
+
+/**
+ * Request object for updating a workout plan.
+ */
+data class UpdateWorkoutRequest(
+    val name: String? = null,
+    val description: String? = null,
+    val goal: String? = null,
+    val level: String? = null,
+    val daysPerWeek: Int? = null
+)
+
+/**
+ * Request object for adding an exercise to a workout.
+ */
+data class AddExerciseToWorkoutRequest(
+    val exerciseId: String,
+    val dayOfWeek: Int,
+    val order: Int? = null,
+    val sets: Int? = null,
+    val reps: Int? = null,
+    val weight: Double? = null,
+    val restSeconds: Int? = null,
+    val notes: String? = null
+)
+
+/**
+ * Request object for updating an exercise in a workout.
+ */
+data class UpdateWorkoutExerciseRequest(
+    val dayOfWeek: Int? = null,
+    val order: Int? = null,
+    val sets: Int? = null,
+    val reps: Int? = null,
+    val weight: Double? = null,
+    val restSeconds: Int? = null,
+    val notes: String? = null
 )

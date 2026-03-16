@@ -1,20 +1,15 @@
 package com.meta_force.meta_force.ui.workouts
 
-import com.meta_force.meta_force.data.model.ExercisePerformanceLog
-import com.meta_force.meta_force.data.model.LogPerformanceRequest
-import com.meta_force.meta_force.data.network.NetworkResult
-import com.meta_force.meta_force.data.model.Workout
+import com.meta_force.meta_force.data.model.*
 import com.meta_force.meta_force.data.repository.ProgressRepository
 import com.meta_force.meta_force.data.repository.WorkoutRepository
+import com.meta_force.meta_force.data.repository.ExerciseRepository
 import com.meta_force.meta_force.ui.diets.DayUtils
+import com.meta_force.meta_force.data.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,7 +28,8 @@ sealed class WorkoutDetailUiState {
 @HiltViewModel
 class WorkoutDetailViewModel @Inject constructor(
     private val workoutRepository: WorkoutRepository,
-    private val progressRepository: ProgressRepository
+    private val progressRepository: ProgressRepository,
+    private val exerciseRepository: ExerciseRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WorkoutDetailUiState>(WorkoutDetailUiState.Loading)
@@ -48,6 +44,12 @@ class WorkoutDetailViewModel @Inject constructor(
 
     private val _isLogging = MutableStateFlow(false)
     val isLogging: StateFlow<Boolean> = _isLogging.asStateFlow()
+
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
+
+    private val _availableExercises = MutableStateFlow<List<Exercise>>(emptyList())
+    val availableExercises: StateFlow<List<Exercise>> = _availableExercises.asStateFlow()
 
     fun loadWorkout(id: String) {
         viewModelScope.launch {
@@ -110,5 +112,53 @@ class WorkoutDetailViewModel @Inject constructor(
     /** Establece un día específico */
     fun setDay(dayOfWeek: Int) {
         _currentDayIndex.value = dayOfWeek
+    }
+
+    fun toggleEditMode() {
+        _isEditMode.value = !_isEditMode.value
+        if (_isEditMode.value && _availableExercises.value.isEmpty()) {
+            fetchAvailableExercises()
+        }
+    }
+
+    fun fetchAvailableExercises() {
+        viewModelScope.launch {
+            exerciseRepository.getExercises()
+                .catch { /* Handle error */ }
+                .collect { exercises ->
+                    _availableExercises.value = exercises
+                }
+        }
+    }
+
+    fun addExerciseToWorkout(workoutId: String, exerciseId: String, dayOfWeek: Int) {
+        val currentWorkout = (uiState.value as? WorkoutDetailUiState.Success)?.workout
+        val beDayOfWeek = (dayOfWeek + 1) % 7
+        val nextOrder = (currentWorkout?.exercises?.filter { it.dayOfWeek == beDayOfWeek }?.maxOfOrNull { it.order } ?: 0) + 1
+
+        viewModelScope.launch {
+            val request = AddExerciseToWorkoutRequest(
+                exerciseId = exerciseId,
+                dayOfWeek = beDayOfWeek,
+                order = nextOrder,
+                sets = 3, // Default values
+                reps = 10
+            )
+            workoutRepository.addExerciseToWorkout(workoutId, request)
+                .catch { /* Handle error */ }
+                .collect {
+                    loadWorkout(workoutId) // Refresh
+                }
+        }
+    }
+
+    fun removeExerciseFromWorkout(workoutId: String, exerciseId: String) {
+        viewModelScope.launch {
+            workoutRepository.removeExerciseFromWorkout(exerciseId)
+                .catch { /* Handle error */ }
+                .collect {
+                    loadWorkout(workoutId) // Refresh
+                }
+        }
     }
 }

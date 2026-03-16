@@ -1,7 +1,6 @@
 package com.meta_force.meta_force.data.repository
 
-import com.meta_force.meta_force.data.model.CreateDietRequest
-import com.meta_force.meta_force.data.model.Diet
+import com.meta_force.meta_force.data.model.*
 import com.meta_force.meta_force.data.network.DietApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -35,6 +34,26 @@ interface DietRepository {
      * Deletes a dietary plan.
      */
     fun deleteDiet(id: String): Flow<Unit>
+
+    /**
+     * Updates an existing dietary plan.
+     */
+    fun updateDiet(id: String, request: UpdateDietRequest): Flow<Diet>
+
+    /**
+     * Adds a meal to a specific diet.
+     */
+    fun addMealToDiet(id: String, request: AddMealToDietRequest): Flow<DietMeal>
+
+    /**
+     * Updates a meal within a diet.
+     */
+    fun updateDietMeal(mealId: String, request: UpdateDietMealRequest): Flow<DietMeal>
+
+    /**
+     * Removes a meal from a diet.
+     */
+    fun removeMealFromDiet(mealId: String): Flow<Unit>
 }
 
 /**
@@ -68,5 +87,21 @@ class DietRepositoryImpl @Inject constructor(
 
     override fun deleteDiet(id: String): Flow<Unit> = flow {
         emit(api.deleteDiet(id))
+    }
+
+    override fun updateDiet(id: String, request: UpdateDietRequest): Flow<Diet> = flow {
+        emit(api.updateDiet(id, request))
+    }
+
+    override fun addMealToDiet(id: String, request: AddMealToDietRequest): Flow<DietMeal> = flow {
+        emit(api.addMealToDiet(id, request))
+    }
+
+    override fun updateDietMeal(mealId: String, request: UpdateDietMealRequest): Flow<DietMeal> = flow {
+        emit(api.updateDietMeal(mealId, request))
+    }
+
+    override fun removeMealFromDiet(mealId: String): Flow<Unit> = flow {
+        emit(api.removeMealFromDiet(mealId))
     }
 }

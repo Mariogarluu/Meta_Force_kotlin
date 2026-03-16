@@ -1,5 +1,11 @@
 package com.meta_force.meta_force.ui.profile
 
+import androidx.compose.ui.graphics.Color
+import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.Locale
+import coil.request.ImageRequest
+
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,14 +34,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import androidx.compose.ui.res.stringResource
+import com.meta_force.meta_force.R
+import com.meta_force.meta_force.ui.profile.ProfileViewModel
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Calendar
-import java.text.SimpleDateFormat
-import java.util.Locale
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+
+// Theme Colors
+private val DarkBg = Color(0xFF0f172a)
+private val DarkSurface = Color(0xFF1e293b)
+private val DarkSurfaceVariant = Color(0xFF334155)
+private val PrimaryCyan = Color(0xFF22d3ee)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,39 +92,46 @@ fun ProfileScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onNavigateBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "PROFILE",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary
+    Scaffold(
+        containerColor = DarkBg,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.profile_title),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = PrimaryCyan
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = DarkSurface
+                )
             )
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(48.dp)) // balance the icon
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
         when (val state = uiState) {
             is ProfileUiState.Loading -> {
                 CircularProgressIndicator()
             }
             is ProfileUiState.Error -> {
-                Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.profile_retry) + ": ${state.message}", color = MaterialTheme.colorScheme.error)
                 Button(onClick = { viewModel.loadProfile() }) {
-                    Text("Retry")
+                    Text(stringResource(R.string.profile_retry))
                 }
             }
             is ProfileUiState.Success -> {
@@ -147,14 +165,14 @@ fun ProfileScreen(
                                     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                                     birthDate = sdf.format(calendar.time)
                                 }
-                                showDatePicker = false
+                                 showDatePicker = false
                             }) {
-                                Text("Aceptar")
+                                Text(stringResource(R.string.profile_date_accept))
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDatePicker = false }) {
-                                Text("Cancelar")
+                                Text(stringResource(R.string.profile_date_cancel))
                             }
                         }
                     ) {
@@ -202,7 +220,7 @@ fun ProfileScreen(
                      OutlinedTextField(
                          value = name ?: "",
                          onValueChange = { newValue: String -> name = newValue },
-                         label = { Text("Nombre") },
+                         label = { Text(stringResource(R.string.profile_name)) },
                          modifier = Modifier.fillMaxWidth()
                      )
 
@@ -211,14 +229,14 @@ fun ProfileScreen(
                      OutlinedTextField(
                          value = user.email ?: "",
                          onValueChange = {},
-                         label = { Text("Email (No editable)") },
+                         label = { Text(stringResource(R.string.profile_email_readonly)) },
                          readOnly = true,
                          modifier = Modifier.fillMaxWidth()
                      )
 
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    Text("Datos Físicos", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
+                    Text(stringResource(R.string.profile_physical_data), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                     Spacer(modifier = Modifier.height(8.dp))
 
                      Row(
@@ -234,7 +252,7 @@ fun ProfileScreen(
                                   heightError = if (h != null && (h < 50 || h > 250)) "50-250 cm" else null
                               }
                           },
-                          label = { Text("Altura (cm)") },
+                          label = { Text(stringResource(R.string.profile_height)) },
                           isError = heightError != null,
                           supportingText = { if (heightError != null) Text(heightError!!) },
                           modifier = Modifier.weight(1f),
@@ -249,7 +267,7 @@ fun ProfileScreen(
                                       weightError = if (w != null && (w < 30 || w > 300)) "30-300 kg" else null
                                   }
                               },
-                              label = { Text("Peso (kg)") },
+                              label = { Text(stringResource(R.string.profile_weight)) },
                               isError = weightError != null,
                               supportingText = { if (weightError != null) Text(weightError!!) },
                               modifier = Modifier.weight(1f),
@@ -259,10 +277,21 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    val displayDate = try {
+                        if (birthDate.isNotEmpty()) {
+                            val inputSdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                            val date = inputSdf.parse(birthDate)
+                            val outputSdf = SimpleDateFormat("dd/MM/yyyy", Locale("es", "ES"))
+                            outputSdf.format(date!!)
+                        } else ""
+                    } catch (e: Exception) {
+                        birthDate
+                    }
+
                     OutlinedTextField(
-                        value = birthDate,
+                        value = displayDate,
                         onValueChange = { },
-                        label = { Text("Fecha Nacimiento") },
+                        label = { Text(stringResource(R.string.profile_birth_date)) },
                         modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
                         enabled = false,
                         readOnly = true,
@@ -275,13 +304,13 @@ fun ProfileScreen(
                             disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                         trailingIcon = {
-                            Icon(Icons.Default.DateRange, contentDescription = "Seleccionar fecha", Modifier.clickable { showDatePicker = true })
+                            Icon(Icons.Default.DateRange, contentDescription = stringResource(R.string.profile_birth_date), Modifier.clickable { showDatePicker = true })
                         }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Género", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.profile_gender), style = MaterialTheme.typography.labelMedium)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                         listOf("male", "female", "other").forEach { g ->
                             FilterChip(
@@ -297,7 +326,7 @@ fun ProfileScreen(
                       OutlinedTextField(
                           value = medicalNotes,
                           onValueChange = { newValue: String -> medicalNotes = newValue },
-                          label = { Text("Notas Médicas / Alergias") },
+                          label = { Text(stringResource(R.string.profile_medical_notes)) },
                           modifier = Modifier.fillMaxWidth().height(120.dp),
                           maxLines = 5
                       )
@@ -325,7 +354,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = MaterialTheme.shapes.medium
                     ) {
-                        Text("GUARDAR PERFIL")
+                        Text(stringResource(R.string.profile_save))
                     }
                     
                     Spacer(modifier = Modifier.height(48.dp))
@@ -364,10 +393,10 @@ fun ProfileScreen(
                                     onClick = { photoPickerLauncher.launch("image/*") },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
-                                        .padding(16.dp),
+                                         .padding(16.dp),
                                     containerColor = MaterialTheme.colorScheme.primary
                                 ) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit Photo")
+                                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = DarkBg)
                                 }
                             }
                         }
@@ -376,4 +405,5 @@ fun ProfileScreen(
             }
         }
     }
+}
 }

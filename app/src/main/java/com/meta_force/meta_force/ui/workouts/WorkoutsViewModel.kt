@@ -54,7 +54,9 @@ class WorkoutsViewModel @Inject constructor(
     fun deleteWorkout(id: String) {
         viewModelScope.launch {
             workoutRepository.deleteWorkout(id)
-                .catch { /* Handle error, maybe show toast */ }
+                .catch { e -> 
+                    _uiState.value = WorkoutsUiState.Error(e.message ?: "Error deleting workout")
+                }
                 .collect {
                     loadWorkouts() // Refresh list
                 }

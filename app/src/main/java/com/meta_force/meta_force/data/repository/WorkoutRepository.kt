@@ -1,7 +1,6 @@
 package com.meta_force.meta_force.data.repository
 
-import com.meta_force.meta_force.data.model.CreateWorkoutRequest
-import com.meta_force.meta_force.data.model.Workout
+import com.meta_force.meta_force.data.model.*
 import com.meta_force.meta_force.data.network.WorkoutApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -37,4 +36,24 @@ interface WorkoutRepository {
      * Deletes a workout plan.
      */
     fun deleteWorkout(id: String): Flow<Unit>
+
+    /**
+     * Updates an existing workout plan.
+     */
+    fun updateWorkout(id: String, request: UpdateWorkoutRequest): Flow<Workout>
+
+    /**
+     * Adds an exercise to a specific workout.
+     */
+    fun addExerciseToWorkout(id: String, request: AddExerciseToWorkoutRequest): Flow<WorkoutExercise>
+
+    /**
+     * Updates an exercise within a workout.
+     */
+    fun updateWorkoutExercise(exerciseId: String, request: UpdateWorkoutExerciseRequest): Flow<WorkoutExercise>
+
+    /**
+     * Removes an exercise from a workout.
+     */
+    fun removeExerciseFromWorkout(exerciseId: String): Flow<Unit>
 }

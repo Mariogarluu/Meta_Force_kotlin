@@ -2,15 +2,12 @@ package com.meta_force.meta_force.ui.diets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.meta_force.meta_force.data.model.Diet
+import com.meta_force.meta_force.data.model.*
 import com.meta_force.meta_force.data.repository.DietRepository
+import com.meta_force.meta_force.data.repository.MealRepository
 import com.meta_force.meta_force.ui.diets.DayUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,15 +27,22 @@ sealed class DietDetailUiState {
  */
 @HiltViewModel
 class DietDetailViewModel @Inject constructor(
-    private val dietRepository: DietRepository
+    private val dietRepository: DietRepository,
+    private val mealRepository: MealRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DietDetailUiState>(DietDetailUiState.Loading)
     val uiState: StateFlow<DietDetailUiState> = _uiState.asStateFlow()
 
-    // Estado para rastrear el día actual que se está viendo (0 = Domingo, 6 = Sábado)
+    // Estado para rastrear el día actual que se está viendo (0 = Lunes, 6 = Domingo)
     private val _currentDayIndex = MutableStateFlow(0)
     val currentDayIndex: StateFlow<Int> = _currentDayIndex.asStateFlow()
+
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode: StateFlow<Boolean> = _isEditMode.asStateFlow()
+
+    private val _availableMeals = MutableStateFlow<List<MealInfo>>(emptyList())
+    val availableMeals: StateFlow<List<MealInfo>> = _availableMeals.asStateFlow()
 
     fun loadDiet(id: String) {
         viewModelScope.launch {
@@ -64,5 +68,52 @@ class DietDetailViewModel @Inject constructor(
     /** Establece un día específico */
     fun setDay(dayOfWeek: Int) {
         _currentDayIndex.value = dayOfWeek
+    }
+
+    fun toggleEditMode() {
+        _isEditMode.value = !_isEditMode.value
+        if (_isEditMode.value && _availableMeals.value.isEmpty()) {
+            fetchAvailableMeals()
+        }
+    }
+
+    fun fetchAvailableMeals() {
+        viewModelScope.launch {
+            mealRepository.getMeals()
+                .catch { /* Handle error */ }
+                .collect { meals ->
+                    _availableMeals.value = meals
+                }
+        }
+    }
+
+    fun addMealToDiet(dietId: String, mealId: String, dayOfWeek: Int) {
+        val currentDiet = (uiState.value as? DietDetailUiState.Success)?.diet
+        val beDayOfWeek = (dayOfWeek + 1) % 7
+        val nextOrder = (currentDiet?.meals?.filter { it.dayOfWeek == beDayOfWeek }?.maxOfOrNull { it.order } ?: 0) + 1
+
+        viewModelScope.launch {
+            val request = AddMealToDietRequest(
+                mealId = mealId,
+                dayOfWeek = beDayOfWeek,
+                mealType = "comida", // Valid type: desayuno, almuerzo, comida, merienda, cena
+                order = nextOrder
+            )
+            dietRepository.addMealToDiet(dietId, request)
+                .catch { /* Handle error, maybe update error state */ }
+                .collect {
+                    loadDiet(dietId) // Refresh
+                }
+        }
+    }
+
+    fun removeMealFromDiet(dietId: String, mealId: String) {
+        viewModelScope.launch {
+            dietRepository.removeMealFromDiet(mealId)
+                .catch { /* Handle error, notify UI if needed */ }
+                .collect {
+                    loadDiet(dietId) // Refresh
+                }
+        }
     }
 }

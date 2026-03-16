@@ -13,4 +13,46 @@
     <string name="ai_chat_empty_history">No hay conversaciones previas.</string>
     <string name="ai_chat_new_chat">Nuevo Chat</string>
     <string name="ai_plan_generated">Plan generado</string>
+
+    <!-- Profile -->
+    <string name="profile_title">PERFIL</string>
+    <string name="profile_name">Nombre</string>
+    <string name="profile_email_readonly">Email (No editable)</string>
+    <string name="profile_physical_data">Datos Físicos</string>
+    <string name="profile_height">Altura (cm)</string>
+    <string name="profile_weight">Peso (kg)</string>
+    <string name="profile_birth_date">Fecha Nacimiento</string>
+    <string name="profile_gender">Género</string>
+    <string name="profile_medical_notes">Notas Médicas / Alergias</string>
+    <string name="profile_save">GUARDAR PERFIL</string>
+    <string name="profile_edit_photo">Editar Foto</string>
+    <string name="profile_error_image">Error al leer la imagen</string>
+    <string name="profile_retry">Reintentar</string>
+    <string name="profile_date_accept">Aceptar</string>
+    <string name="profile_date_cancel">Cancelar</string>
+
+    <!-- Diets -->
+    <string name="diet_detail_title">Detalle de Dieta</string>
+    <string name="diet_no_name">Sin nombre</string>
+    <string name="diet_target_calories">🎯 Objetivo: %1$d kcal</string>
+    <string name="diet_no_meals">No hay comidas programadas para este día.</string>
+    <string name="diet_ingredient">Ingrediente</string>
+    <string name="diet_edit">Editar Dieta</string>
+    <string name="diet_add_meal">Añadir Comida</string>
+    <string name="diet_no_details">Sin detalles adicionales</string>
+
+    <!-- Workouts -->
+    <string name="workout_detail_title">Detalle de Rutina</string>
+    <string name="workout_no_exercises">No hay ejercicios programados para este día.</string>
+    <string name="workout_log_performance">Registrar Rendimiento</string>
+    <string name="workout_sets">Series</string>
+    <string name="workout_reps">Reps</string>
+    <string name="workout_weight">Peso (kg)</string>
+    <string name="workout_notes">Notas</string>
+    <string name="workout_last_history">Último Historial</string>
+    <string name="workout_no_history">Sin registros previos</string>
+    <string name="workout_save">Guardar</string>
+    <string name="workout_cancel">Cancelar</string>
+    <string name="workout_edit">Editar Rutina</string>
+    <string name="workout_add_exercise">Añadir Ejercicio</string>
 </resources>
