@@ -204,14 +204,6 @@ fun ClassCard(
             }
             
             Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = onJoin,
-                modifier = Modifier.align(Alignment.End),
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan, contentColor = DarkBg)
-            ) {
-                Text("Unirse", fontWeight = FontWeight.Bold)
-            }
         }
     }
 }

@@ -335,13 +335,6 @@ fun MealCard(meal: com.meta_force.meta_force.data.model.DietMeal) {
                     MacroInfo("C", "${calculatedCarbs.toInt()}g", Color(0xFF81C784))
                     MacroInfo("G", "${calculatedFats.toInt()}g", Color(0xFFFFB74D))
                 }
-
-                Text(
-                    text = "Total: $calculatedCalories kcal",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryCyan
-                )
             }
         }
     }
