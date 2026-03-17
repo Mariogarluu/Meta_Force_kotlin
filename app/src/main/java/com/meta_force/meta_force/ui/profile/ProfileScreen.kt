@@ -87,7 +87,7 @@ fun ProfileScreen(
                 viewModel.uploadAvatar(file)
                 showBigImageDialog = false // Close dialog after picking
             } else {
-                Toast.makeText(context, "Error reading image", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.profile_error_image), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -198,7 +198,7 @@ fun ProfileScreen(
                                     .data(user.profileImageUrl)
                                     .crossfade(true)
                                     .build(),
-                                contentDescription = "Profile Photo",
+                                contentDescription = stringResource(R.string.profile_edit_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -312,11 +312,16 @@ fun ProfileScreen(
 
                     Text(stringResource(R.string.profile_gender), style = MaterialTheme.typography.labelMedium)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                        listOf("male", "female", "other").forEach { g ->
+                        val genderOptions = listOf(
+                            "male" to stringResource(R.string.gender_male),
+                            "female" to stringResource(R.string.gender_female),
+                            "other" to stringResource(R.string.gender_other)
+                        )
+                        genderOptions.forEach { (value, label) ->
                             FilterChip(
-                                selected = gender == g,
-                                onClick = { gender = g },
-                                label = { Text(g.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }) }
+                                selected = gender == value,
+                                onClick = { gender = value },
+                                label = { Text(label) }
                             )
                         }
                     }

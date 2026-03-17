@@ -57,7 +57,7 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Welcome Back",
+                text = stringResource(R.string.ai_chat_greeting_title), // O crear algo como Welcome Back
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
             )
@@ -67,7 +67,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.auth_email)) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -87,7 +87,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.auth_password)) },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -131,7 +131,7 @@ fun LoginScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("LOGIN", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.auth_login), style = MaterialTheme.typography.titleMedium)
                 }
             }
 
@@ -141,7 +141,7 @@ fun LoginScreen(
                 onClick = onNavigateToRegister
             ) {
                 Text(
-                    "Don't have an account? Register",
+                    "¿No tienes cuenta? Regístrate",
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }

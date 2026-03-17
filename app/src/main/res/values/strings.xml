@@ -23,6 +23,9 @@
     <string name="profile_weight">Peso (kg)</string>
     <string name="profile_birth_date">Fecha Nacimiento</string>
     <string name="profile_gender">Género</string>
+    <string name="gender_male">Masculino</string>
+    <string name="gender_female">Femenino</string>
+    <string name="gender_other">Otro</string>
     <string name="profile_medical_notes">Notas Médicas / Alergias</string>
     <string name="profile_save">GUARDAR PERFIL</string>
     <string name="profile_edit_photo">Editar Foto</string>
@@ -55,4 +58,50 @@
     <string name="workout_cancel">Cancelar</string>
     <string name="workout_edit">Editar Rutina</string>
     <string name="workout_add_exercise">Añadir Ejercicio</string>
+
+    <!-- Authentication -->
+    <string name="auth_name">Nombre</string>
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_welcome_back">Bienvenido de nuevo</string>
+    <string name="auth_login">Iniciar Sesión</string>
+    <string name="auth_register">Registrarse</string>
+    <string name="auth_no_account">¿No tienes cuenta? Regístrate</string>
+    <string name="auth_have_account">¿Ya tienes cuenta? Inicia sesión</string>
+    <string name="auth_create_account">Crear Cuenta</string>
+
+    <!-- General Labels -->
+    <string name="label_name">Nombre</string>
+    <string name="label_description">Descripción</string>
+    <string name="label_address">Dirección</string>
+    <string name="label_city">Ciudad</string>
+    <string name="label_country">País</string>
+    <string name="btn_save">Guardar</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_back">Atrás</string>
+
+    <!-- Placeholders -->
+    <string name="placeholder_workout_name">Ejemplo: Rutina de fuerza superior</string>
+    <string name="placeholder_workout_desc">Detalla el enfoque de este entrenamiento</string>
+    <string name="placeholder_diet_name">Ejemplo: Dieta para ganar músculo</string>
+    <string name="placeholder_diet_desc">Detalla los objetivos de esta dieta</string>
+    <string name="placeholder_calories">Ejemplo: 2000</string>
+    <string name="placeholder_workout_goal">Ejemplo: Ganancia muscular, Pérdida de grasa</string>
+    <string name="placeholder_workout_level">Ejemplo: Principiante, Intermedio, Avanzado</string>
+    <string name="placeholder_workout_days">Ejemplo: 3, 4, 5</string>
+
+    <!-- Creation Screens -->
+    <string name="diet_create_title">Crear Dieta</string>
+    <string name="workout_create_title">Crear Entrenamiento</string>
+    <string name="diet_name_label">Nombre de la dieta</string>
+    <string name="workout_name_label">Nombre del entrenamiento</string>
+    <string name="description_label_optional">Descripción (opcional)</string>
+    <string name="diet_calories_label_optional">Objetivo diario de calorías (opcional)</string>
+    <string name="workout_goal_label">Objetivo (opcional)</string>
+    <string name="workout_level_label">Nivel de dificultad (opcional)</string>
+    <string name="workout_days_label">Días por semana (opcional)</string>
+
+    <!-- Centers -->
+    <string name="centers_new_title">Nuevo Centro</string>
+    <string name="centers_edit_title">Editar Centro</string>
 </resources>

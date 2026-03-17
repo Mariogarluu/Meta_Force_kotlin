@@ -46,7 +46,7 @@ fun DietCreationScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Crear Dieta",
+                        text = stringResource(R.string.diet_create_title),
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )
@@ -55,7 +55,7 @@ fun DietCreationScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Atrás",
+                            contentDescription = stringResource(R.string.btn_back),
                             tint = Color.White
                         )
                     }
@@ -88,14 +88,14 @@ fun DietCreationScreen(
             ) {
                 Column {
                     Text(
-                        text = "Nombre de la dieta",
+                        text = stringResource(R.string.diet_name_label),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Ejemplo: Dieta para ganar músculo") },
+                        placeholder = { Text(stringResource(R.string.placeholder_diet_name)) },
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -104,14 +104,14 @@ fun DietCreationScreen(
 
                 Column {
                     Text(
-                        text = "Descripción (opcional)",
+                        text = stringResource(R.string.description_label_optional),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        placeholder = { Text("Detalla los objetivos de esta dieta") },
+                        placeholder = { Text(stringResource(R.string.placeholder_diet_desc)) },
                         maxLines = 3,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -121,14 +121,14 @@ fun DietCreationScreen(
 
                 Column {
                     Text(
-                        text = "Objetivo diario de calorías (opcional)",
+                        text = stringResource(R.string.diet_calories_label_optional),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = caloriesTarget,
                         onValueChange = { caloriesTarget = it },
-                        placeholder = { Text("Ejemplo: 2000") },
+                        placeholder = { Text(stringResource(R.string.placeholder_calories)) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         ),
@@ -171,7 +171,7 @@ fun DietCreationScreen(
                         .height(56.dp)
                 ) {
                     Text(
-                        text = "Crear Dieta",
+                        text = stringResource(R.string.diet_create_title),
                         style = MaterialTheme.typography.labelLarge
                     )
                 }

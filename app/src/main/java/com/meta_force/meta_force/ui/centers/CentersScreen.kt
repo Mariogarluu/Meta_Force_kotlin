@@ -291,17 +291,17 @@ fun CenterFormDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialCenter == null) "Nuevo Centro" else "Editar Centro") },
+        title = { Text(if (initialCenter == null) stringResource(R.string.centers_new_title) else stringResource(R.string.centers_edit_title)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre") })
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Descripción") })
-                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Dirección") })
-                OutlinedTextField(value = city, onValueChange = { city = it }, label = { Text("Ciudad") })
-                OutlinedTextField(value = country, onValueChange = { country = it }, label = { Text("País") })
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(R.string.label_name)) })
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text(stringResource(R.string.label_description)) })
+                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text(stringResource(R.string.label_address)) })
+                OutlinedTextField(value = city, onValueChange = { city = it }, label = { Text(stringResource(R.string.label_city)) })
+                OutlinedTextField(value = country, onValueChange = { country = it }, label = { Text(stringResource(R.string.label_country)) })
             }
         },
         confirmButton = {
@@ -309,12 +309,12 @@ fun CenterFormDialog(
                 onClick = { onConfirm(name, description, address, city, country, phone, email) },
                 enabled = name.isNotBlank()
             ) {
-                Text("Guardar")
+                Text(stringResource(R.string.btn_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.btn_cancel))
             }
         }
     )

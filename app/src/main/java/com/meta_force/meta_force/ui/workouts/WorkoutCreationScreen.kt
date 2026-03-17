@@ -48,7 +48,7 @@ fun WorkoutCreationScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Crear Entrenamiento",
+                        text = stringResource(R.string.workout_create_title),
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )
@@ -57,7 +57,7 @@ fun WorkoutCreationScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Atrás",
+                            contentDescription = stringResource(R.string.btn_back),
                             tint = Color.White
                         )
                     }
@@ -90,14 +90,14 @@ fun WorkoutCreationScreen(
             ) {
                 Column {
                     Text(
-                        text = "Nombre del entrenamiento",
+                        text = stringResource(R.string.workout_name_label),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Ejemplo: Rutina de fuerza superior") },
+                        placeholder = { Text(stringResource(R.string.placeholder_workout_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -105,14 +105,14 @@ fun WorkoutCreationScreen(
 
                 Column {
                     Text(
-                        text = "Descripción (opcional)",
+                        text = stringResource(R.string.description_label_optional),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        placeholder = { Text("Detalla el enfoque de este entrenamiento") },
+                        placeholder = { Text(stringResource(R.string.placeholder_workout_desc)) },
                         maxLines = 3,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -122,14 +122,14 @@ fun WorkoutCreationScreen(
 
                 Column {
                     Text(
-                        text = "Objetivo (opcional)",
+                        text = stringResource(R.string.workout_goal_label),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = goal,
                         onValueChange = { goal = it },
-                        placeholder = { Text("Ejemplo: Ganancia muscular, Pérdida de grasa") },
+                        placeholder = { Text(stringResource(R.string.placeholder_workout_goal)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -137,14 +137,14 @@ fun WorkoutCreationScreen(
 
                 Column {
                     Text(
-                        text = "Nivel de dificultad (opcional)",
+                        text = stringResource(R.string.workout_level_label),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = level,
                         onValueChange = { level = it },
-                        placeholder = { Text("Ejemplo: Principiante, Intermedio, Avanzado") },
+                        placeholder = { Text(stringResource(R.string.placeholder_workout_level)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -152,14 +152,14 @@ fun WorkoutCreationScreen(
 
                 Column {
                     Text(
-                        text = "Días por semana (opcional)",
+                        text = stringResource(R.string.workout_days_label),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = daysPerWeek,
                         onValueChange = { daysPerWeek = it },
-                        placeholder = { Text("Ejemplo: 3, 4, 5") },
+                        placeholder = { Text(stringResource(R.string.placeholder_workout_days)) },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         ),
@@ -203,7 +203,7 @@ fun WorkoutCreationScreen(
                         .height(56.dp)
                 ) {
                     Text(
-                        text = "Crear Entrenamiento",
+                        text = stringResource(R.string.workout_create_title),
                         style = MaterialTheme.typography.labelLarge
                     )
                 }

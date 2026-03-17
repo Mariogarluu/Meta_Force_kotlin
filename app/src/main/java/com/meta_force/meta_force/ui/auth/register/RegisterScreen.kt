@@ -57,7 +57,7 @@ fun RegisterScreen(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Create Account", 
+                text = stringResource(R.string.auth_create_account), 
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
             )
@@ -67,7 +67,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.auth_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -84,7 +84,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(R.string.auth_email)) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -104,7 +104,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.auth_password)) },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -141,7 +141,7 @@ fun RegisterScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("REGISTER", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.auth_register), style = MaterialTheme.typography.titleMedium)
                 }
             }
 
@@ -149,7 +149,7 @@ fun RegisterScreen(
 
             TextButton(onClick = onNavigateToLogin) {
                 Text(
-                    "Already have an account? Login",
+                    stringResource(R.string.auth_have_account),
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }

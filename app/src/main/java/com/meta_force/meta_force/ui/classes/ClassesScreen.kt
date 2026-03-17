@@ -275,7 +275,7 @@ fun ClassFormDialog(
                 OutlinedTextField(
                     value = name, 
                     onValueChange = { name = it }, 
-                    label = { Text("Nombre", color = Color.LightGray) },
+                    label = { Text(stringResource(R.string.label_name), color = Color.LightGray) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -286,7 +286,7 @@ fun ClassFormDialog(
                 OutlinedTextField(
                     value = description, 
                     onValueChange = { description = it }, 
-                    label = { Text("Descripción", color = Color.LightGray) },
+                    label = { Text(stringResource(R.string.label_description), color = Color.LightGray) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -302,12 +302,12 @@ fun ClassFormDialog(
                 enabled = name.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan, contentColor = DarkBg)
             ) {
-                Text("Guardar", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.btn_save), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = PrimaryCyan)
+                Text(stringResource(R.string.btn_cancel), color = PrimaryCyan)
             }
         }
     )
