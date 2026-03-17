@@ -12,8 +12,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -62,10 +62,6 @@ fun WorkoutDetailScreen(
     val availableExercises by viewModel.availableExercises.collectAsState()
     var showExerciseModal by remember { mutableStateOf(false) }
 
-    var showLogDialog by remember { mutableStateOf(false) }
-    var selectedExerciseId by remember { mutableStateOf<String?>(null) }
-    var selectedExerciseName by remember { mutableStateOf("") }
-    val exerciseHistory by viewModel.exerciseHistory.collectAsState()
 
     LaunchedEffect(workoutId) {
         viewModel.loadWorkout(workoutId)
@@ -84,7 +80,7 @@ fun WorkoutDetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
                     }
                 },
                 actions = {
@@ -124,107 +120,10 @@ fun WorkoutDetailScreen(
                         currentDayIndex = currentDayIndex,
                         isEditMode = isEditMode,
                         onDayChanged = { viewModel.setDay(it) },
-                        onLogPerformance = { id, name ->
-                            selectedExerciseId = id
-                            selectedExerciseName = name
-                            viewModel.loadExerciseHistory(id)
-                            showLogDialog = true
-                        },
                         onRemoveExercise = { exerciseId -> viewModel.removeExerciseFromWorkout(state.workout.id ?: "", exerciseId) },
                         onAddExerciseClick = { showExerciseModal = true }
                     )
 
-                    if (showLogDialog && selectedExerciseId != null) {
-                        var sets by remember { mutableStateOf("3") }
-                        var reps by remember { mutableStateOf("10") }
-                        var weight by remember { mutableStateOf("") }
-                        var logNotes by remember { mutableStateOf("") }
-
-                        AlertDialog(
-                            onDismissRequest = { showLogDialog = false },
-                            title = { Text("Registrar: $selectedExerciseName", color = Color.White) },
-                            text = {
-                                Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        OutlinedTextField(
-                                            value = sets,
-                                            onValueChange = { sets = it },
-                                            label = { Text(stringResource(R.string.workout_sets)) },
-                                            modifier = Modifier.weight(1f),
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                            singleLine = true
-                                        )
-                                        OutlinedTextField(
-                                            value = reps,
-                                            onValueChange = { reps = it },
-                                            label = { Text(stringResource(R.string.workout_reps)) },
-                                            modifier = Modifier.weight(1f),
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                            singleLine = true
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    OutlinedTextField(
-                                        value = weight,
-                                        onValueChange = { weight = it },
-                                        label = { Text(stringResource(R.string.workout_weight)) },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        singleLine = true
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    OutlinedTextField(
-                                        value = logNotes,
-                                        onValueChange = { logNotes = it },
-                                        label = { Text(stringResource(R.string.workout_notes)) },
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(stringResource(R.string.workout_last_history), style = MaterialTheme.typography.labelMedium, color = PrimaryCyan)
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    if (exerciseHistory.isEmpty()) {
-                                        Text(stringResource(R.string.workout_no_history), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-                                    } else {
-                                        exerciseHistory.take(3).forEach { log ->
-                                            Text(
-                                                text = "${log.date.take(10)}: ${log.weight}kg | ${log.sets}x${log.reps}",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = Color.LightGray
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        viewModel.logPerformance(
-                                            selectedExerciseId ?: "",
-                                            sets,
-                                            reps,
-                                            weight.toDoubleOrNull(),
-                                            logNotes
-                                        ) {
-                                            showLogDialog = false
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
-                                ) {
-                                    Text(stringResource(R.string.workout_save), color = DarkBg)
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { showLogDialog = false }) {
-                                    Text(stringResource(R.string.workout_cancel), color = Color.White)
-                                }
-                            },
-                            containerColor = DarkSurface,
-                            titleContentColor = Color.White,
-                            textContentColor = Color.LightGray
-                        )
-                    }
 
                     if (showExerciseModal) {
                         ExerciseSelectionModal(
@@ -249,7 +148,6 @@ fun WorkoutDetailContent(
     currentDayIndex: Int,
     isEditMode: Boolean,
     onDayChanged: (Int) -> Unit,
-    onLogPerformance: (String, String) -> Unit,
     onRemoveExercise: (String) -> Unit,
     onAddExerciseClick: () -> Unit
 ) {
@@ -295,7 +193,7 @@ fun WorkoutDetailContent(
                     pagerState.animateScrollToPage(prev)
                 }
             }) {
-                Icon(Icons.Default.ArrowBack, "Día anterior", tint = PrimaryCyan)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Día anterior", tint = PrimaryCyan)
             }
 
             Text(
@@ -311,7 +209,7 @@ fun WorkoutDetailContent(
                     pagerState.animateScrollToPage(next)
                 }
             }) {
-                Icon(Icons.Default.ArrowForward, "Día siguiente", tint = PrimaryCyan)
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, "Día siguiente", tint = PrimaryCyan)
             }
         }
 
@@ -323,7 +221,6 @@ fun WorkoutDetailContent(
                 workout = workout,
                 dayIndex = page,
                 isEditMode = isEditMode,
-                onLogPerformance = onLogPerformance,
                 onRemoveExercise = onRemoveExercise,
                 onAddExerciseClick = onAddExerciseClick
             )
@@ -336,7 +233,6 @@ fun DayContent(
     workout: Workout,
     dayIndex: Int,
     isEditMode: Boolean,
-    onLogPerformance: (String, String) -> Unit,
     onRemoveExercise: (String) -> Unit,
     onAddExerciseClick: () -> Unit
 ) {
@@ -364,7 +260,6 @@ fun DayContent(
                 ExerciseCard(
                     item = item,
                     isEditMode = isEditMode,
-                    onLogPerformance = { onLogPerformance(item.id!!, item.exercise?.name ?: "Ejercicio") },
                     onRemove = { onRemoveExercise(item.id!!) }
                 )
             }
@@ -391,7 +286,6 @@ fun DayContent(
 fun ExerciseCard(
     item: com.meta_force.meta_force.data.model.WorkoutExercise,
     isEditMode: Boolean,
-    onLogPerformance: () -> Unit,
     onRemove: () -> Unit
 ) {
     Card(
@@ -453,16 +347,6 @@ fun ExerciseCard(
                 }
             }
 
-            if (!isEditMode) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = onLogPerformance,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan)
-                ) {
-                    Text(stringResource(R.string.workout_log_performance), color = DarkBg)
-                }
-            }
         }
     }
 }

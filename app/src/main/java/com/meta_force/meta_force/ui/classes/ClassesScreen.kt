@@ -1,14 +1,14 @@
 package com.meta_force.meta_force.ui.classes
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.animation.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,24 +54,13 @@ fun ClassesScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = DarkSurface.copy(alpha = 0.95f)
                 )
             )
-        },
-        floatingActionButton = {
-            if (isAdmin) {
-                FloatingActionButton(
-                    onClick = { showCreateDialog = true },
-                    containerColor = PrimaryCyan,
-                    contentColor = DarkBg
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir Clase")
-                }
-            }
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
@@ -164,8 +153,12 @@ fun ClassCard(
     onJoin: () -> Unit,
     onDelete: () -> Unit
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { isExpanded = !isExpanded },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = DarkSurface
@@ -184,29 +177,32 @@ fun ClassCard(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                if (isAdmin) {
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color(0xFFef4444))
-                    }
-                }
             }
             if (!gymClass.description.isNullOrEmpty()) {
                 Text(text = gymClass.description, style = MaterialTheme.typography.bodyMedium, color = Color.White)
             }
-            Spacer(modifier = Modifier.height(8.dp))
             
-            // Render schedules with improved UI and deduplication
-            if (!gymClass.schedules.isNullOrEmpty()) {
-                val uniqueSchedules = gymClass.schedules
-                    .distinctBy { "${it.dayOfWeek}-${it.startTime}-${it.endTime}" }
-                    .sortedWith(compareBy({ it.dayOfWeek }, { it.startTime }))
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // Render schedules with improved UI and deduplication
+                    if (!gymClass.schedules.isNullOrEmpty()) {
+                        val uniqueSchedules = gymClass.schedules
+                            .distinctBy { "${it.dayOfWeek}-${it.startTime}-${it.endTime}" }
+                            .sortedWith(compareBy({ it.dayOfWeek }, { it.startTime }))
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    uniqueSchedules.forEach { sc ->
-                        ScheduleItem(sc)
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            uniqueSchedules.forEach { sc ->
+                                ScheduleItem(sc)
+                            }
+                        }
                     }
                 }
             }

@@ -4,10 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,7 +38,6 @@ fun CentersScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isAdmin by viewModel.isAdmin.collectAsState()
     val machinesState by viewModel.machinesState.collectAsState()
-    var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = DarkBg,
@@ -56,14 +52,7 @@ fun CentersScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás", tint = Color.White)
-                    }
-                },
-                actions = {
-                    if (isAdmin) {
-                        IconButton(onClick = { showCreateDialog = true }) {
-                            Icon(Icons.Default.Add, contentDescription = "Añadir Centro", tint = PrimaryCyan)
-                        }
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -105,24 +94,12 @@ fun CentersScreen(
                                     center = center,
                                     isAdmin = isAdmin,
                                     machines = center.id?.let { machinesState[it] },
-                                    onLoadMachines = { center.id?.let { viewModel.loadMachinesForCenter(it) } },
-                                    onEdit = { /* show edit dialog */ },
-                                    onDelete = { viewModel.deleteCenter(center.id ?: "") }
+                                    onLoadMachines = { center.id?.let { viewModel.loadMachinesForCenter(it) } }
                                 )
                             }
                         }
                     }
                 }
-            }
-
-            if (showCreateDialog) {
-                CenterFormDialog(
-                    onDismiss = { showCreateDialog = false },
-                    onConfirm = { name, desc, address, city, country, phone, email ->
-                        viewModel.createCenter(name, desc, address, city, country, phone, email)
-                        showCreateDialog = false
-                    }
-                )
             }
         }
     }
@@ -133,9 +110,7 @@ fun CenterCard(
     center: Center,
     isAdmin: Boolean,
     machines: List<MachineTypeModel>?,
-    onLoadMachines: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onLoadMachines: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -167,16 +142,6 @@ fun CenterCard(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                if (isAdmin) {
-                    Row {
-                        IconButton(onClick = onEdit) {
-                            Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PrimaryCyan)
-                        }
-                        IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color(0xFFef4444))
-                        }
-                    }
-                }
             }
             if (!center.description.isNullOrEmpty()) {
                 Text(
@@ -200,7 +165,7 @@ fun CenterCard(
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
-                    Divider(modifier = Modifier.padding(bottom = 8.dp), color = DarkSurfaceVariant)
+                    HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp), color = DarkSurfaceVariant)
                     Text(
                         text = "Máquinas Activas",
                         style = MaterialTheme.typography.titleSmall,
@@ -276,48 +241,3 @@ fun CenterCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CenterFormDialog(
-    initialCenter: Center? = null,
-    onDismiss: () -> Unit,
-    onConfirm: (String, String, String, String, String, String, String) -> Unit
-) {
-    var name by remember { mutableStateOf(initialCenter?.name ?: "") }
-    var description by remember { mutableStateOf(initialCenter?.description ?: "") }
-    var address by remember { mutableStateOf(initialCenter?.address ?: "") }
-    var city by remember { mutableStateOf(initialCenter?.city ?: "") }
-    var country by remember { mutableStateOf(initialCenter?.country ?: "") }
-    var phone by remember { mutableStateOf(initialCenter?.phone ?: "") }
-    var email by remember { mutableStateOf(initialCenter?.email ?: "") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (initialCenter == null) stringResource(R.string.centers_new_title) else stringResource(R.string.centers_edit_title)) },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(R.string.label_name)) })
-                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text(stringResource(R.string.label_description)) })
-                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text(stringResource(R.string.label_address)) })
-                OutlinedTextField(value = city, onValueChange = { city = it }, label = { Text(stringResource(R.string.label_city)) })
-                OutlinedTextField(value = country, onValueChange = { country = it }, label = { Text(stringResource(R.string.label_country)) })
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm(name, description, address, city, country, phone, email) },
-                enabled = name.isNotBlank()
-            ) {
-                Text(stringResource(R.string.btn_save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.btn_cancel))
-            }
-        }
-    )
-}

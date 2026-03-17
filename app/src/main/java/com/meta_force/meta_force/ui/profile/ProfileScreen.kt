@@ -19,7 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
@@ -106,7 +106,7 @@ fun ProfileScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -281,7 +281,7 @@ fun ProfileScreen(
                         if (birthDate.isNotEmpty()) {
                             val inputSdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                             val date = inputSdf.parse(birthDate)
-                            val outputSdf = SimpleDateFormat("dd/MM/yyyy", Locale("es", "ES"))
+                            val outputSdf = SimpleDateFormat("dd/MM/yyyy", Locale.forLanguageTag("es-ES"))
                             outputSdf.format(date!!)
                         } else ""
                     } catch (e: Exception) {
