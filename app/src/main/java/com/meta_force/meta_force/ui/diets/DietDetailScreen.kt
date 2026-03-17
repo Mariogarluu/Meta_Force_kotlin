@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.res.stringResource
@@ -64,7 +65,11 @@ fun DietDetailScreen(
                     Text(
                         text = title,
                         color = Color.White,
-                        fontWeight = FontWeight.ExtraBold
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {
@@ -106,7 +111,7 @@ fun DietDetailScreen(
                         currentDayIndex = currentDayIndex,
                         isEditMode = isEditMode,
                         onDaySelected = { viewModel.setDay(it) },
-                        onRemoveMeal = { viewModel.removeMealFromDiet(state.diet.id!!, it) },
+                        onRemoveMeal = { viewModel.removeMealFromDiet(state.diet.id ?: "", it) },
                         onAddMealClick = { showMealModal = true }
                     )
                 }
@@ -119,7 +124,7 @@ fun DietDetailScreen(
             meals = availableMeals,
             onDismiss = { showMealModal = false },
             onMealSelected = { mealId ->
-                viewModel.addMealToDiet(dietId, mealId, currentDayIndex)
+                                viewModel.addMealToDiet(dietId, mealId ?: "", currentDayIndex)
                 showMealModal = false
             }
         )
@@ -182,8 +187,8 @@ fun DietContent(
         ) { dayIndex ->
             // Use (dayIndex + 1) % 7 to match backend (0=Sun, 1=Mon, ..., 6=Sat)
             val beDayOfWeek = (dayIndex + 1) % 7
-            val mealsForDay = diet.meals.filter { it.dayOfWeek == beDayOfWeek }
-                .sortedBy { it.order }
+            val mealsForDay = (diet.meals ?: emptyList()).filter { it.dayOfWeek == beDayOfWeek }
+                .sortedBy { it.order ?: 0 }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -204,7 +209,7 @@ fun DietContent(
                         MealCard(
                             meal = meal,
                             isEditMode = isEditMode,
-                            onRemove = { onRemoveMeal(meal.id!!) }
+                            onRemove = { onRemoveMeal(meal.id ?: "") }
                         )
                     }
                 }
@@ -285,8 +290,9 @@ fun MealCard(
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (meal.foods.isNotEmpty()) {
-                    meal.foods.forEach { food ->
+                val foods = meal.foods ?: emptyList()
+                if (foods.isNotEmpty()) {
+                    foods.forEach { food ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween

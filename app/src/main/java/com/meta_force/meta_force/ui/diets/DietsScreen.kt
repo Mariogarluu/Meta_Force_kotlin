@@ -96,7 +96,7 @@ fun DietsScreen(
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { onNavigateToDetail(diet.id) },
+                                        .clickable { onNavigateToDetail(diet.id ?: "") },
                                     shape = RoundedCornerShape(20.dp),
                                     colors = CardDefaults.cardColors(
                                         containerColor = DarkSurface
@@ -110,7 +110,7 @@ fun DietsScreen(
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                text = diet.name,
+                                                text = diet.name ?: "Sin nombre",
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color.White
@@ -125,7 +125,7 @@ fun DietsScreen(
                                                 )
                                             }
                                         }
-                                        IconButton(onClick = { viewModel.deleteDiet(diet.id) }) {
+                                        IconButton(onClick = { viewModel.deleteDiet(diet.id ?: "") }) {
                                             Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFef4444))
                                         }
                                     }

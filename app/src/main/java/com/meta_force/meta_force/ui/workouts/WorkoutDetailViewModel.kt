@@ -134,7 +134,7 @@ class WorkoutDetailViewModel @Inject constructor(
     fun addExerciseToWorkout(workoutId: String, exerciseId: String, dayOfWeek: Int) {
         val currentWorkout = (uiState.value as? WorkoutDetailUiState.Success)?.workout
         val beDayOfWeek = (dayOfWeek + 1) % 7
-        val nextOrder = (currentWorkout?.exercises?.filter { it.dayOfWeek == beDayOfWeek }?.maxOfOrNull { it.order } ?: 0) + 1
+        val nextOrder = ((currentWorkout?.exercises ?: emptyList()).filter { it.dayOfWeek == beDayOfWeek }.maxOfOrNull { it.order ?: 0 } ?: 0) + 1
 
         viewModelScope.launch {
             val request = AddExerciseToWorkoutRequest(

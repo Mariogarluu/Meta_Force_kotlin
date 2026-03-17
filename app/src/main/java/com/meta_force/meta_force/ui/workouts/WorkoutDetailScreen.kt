@@ -130,7 +130,7 @@ fun WorkoutDetailScreen(
                             viewModel.loadExerciseHistory(id)
                             showLogDialog = true
                         },
-                        onRemoveExercise = { exerciseId -> viewModel.removeExerciseFromWorkout(state.workout.id!!, exerciseId) },
+                        onRemoveExercise = { exerciseId -> viewModel.removeExerciseFromWorkout(state.workout.id ?: "", exerciseId) },
                         onAddExerciseClick = { showExerciseModal = true }
                     )
 
@@ -201,7 +201,7 @@ fun WorkoutDetailScreen(
                                 Button(
                                     onClick = {
                                         viewModel.logPerformance(
-                                            selectedExerciseId!!,
+                                            selectedExerciseId ?: "",
                                             sets,
                                             reps,
                                             weight.toDoubleOrNull(),
@@ -231,7 +231,7 @@ fun WorkoutDetailScreen(
                             exercises = availableExercises,
                             onDismiss = { showExerciseModal = false },
                             onExerciseSelected = { exerciseId ->
-                                viewModel.addExerciseToWorkout(state.workout.id!!, exerciseId, currentDayIndex)
+                                viewModel.addExerciseToWorkout(state.workout.id ?: "", exerciseId, currentDayIndex)
                                 showExerciseModal = false
                             }
                         )
@@ -269,7 +269,7 @@ fun WorkoutDetailContent(
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = workout.name,
+                text = workout.name ?: "",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -343,7 +343,7 @@ fun DayContent(
     // 0=Lun, 6=Dom en UI -> El backend usa 1..7 (enviado como dayIndex + 1)
     val beDayOfWeek = (dayIndex + 1) % 7
     val exercisesForDay = (workout.exercises ?: emptyList()).filter { it.dayOfWeek == beDayOfWeek }
-        .sortedBy { it.order }
+        .sortedBy { it.order ?: 0 }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

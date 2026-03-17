@@ -14,15 +14,15 @@ package com.meta_force.meta_force.data.model
  * @property updatedAt Timestamp when the diet was last modified.
  */
 data class Diet(
-    val id: String,
-    val name: String,
+    val id: String?,
+    val name: String?,
     val description: String?,
-    val userId: String,
+    val userId: String?,
     val caloriesTarget: Int?,
-    val active: Boolean,
-    val meals: List<DietMeal> = emptyList(),
-    val createdAt: String,
-    val updatedAt: String
+    val active: Boolean?,
+    val meals: List<DietMeal>? = emptyList(),
+    val createdAt: String?,
+    val updatedAt: String?
 )
 
 /**
@@ -41,23 +41,23 @@ data class Diet(
  * @property foods List of [DietFood] items included in this meal.
  */
 data class DietMeal(
-    val id: String,
-    val dietId: String,
-    val mealId: String,
+    val id: String?,
+    val dietId: String?,
+    val mealId: String?,
     val name: String?, // Deprecated en favor de meal.name
     val dayOfWeek: Int?,
-    val order: Int,
+    val order: Int?,
     val time: String?, // "08:00"
     val mealType: String?, // "desayuno", "almuerzo", etc.
     val quantity: Double?,
     val notes: String?,
     val meal: MealInfo? = null,
-    val foods: List<DietFood> = emptyList()
+    val foods: List<DietFood>? = emptyList()
 )
 
 data class MealInfo(
-    val id: String,
-    val name: String,
+    val id: String?,
+    val name: String?,
     val description: String?,
     val calories: String?,
     val protein: String?,
@@ -80,10 +80,10 @@ data class MealInfo(
  * @property fats Fat content for this specific quantity.
  */
 data class DietFood(
-    val id: String,
-    val mealId: String,
-    val name: String,
-    val quantity: Double, // grams or logic unit
+    val id: String?,
+    val mealId: String?,
+    val name: String?,
+    val quantity: Double?, // grams or logic unit
     val unit: String?,
     val calories: String?,
     val protein: String?,

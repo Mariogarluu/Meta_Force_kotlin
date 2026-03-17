@@ -96,7 +96,7 @@ fun WorkoutsScreen(
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { onNavigateToDetail(workout.id) },
+                                        .clickable { onNavigateToDetail(workout.id ?: "") },
                                     shape = RoundedCornerShape(20.dp),
                                     colors = CardDefaults.cardColors(
                                         containerColor = DarkSurface
@@ -110,7 +110,7 @@ fun WorkoutsScreen(
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                text = workout.name,
+                                                text = workout.name ?: "Sin nombre",
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color.White
@@ -125,7 +125,7 @@ fun WorkoutsScreen(
                                                 )
                                             }
                                         }
-                                        IconButton(onClick = { viewModel.deleteWorkout(workout.id) }) {
+                                        IconButton(onClick = { viewModel.deleteWorkout(workout.id ?: "") }) {
                                             Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFef4444)) // red-500
                                         }
                                     }

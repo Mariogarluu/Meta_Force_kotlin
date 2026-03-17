@@ -55,8 +55,8 @@ data class AiGeneratedPlan(
  * @property items A list of [AiPlanItem] for this specific day.
  */
 data class AiPlanDay(
-    val dayOfWeek: Int,
-    val items: List<AiPlanItem> // represents both exercises and meals
+    val dayOfWeek: Int?,
+    val items: List<AiPlanItem>? // represents both exercises and meals
 )
 
 /**

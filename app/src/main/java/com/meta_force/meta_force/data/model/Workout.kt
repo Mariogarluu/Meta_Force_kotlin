@@ -12,13 +12,13 @@ package com.meta_force.meta_force.data.model
  * @property updatedAt Last update timestamp.
  */
 data class Workout(
-    val id: String,
-    val name: String,
+    val id: String?,
+    val name: String?,
     val description: String?,
-    val userId: String,
-    val exercises: List<WorkoutExercise> = emptyList(),
-    val createdAt: String,
-    val updatedAt: String
+    val userId: String?,
+    val exercises: List<WorkoutExercise>? = emptyList(),
+    val createdAt: String?,
+    val updatedAt: String?
 )
 
 /**
@@ -37,12 +37,12 @@ data class Workout(
  * @property notes Additional instructions for this specific exercise instance.
  */
 data class WorkoutExercise(
-    val id: String,
-    val workoutId: String,
-    val exerciseId: String,
+    val id: String?,
+    val workoutId: String?,
+    val exerciseId: String?,
     val exercise: Exercise?, // Nested object often returned
-    val dayOfWeek: Int,
-    val order: Int,
+    val dayOfWeek: Int?,
+    val order: Int?,
     val sets: String?,
     val reps: String?,
     val weight: Double?,
@@ -61,10 +61,10 @@ data class WorkoutExercise(
  * @property imageUrl Optional URL to a demonstration image.
  */
 data class Exercise(
-    val id: String,
-    val name: String,
+    val id: String?,
+    val name: String?,
     val description: String?,
-    val muscleGroup: String,
+    val muscleGroup: String?,
     val videoUrl: String?,
     val imageUrl: String?
 )

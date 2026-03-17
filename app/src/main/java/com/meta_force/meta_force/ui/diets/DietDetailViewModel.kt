@@ -90,7 +90,7 @@ class DietDetailViewModel @Inject constructor(
     fun addMealToDiet(dietId: String, mealId: String, dayOfWeek: Int) {
         val currentDiet = (uiState.value as? DietDetailUiState.Success)?.diet
         val beDayOfWeek = (dayOfWeek + 1) % 7
-        val nextOrder = (currentDiet?.meals?.filter { it.dayOfWeek == beDayOfWeek }?.maxOfOrNull { it.order } ?: 0) + 1
+        val nextOrder = ((currentDiet?.meals ?: emptyList()).filter { it.dayOfWeek == beDayOfWeek }.maxOfOrNull { it.order ?: 0 } ?: 0) + 1
 
         viewModelScope.launch {
             val request = AddMealToDietRequest(
