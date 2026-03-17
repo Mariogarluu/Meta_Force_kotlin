@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -192,18 +193,60 @@ fun ClassCard(
             }
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Render schedules simplified
+            // Render schedules with improved UI and deduplication
             if (!gymClass.schedules.isNullOrEmpty()) {
-                gymClass.schedules.forEach { sc ->
-                    Text(
-                        text = "${getDayName(sc.dayOfWeek)}: ${sc.startTime} - ${sc.endTime}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.LightGray
-                    )
+                val uniqueSchedules = gymClass.schedules
+                    .distinctBy { "${it.dayOfWeek}-${it.startTime}-${it.endTime}" }
+                    .sortedWith(compareBy({ it.dayOfWeek }, { it.startTime }))
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    uniqueSchedules.forEach { sc ->
+                        ScheduleItem(sc)
+                    }
                 }
             }
             
             Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun ScheduleItem(sc: com.meta_force.meta_force.data.model.ClassCenterSchedule) {
+    Surface(
+        color = DarkSurfaceVariant.copy(alpha = 0.5f),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Schedule,
+                    contentDescription = null,
+                    tint = PrimaryCyan,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = getDayName(sc.dayOfWeek),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+            Text(
+                text = "${sc.startTime} - ${sc.endTime}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PrimaryCyan,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
