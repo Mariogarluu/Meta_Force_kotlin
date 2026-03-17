@@ -77,8 +77,8 @@ class WorkoutDetailViewModel @Inject constructor(
 
     fun logPerformance(
         exerciseId: String,
-        sets: Int?,
-        reps: Int?,
+        sets: String?,
+        reps: String?,
         weight: Double?,
         notes: String?,
         onSuccess: () -> Unit
@@ -141,8 +141,8 @@ class WorkoutDetailViewModel @Inject constructor(
                 exerciseId = exerciseId,
                 dayOfWeek = beDayOfWeek,
                 order = nextOrder,
-                sets = 3, // Default values
-                reps = 10
+                sets = "3", // Default values
+                reps = "10"
             )
             workoutRepository.addExerciseToWorkout(workoutId, request)
                 .catch { /* Handle error */ }

@@ -59,10 +59,10 @@ data class MealInfo(
     val id: String,
     val name: String,
     val description: String?,
-    val calories: Double?,
-    val protein: Double?,
-    val carbs: Double?,
-    val fats: Double?,
+    val calories: String?,
+    val protein: String?,
+    val carbs: String?,
+    val fats: String?,
     val imageUrl: String? = null
 )
 
@@ -85,10 +85,10 @@ data class DietFood(
     val name: String,
     val quantity: Double, // grams or logic unit
     val unit: String?,
-    val calories: Int?,
-    val protein: Double?,
-    val carbs: Double?,
-    val fats: Double?
+    val calories: String?,
+    val protein: String?,
+    val carbs: String?,
+    val fats: String?
 )
 
 /**

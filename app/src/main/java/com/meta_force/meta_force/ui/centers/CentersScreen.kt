@@ -23,6 +23,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.meta_force.meta_force.data.model.Center
 import com.meta_force.meta_force.data.model.MachineTypeModel
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.stringResource
+import com.meta_force.meta_force.R
 
 // Theme Colors
 private val PrimaryCyan = Color(0xFF22d3ee) // cyan-400

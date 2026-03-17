@@ -43,8 +43,8 @@ data class WorkoutExercise(
     val exercise: Exercise?, // Nested object often returned
     val dayOfWeek: Int,
     val order: Int,
-    val sets: Int?,
-    val reps: Int?,
+    val sets: String?,
+    val reps: String?,
     val weight: Double?,
     val restSeconds: Int?,
     val notes: String?
@@ -104,8 +104,8 @@ data class AddExerciseToWorkoutRequest(
     val exerciseId: String,
     val dayOfWeek: Int,
     val order: Int? = null,
-    val sets: Int? = null,
-    val reps: Int? = null,
+    val sets: String? = null,
+    val reps: String? = null,
     val weight: Double? = null,
     val restSeconds: Int? = null,
     val notes: String? = null
@@ -117,8 +117,8 @@ data class AddExerciseToWorkoutRequest(
 data class UpdateWorkoutExerciseRequest(
     val dayOfWeek: Int? = null,
     val order: Int? = null,
-    val sets: Int? = null,
-    val reps: Int? = null,
+    val sets: String? = null,
+    val reps: String? = null,
     val weight: Double? = null,
     val restSeconds: Int? = null,
     val notes: String? = null

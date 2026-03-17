@@ -202,8 +202,8 @@ fun WorkoutDetailScreen(
                                     onClick = {
                                         viewModel.logPerformance(
                                             selectedExerciseId!!,
-                                            sets.toIntOrNull(),
-                                            reps.toIntOrNull(),
+                                            sets,
+                                            reps,
                                             weight.toDoubleOrNull(),
                                             logNotes
                                         ) {

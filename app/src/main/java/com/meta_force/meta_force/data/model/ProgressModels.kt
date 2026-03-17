@@ -23,8 +23,8 @@ data class ExercisePerformanceLog(
     val userId: String,
     val exerciseId: String,
     val date: String, // ISO string
-    val sets: Int?,
-    val reps: Int?,
+    val sets: String?,
+    val reps: String?,
     val weight: Double?,
     val notes: String?,
     val createdAt: String,
@@ -36,8 +36,8 @@ data class ExercisePerformanceLog(
  */
 data class LogPerformanceRequest(
     val exerciseId: String,
-    val sets: Int?,
-    val reps: Int?,
+    val sets: String?,
+    val reps: String?,
     val weight: Double?,
     val notes: String?
 )

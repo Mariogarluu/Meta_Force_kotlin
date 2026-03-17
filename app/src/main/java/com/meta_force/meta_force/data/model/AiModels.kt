@@ -70,13 +70,13 @@ data class AiPlanDay(
  */
 data class AiPlanItem(
     val name: String,
-    val sets: Int? = null,
-    val reps: Int? = null,
+    val sets: String? = null,
+    val reps: String? = null,
     val quantity: String? = null,
-    val calories: Double? = null,
-    val protein: Double? = null,
-    val carbs: Double? = null,
-    val fats: Double? = null,
+    val calories: String? = null,
+    val protein: String? = null,
+    val carbs: String? = null,
+    val fats: String? = null,
     val notes: String? = null
 )
 

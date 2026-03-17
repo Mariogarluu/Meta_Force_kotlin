@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import com.meta_force.meta_force.data.model.UpdateProfileRequest
+import androidx.compose.ui.res.stringResource
+import com.meta_force.meta_force.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,8 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.res.stringResource
-import com.meta_force.meta_force.R
 import com.meta_force.meta_force.ui.profile.ProfileViewModel
 import java.io.File
 import java.io.FileOutputStream
