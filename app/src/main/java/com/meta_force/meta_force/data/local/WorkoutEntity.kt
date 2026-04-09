@@ -8,16 +8,16 @@ import com.meta_force.meta_force.data.model.WorkoutExercise
 @Entity(tableName = "workouts")
 data class WorkoutEntity(
     @PrimaryKey val id: String,
-    val name: String,
+    val name: String?,
     val description: String?,
-    val userId: String,
-    val exercises: List<WorkoutExercise>,
-    val createdAt: String,
-    val updatedAt: String
+    val userId: String?,
+    val exercises: List<WorkoutExercise>?,
+    val createdAt: String?,
+    val updatedAt: String?
 )
 
 fun Workout.toEntity(): WorkoutEntity = WorkoutEntity(
-    id = this.id,
+    id = this.id ?: "",
     name = this.name,
     description = this.description,
     userId = this.userId,

@@ -23,7 +23,7 @@ object DatabaseModule {
             context,
             MetaForceDatabase::class.java,
             "meta_force_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides

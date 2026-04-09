@@ -123,7 +123,7 @@ class DietRepositoryImpl @Inject constructor(
         val newMeal = api.addMealToDiet(id, request)
         val diet = localDataSource.getDietById(id).getOrNull()
         if (diet != null) {
-            val updatedMeals = diet.meals.toMutableList().apply { add(newMeal) }
+            val updatedMeals = diet.meals.orEmpty().toMutableList().apply { add(newMeal) }
             localDataSource.saveDiet(diet.copy(meals = updatedMeals))
         }
         emit(newMeal)

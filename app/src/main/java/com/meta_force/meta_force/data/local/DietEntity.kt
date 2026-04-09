@@ -8,18 +8,18 @@ import com.meta_force.meta_force.data.model.DietMeal
 @Entity(tableName = "diets")
 data class DietEntity(
     @PrimaryKey val id: String,
-    val name: String,
+    val name: String?,
     val description: String?,
-    val userId: String,
+    val userId: String?,
     val caloriesTarget: Int?,
-    val active: Boolean,
-    val meals: List<DietMeal>, 
-    val createdAt: String,
-    val updatedAt: String
+    val active: Boolean?,
+    val meals: List<DietMeal>?, 
+    val createdAt: String?,
+    val updatedAt: String?
 )
 
 fun Diet.toEntity(): DietEntity = DietEntity(
-    id = this.id,
+    id = this.id ?: "",
     name = this.name,
     description = this.description,
     userId = this.userId,
