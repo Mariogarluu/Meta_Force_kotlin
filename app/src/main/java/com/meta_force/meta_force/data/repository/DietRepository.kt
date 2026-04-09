@@ -5,6 +5,8 @@ import com.meta_force.meta_force.data.network.DietApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.emitAll
+import com.meta_force.meta_force.data.local.DietLocalDataSource
 
 /**
  * Repository interface for managing user dietary plans.
@@ -57,17 +59,35 @@ interface DietRepository {
 }
 
 /**
- * Implementation of [DietRepository] using [DietApi].
+ * Implementation of [DietRepository] using [DietApi] and [DietLocalDataSource].
  */
 class DietRepositoryImpl @Inject constructor(
-    private val api: DietApi
+    private val api: DietApi,
+    private val localDataSource: DietLocalDataSource
 ) : DietRepository {
     override fun getDiets(): Flow<List<Diet>> = flow {
-        emit(api.getDiets())
+        try {
+            val remoteDiets = api.getDiets()
+            localDataSource.saveDiets(remoteDiets)
+        } catch (e: Exception) {
+            // Ignorar en caso de no tener internet, usará local
+        }
+        emitAll(localDataSource.getDiets())
     }
 
     override fun getDiet(id: String): Flow<Diet> = flow {
-        emit(api.getDiet(id))
+        try {
+            val remoteDiet = api.getDiet(id)
+            localDataSource.saveDiet(remoteDiet)
+        } catch (e: Exception) {
+            // Ignorar en caso de no tener internet
+        }
+        val localDiet = localDataSource.getDietById(id).getOrNull()
+        if (localDiet != null) {
+            emit(localDiet)
+        } else {
+            throw Exception("Diet no encontrada")
+        }
     }
 
     override fun createDiet(
@@ -76,32 +96,47 @@ class DietRepositoryImpl @Inject constructor(
         caloriesTarget: Int?,
         userId: String
     ): Flow<Diet> = flow {
-        emit(api.createDiet(
+        val newDiet = api.createDiet(
             CreateDietRequest(
                 name = name,
                 description = description,
                 caloriesTarget = caloriesTarget
             )
-        ))
+        )
+        localDataSource.saveDiet(newDiet)
+        emit(newDiet)
     }
 
     override fun deleteDiet(id: String): Flow<Unit> = flow {
-        emit(api.deleteDiet(id))
+        api.deleteDiet(id)
+        localDataSource.deleteDiet(id)
+        emit(Unit)
     }
 
     override fun updateDiet(id: String, request: UpdateDietRequest): Flow<Diet> = flow {
-        emit(api.updateDiet(id, request))
+        val updatedDiet = api.updateDiet(id, request)
+        localDataSource.saveDiet(updatedDiet)
+        emit(updatedDiet)
     }
 
     override fun addMealToDiet(id: String, request: AddMealToDietRequest): Flow<DietMeal> = flow {
-        emit(api.addMealToDiet(id, request))
+        val newMeal = api.addMealToDiet(id, request)
+        val diet = localDataSource.getDietById(id).getOrNull()
+        if (diet != null) {
+            val updatedMeals = diet.meals.toMutableList().apply { add(newMeal) }
+            localDataSource.saveDiet(diet.copy(meals = updatedMeals))
+        }
+        emit(newMeal)
     }
 
     override fun updateDietMeal(mealId: String, request: UpdateDietMealRequest): Flow<DietMeal> = flow {
-        emit(api.updateDietMeal(mealId, request))
+        val updatedMeal = api.updateDietMeal(mealId, request)
+        // La actualización de dietas completas se gestionará mayormente al volver a consultar
+        emit(updatedMeal)
     }
 
     override fun removeMealFromDiet(mealId: String): Flow<Unit> = flow {
-        emit(api.removeMealFromDiet(mealId))
+        api.removeMealFromDiet(mealId)
+        emit(Unit)
     }
 }
