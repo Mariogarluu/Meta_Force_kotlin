@@ -20,6 +20,7 @@ viewPager2 = "1.1.0"
 accompanistPager = "0.31.0"
 ksp = "2.0.21-1.0.27"
 room = "2.6.1"
+supabaseKt = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +73,14 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 
 # Gson
 gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
+
+# Supabase Kotlin (client)
+supabase-bom = { group = "io.github.jan-tennert.supabase", name = "bom", version.ref = "supabaseKt" }
+supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt" }
+supabase-auth = { group = "io.github.jan-tennert.supabase", name = "gotrue-kt" }
+supabase-functions = { group = "io.github.jan-tennert.supabase", name = "functions-kt" }
+supabase-storage = { group = "io.github.jan-tennert.supabase", name = "storage-kt" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.7.3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
