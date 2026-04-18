@@ -1,5 +1,6 @@
 package com.meta_force.meta_force.data.supabase
 
+import com.meta_force.meta_force.BuildConfig
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
@@ -13,13 +14,10 @@ import io.github.jan.supabase.storage.Storage
  * IMPORTANT: Only use publishable/anon keys in the client.
  */
 object SupabaseProvider {
-    // TODO: move to BuildConfig fields if you prefer (kept inline for now to proceed quickly)
-    private const val SUPABASE_URL = "https://qybgnrlszozjhimewkel.supabase.co"
-    private const val SUPABASE_KEY = "sb_publishable_nnvdMyVdOClqx-9x62y_Xw_lBTl2bjI"
-
+    /** Valores desde `local.properties` (supabase.url / supabase.key) vía BuildConfig. */
     val client: SupabaseClient = createSupabaseClient(
-        supabaseUrl = SUPABASE_URL,
-        supabaseKey = SUPABASE_KEY
+        supabaseUrl = BuildConfig.SUPABASE_URL,
+        supabaseKey = BuildConfig.SUPABASE_KEY
     ) {
         install(Auth)
         install(Postgrest)

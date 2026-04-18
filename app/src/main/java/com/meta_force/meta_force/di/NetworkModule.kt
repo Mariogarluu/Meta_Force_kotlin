@@ -21,6 +21,7 @@ import javax.inject.Singleton
 import okhttp3.ConnectionPool
 import okhttp3.logging.HttpLoggingInterceptor
 import com.meta_force.meta_force.data.network.TokenAuthenticator
+import com.meta_force.meta_force.BuildConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -53,7 +54,7 @@ object NetworkModule {
         return Retrofit.Builder()
             // Legacy REST backend removed: keep Retrofit for any remaining calls, but point to Supabase (Data API).
             // Most repositories should migrate to SupabaseProvider instead of Retrofit.
-            .baseUrl("https://qybgnrlszozjhimewkel.supabase.co/") 
+            .baseUrl("${BuildConfig.SUPABASE_URL.trimEnd('/')}/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
