@@ -1,10 +1,21 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    kotlin("plugin.serialization")
 }
+
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+val supabaseUrl: String =
+    localProps.getProperty("supabase.url") ?: "https://YOUR_SUPABASE_PROJECT_REF.supabase.co"
+val supabaseKey: String =
+    localProps.getProperty("supabase.key") ?: "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY"
 
 android {
     namespace = "com.meta_force.meta_force"
@@ -18,6 +29,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.replace("\"", "\\\"")}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${supabaseKey.replace("\"", "\\\"")}\"")
     }
 
     buildTypes {
@@ -38,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -79,6 +94,14 @@ dependencies {
 
     // Gson
     implementation(libs.gson)
+
+    // Supabase Kotlin (Auth + PostgREST + Functions + Storage)
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.auth)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.functions)
+    implementation(libs.supabase.storage)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

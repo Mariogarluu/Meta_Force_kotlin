@@ -21,6 +21,7 @@ import javax.inject.Singleton
 import okhttp3.ConnectionPool
 import okhttp3.logging.HttpLoggingInterceptor
 import com.meta_force.meta_force.data.network.TokenAuthenticator
+import com.meta_force.meta_force.BuildConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -51,7 +52,9 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://meta-force-back.vercel.app/api/") // Production Server
+            // Legacy REST backend removed: keep Retrofit for any remaining calls, but point to Supabase (Data API).
+            // Most repositories should migrate to SupabaseProvider instead of Retrofit.
+            .baseUrl("${BuildConfig.SUPABASE_URL.trimEnd('/')}/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
