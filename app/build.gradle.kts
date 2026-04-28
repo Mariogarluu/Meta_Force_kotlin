@@ -103,6 +103,9 @@ dependencies {
     implementation(libs.supabase.storage)
     implementation(libs.kotlinx.serialization.json)
 
+    // Ktor engine (required by Supabase SDK)
+    implementation("io.ktor:ktor-client-cio:2.3.12")
+
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
