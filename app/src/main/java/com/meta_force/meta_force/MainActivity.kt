@@ -20,14 +20,39 @@ import com.meta_force.meta_force.ui.dashboard.DashboardScreen
 import com.meta_force.meta_force.ui.qr.QrScreen
 import com.meta_force.meta_force.ui.theme.Meta_forceTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.ExistingPeriodicWorkPolicy
+import java.util.concurrent.TimeUnit
+import com.meta_force.meta_force.worker.WaterReminderWorker
+import com.meta_force.meta_force.utils.NotificationHelper
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            setupWorkManager()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        // Initialize Notification Channel
+        NotificationHelper.createNotificationChannel(this)
+        
+        // Check permissions and start WorkManager
+        checkNotificationPermissionAndStartWork()
         setContent {
             Meta_forceTheme {
                 Surface(
@@ -178,5 +203,29 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun checkNotificationPermissionAndStartWork() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                setupWorkManager()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            setupWorkManager()
+        }
+    }
+
+    private fun setupWorkManager() {
+        // Encola un Worker periódico que se ejecute cada 2 horas
+        val workRequest = PeriodicWorkRequestBuilder<WaterReminderWorker>(2, TimeUnit.HOURS)
+            .build()
+        
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "WaterReminderWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
     }
 }
