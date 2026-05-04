@@ -1,5 +1,7 @@
 package com.meta_force.meta_force.data.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * Represents a fitness center or gym.
  *
@@ -14,6 +16,7 @@ package com.meta_force.meta_force.data.model
  * @property createdAt Timestamp when the center record was created.
  * @property updatedAt Timestamp when the center record was last modified.
  */
+@Serializable
 data class Center(
     val id: String? = null,
     val name: String,
@@ -38,6 +41,7 @@ data class Center(
  * @property phone Optional contact phone.
  * @property email Optional contact email.
  */
+@Serializable
 data class CreateCenterInput(
     val name: String,
     val description: String? = null,
@@ -60,6 +64,7 @@ data class CreateCenterInput(
  * @property phone New phone number.
  * @property email New email address.
  */
+@Serializable
 data class UpdateCenterInput(
     val name: String? = null,
     val description: String? = null,
