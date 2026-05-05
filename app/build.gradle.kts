@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
     kotlin("plugin.serialization")
 }
 
@@ -36,7 +37,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Enable code shrinking and resource shrinking for release builds
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -54,6 +57,12 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+detekt {
+    config = files("$rootDir/config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+    autoCorrect = false
 }
 
 dependencies {

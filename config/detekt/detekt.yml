@@ -1,0 +1,33 @@
+processors:
+  active: true
+
+config:
+  validation: true
+
+build:
+  maxIssues: 0
+
+console-reports:
+  active: true
+
+comments:
+  active: true
+
+style:
+  active: true
+
+complexity:
+  active: true
+
+potential-bugs:
+  active: true
+
+performance:
+  active: true
+
+coroutines:
+  active: true
+
+exceptions:
+  active: true
+
