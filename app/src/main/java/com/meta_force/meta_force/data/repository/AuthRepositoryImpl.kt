@@ -36,6 +36,15 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
     private val supabase = SupabaseProvider.client
 
+    private suspend fun getRoleFromRpcOrNull(): String? {
+        return runCatching {
+            val rows = supabase.postgrest
+                .rpc("get_my_role")
+                .decodeList<JsonObject>()
+            rows.firstOrNull()?.get("role")?.jsonPrimitive?.content
+        }.getOrNull()
+    }
+
     override suspend fun login(request: LoginRequest): NetworkResult<LoginResponse> {
         return safeApiCall {
             supabase.auth.signInWith(Email) {
@@ -110,11 +119,13 @@ class AuthRepositoryImpl @Inject constructor(
                 }
                 .decodeSingle<JsonObject>()
 
+            val roleFromRpc = getRoleFromRpcOrNull()
+
             UserProfile(
                 id = row["id"]?.jsonPrimitive?.content ?: user.id,
                 email = row["email"]?.jsonPrimitive?.content ?: (user.email ?: ""),
                 name = row["name"]?.jsonPrimitive?.content ?: (user.userMetadata?.get("name")?.toString() ?: ""),
-                role = row["role"]?.jsonPrimitive?.content ?: "USER",
+                role = roleFromRpc ?: row["role"]?.jsonPrimitive?.content ?: "USER",
                 profileImageUrl = row["profileImageUrl"]?.jsonPrimitive?.contentOrNull,
                 height = row["height"]?.jsonPrimitive?.doubleOrNull,
                 currentWeight = row["currentWeight"]?.jsonPrimitive?.doubleOrNull,
@@ -149,11 +160,13 @@ class AuthRepositoryImpl @Inject constructor(
                 }
                 .decodeSingle<JsonObject>()
 
+            val roleFromRpc = getRoleFromRpcOrNull()
+
             UserProfile(
                 id = updated["id"]?.jsonPrimitive?.content ?: user.id,
                 email = updated["email"]?.jsonPrimitive?.content ?: (user.email ?: ""),
                 name = updated["name"]?.jsonPrimitive?.content ?: "",
-                role = updated["role"]?.jsonPrimitive?.content ?: "USER",
+                role = roleFromRpc ?: updated["role"]?.jsonPrimitive?.content ?: "USER",
                 profileImageUrl = updated["profileImageUrl"]?.jsonPrimitive?.contentOrNull,
                 height = updated["height"]?.jsonPrimitive?.doubleOrNull,
                 currentWeight = updated["currentWeight"]?.jsonPrimitive?.doubleOrNull,
@@ -183,11 +196,13 @@ class AuthRepositoryImpl @Inject constructor(
                 }
                 .decodeSingle<JsonObject>()
 
+            val roleFromRpc = getRoleFromRpcOrNull()
+
             UserProfile(
                 id = updated["id"]?.jsonPrimitive?.content ?: user.id,
                 email = updated["email"]?.jsonPrimitive?.content ?: (user.email ?: ""),
                 name = updated["name"]?.jsonPrimitive?.content ?: "",
-                role = updated["role"]?.jsonPrimitive?.content ?: "USER",
+                role = roleFromRpc ?: updated["role"]?.jsonPrimitive?.content ?: "USER",
                 profileImageUrl = updated["profileImageUrl"]?.jsonPrimitive?.contentOrNull,
                 height = updated["height"]?.jsonPrimitive?.doubleOrNull,
                 currentWeight = updated["currentWeight"]?.jsonPrimitive?.doubleOrNull,

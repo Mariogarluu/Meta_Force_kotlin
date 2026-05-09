@@ -9,6 +9,8 @@ import com.meta_force.meta_force.data.network.CenterApi
 import com.meta_force.meta_force.data.network.MachineApi
 import com.meta_force.meta_force.data.network.MealApi
 import com.meta_force.meta_force.data.network.ExerciseApi
+import com.meta_force.meta_force.data.network.AccessApi
+import com.meta_force.meta_force.data.network.MeSubscriptionApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -118,5 +120,17 @@ object NetworkModule {
     @Singleton
     fun provideExerciseApi(retrofit: Retrofit): ExerciseApi {
         return retrofit.create(ExerciseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccessApi(retrofit: Retrofit): AccessApi {
+        return retrofit.create(AccessApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMeSubscriptionApi(retrofit: Retrofit): MeSubscriptionApi {
+        return retrofit.create(MeSubscriptionApi::class.java)
     }
 }

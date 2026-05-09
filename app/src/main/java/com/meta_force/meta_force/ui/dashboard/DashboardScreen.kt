@@ -28,6 +28,7 @@ fun DashboardScreen(
     onNavigateToAiChat: () -> Unit, // Added
     onNavigateToQr: () -> Unit,
     onNavigateToCenters: () -> Unit,
+    onNavigateToMySubscriptions: () -> Unit,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     Scaffold(
@@ -64,7 +65,8 @@ fun DashboardScreen(
             onNavigateToClasses = onNavigateToClasses,
             onNavigateToAiChat = onNavigateToAiChat,
             onNavigateToQr = onNavigateToQr,
-            onNavigateToCenters = onNavigateToCenters
+            onNavigateToCenters = onNavigateToCenters,
+            onNavigateToMySubscriptions = onNavigateToMySubscriptions
         )
     }
 }
@@ -78,11 +80,13 @@ fun DashboardGrid(
     onNavigateToClasses: () -> Unit,
     onNavigateToAiChat: () -> Unit,
     onNavigateToQr: () -> Unit,
-    onNavigateToCenters: () -> Unit
+    onNavigateToCenters: () -> Unit,
+    onNavigateToMySubscriptions: () -> Unit
 ) {
     val dashboardItems = listOf(
         DashboardItem("Centro", Icons.Default.LocationOn),
         DashboardItem("Mi QR", Icons.Default.QrCode),
+        DashboardItem("Mis Suscripciones", Icons.Default.ReceiptLong),
         DashboardItem("Mi Rutina", Icons.Default.FitnessCenter),
         DashboardItem("Dietas", Icons.Default.Restaurant),
         DashboardItem("Horarios", Icons.Default.Schedule),
@@ -118,6 +122,8 @@ fun DashboardGrid(
                         onNavigateToQr()
                     } else if (item.title == "Centro") {
                         onNavigateToCenters()
+                    } else if (item.title == "Mis Suscripciones") {
+                        onNavigateToMySubscriptions()
                     }
                 }
             )

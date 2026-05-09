@@ -2,9 +2,9 @@ package com.meta_force.meta_force.ui.qr
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.meta_force.meta_force.data.model.UserProfile
+import com.meta_force.meta_force.data.model.SignedQr
 import com.meta_force.meta_force.data.network.NetworkResult
-import com.meta_force.meta_force.data.repository.AuthRepository
+import com.meta_force.meta_force.data.repository.QrRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,24 +20,24 @@ import javax.inject.Inject
 /**
  * UI State for the QR access screen.
  *
- * @property user The current user information.
- * @property timestamp ISO timestamp that updates periodically for security.
+ * @property qr Información firmada de la suscripción activa y token JWT.
  */
 sealed class QrUiState {
     object Loading : QrUiState()
-    data class Success(val user: UserProfile, val timestamp: String) : QrUiState()
+    data class Success(val qr: SignedQr) : QrUiState()
     data class Error(val message: String) : QrUiState()
 }
 
 /**
  * ViewModel for generating and updating the QR access code.
- * Fetches user profile and starts a periodic timestamp update.
+ * Llama a la Edge Function `qr-sign` para obtener un JWT firmado con la
+ * suscripción activa del usuario.
  *
- * @property repository Repository for user information.
+ * @property repository Repositorio de QR firmado.
  */
 @HiltViewModel
 class QrViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: QrRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<QrUiState>(QrUiState.Loading)
@@ -50,33 +50,16 @@ class QrViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             _uiState.value = QrUiState.Loading
-            when (val userResult = repository.getProfile()) {
+            when (val result = repository.getSignedQr()) {
                 is NetworkResult.Success -> {
-                    startTimestampUpdates(userResult.data)
+                    _uiState.value = QrUiState.Success(result.data)
                 }
                 is NetworkResult.Error -> {
-                    _uiState.value = QrUiState.Error(userResult.message)
+                    _uiState.value = QrUiState.Error(result.message)
                 }
                 is NetworkResult.Exception -> {
-                    _uiState.value = QrUiState.Error(userResult.e.message ?: "Error loading profile")
+                    _uiState.value = QrUiState.Error(result.e.message ?: "Error loading QR")
                 }
-            }
-        }
-    }
-
-    private fun startTimestampUpdates(user: UserProfile) {
-        viewModelScope.launch {
-            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }
-            while (true) {
-                // Format ISO timestamp matching front-end 'new Date().toISOString()'
-                val currentTimestamp = sdf.format(Date())
-                
-                _uiState.value = QrUiState.Success(user, currentTimestamp)
-                
-                // Update every 20 minutes (frontend logic)
-                delay(20L * 60L * 1000L)
             }
         }
     }
