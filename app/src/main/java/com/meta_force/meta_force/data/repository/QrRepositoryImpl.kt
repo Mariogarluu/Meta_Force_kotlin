@@ -5,6 +5,7 @@ import com.meta_force.meta_force.data.network.NetworkResult
 import com.meta_force.meta_force.data.network.safeApiCall
 import com.meta_force.meta_force.data.supabase.SupabaseProvider
 import io.github.jan.supabase.functions.functions
+import io.ktor.client.call.body
 import javax.inject.Inject
 
 /**

@@ -13,6 +13,7 @@ import com.meta_force.meta_force.data.network.safeApiCall
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
@@ -20,6 +21,7 @@ import kotlinx.serialization.json.contentOrNull
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.storage.storage
 import com.meta_force.meta_force.data.supabase.SupabaseProvider
 import java.io.File
@@ -36,12 +38,13 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
     private val supabase = SupabaseProvider.client
 
+    @Serializable
+    private data class RoleRow(val role: String)
+
     private suspend fun getRoleFromRpcOrNull(): String? {
         return runCatching {
-            val rows = supabase.postgrest
-                .rpc("get_my_role")
-                .decodeList<JsonObject>()
-            rows.firstOrNull()?.get("role")?.jsonPrimitive?.content
+            val rows = supabase.postgrest.rpc("get_my_role").decodeList<RoleRow>()
+            rows.firstOrNull()?.role
         }.getOrNull()
     }
 
