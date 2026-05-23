@@ -153,6 +153,19 @@ class MainActivity : ComponentActivity() {
                             val workoutId = backStackEntry.arguments?.getString("workoutId") ?: return@composable
                             com.meta_force.meta_force.ui.workouts.WorkoutDetailScreen(
                                 workoutId = workoutId,
+                                onNavigateBack = { navController.popBackStack() },
+                                onStartWorkout = { dayOfWeek ->
+                                    navController.navigate("active_workout/$workoutId/$dayOfWeek")
+                                }
+                            )
+                        }
+                        composable("active_workout/{workoutId}/{dayOfWeek}") { backStackEntry ->
+                            val workoutId = backStackEntry.arguments?.getString("workoutId") ?: return@composable
+                            val dayOfWeekStr = backStackEntry.arguments?.getString("dayOfWeek") ?: return@composable
+                            val dayOfWeek = dayOfWeekStr.toIntOrNull() ?: 0
+                            com.meta_force.meta_force.ui.workouts.ActiveWorkoutScreen(
+                                workoutId = workoutId,
+                                dayOfWeek = dayOfWeek,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

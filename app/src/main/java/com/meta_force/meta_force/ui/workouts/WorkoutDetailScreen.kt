@@ -12,8 +12,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -42,6 +42,7 @@ import com.meta_force.meta_force.ui.workouts.WorkoutDetailUiState
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.unit.sp
 
 // Brand Colors
 private val PrimaryCyan = MF_Teal
@@ -54,6 +55,7 @@ private val DarkSurfaceVariant = Color(0xFF1D2D44)
 fun WorkoutDetailScreen(
     workoutId: String,
     onNavigateBack: () -> Unit,
+    onStartWorkout: (Int) -> Unit,
     viewModel: WorkoutDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -80,7 +82,7 @@ fun WorkoutDetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás", tint = Color.White)
                     }
                 },
                 actions = {
@@ -90,6 +92,37 @@ fun WorkoutDetailScreen(
                     containerColor = DarkSurface
                 )
             )
+        },
+        bottomBar = {
+            if (uiState is WorkoutDetailUiState.Success && !isEditMode) {
+                val successState = uiState as WorkoutDetailUiState.Success
+                val beDayOfWeek = (currentDayIndex + 1) % 7
+                val hasExercises = (successState.workout.exercises ?: emptyList()).any { it.dayOfWeek == beDayOfWeek }
+                if (hasExercises) {
+                    Surface(
+                        color = DarkSurface,
+                        tonalElevation = 8.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = { onStartWorkout(currentDayIndex) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .height(56.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryCyan),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                "⚡ Iniciar Entrenamiento",
+                                color = DarkBg,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
@@ -193,7 +226,7 @@ fun WorkoutDetailContent(
                     pagerState.animateScrollToPage(prev)
                 }
             }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Día anterior", tint = PrimaryCyan)
+                Icon(Icons.Default.ArrowBack, "Día anterior", tint = PrimaryCyan)
             }
 
             Text(
@@ -209,7 +242,7 @@ fun WorkoutDetailContent(
                     pagerState.animateScrollToPage(next)
                 }
             }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, "Día siguiente", tint = PrimaryCyan)
+                Icon(Icons.Default.ArrowForward, "Día siguiente", tint = PrimaryCyan)
             }
         }
 
