@@ -18,6 +18,7 @@ import com.meta_force.meta_force.ui.auth.login.LoginScreen
 import com.meta_force.meta_force.ui.auth.register.RegisterScreen
 import com.meta_force.meta_force.ui.dashboard.DashboardScreen
 import com.meta_force.meta_force.ui.qr.QrScreen
+import com.meta_force.meta_force.ui.billing.access.AccessLockedScreen
 import com.meta_force.meta_force.ui.theme.Meta_forceTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.work.PeriodicWorkRequestBuilder
@@ -117,6 +118,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToCenters = {
                                     navController.navigate("centers")
+                                },
+                                onNavigateToMySubscriptions = {
+                                    navController.navigate("my_subscriptions")
                                 }
                             )
                         }
@@ -197,6 +201,21 @@ class MainActivity : ComponentActivity() {
                         composable("centers") {
                             com.meta_force.meta_force.ui.centers.CentersScreen(
                                 onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("my_subscriptions") {
+                            com.meta_force.meta_force.ui.billing.me.MySubscriptionScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable("access_locked") {
+                            AccessLockedScreen(
+                                onLogout = {
+                                    navController.navigate("login") {
+                                        popUpTo("dashboard") { inclusive = true }
+                                        popUpTo("access_locked") { inclusive = true }
+                                    }
+                                }
                             )
                         }
                     }

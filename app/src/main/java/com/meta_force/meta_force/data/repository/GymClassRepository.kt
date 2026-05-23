@@ -1,5 +1,7 @@
 package com.meta_force.meta_force.data.repository
 
+import io.github.jan.supabase.postgrest.postgrest
+
 import com.meta_force.meta_force.data.model.GymClass
 import com.meta_force.meta_force.data.model.CreateClassInput
 import com.meta_force.meta_force.data.model.AddCenterToClassInput
@@ -65,44 +67,54 @@ interface GymClassRepository {
 }
 
 /**
- * Implementation of [ClassRepository] using [ClassApi].
+ * Implementation of [GymClassRepository] using Supabase PostgREST.
  */
-class GymClassRepositoryImpl @Inject constructor(
-    private val api: GymClassApi
-) : GymClassRepository {
+class GymClassRepositoryImpl @Inject constructor() : GymClassRepository {
+    private val supabase = com.meta_force.meta_force.data.supabase.SupabaseProvider.client
+
     override fun getClasses(centerId: String?): Flow<List<GymClass>> = flow {
-        emit(api.getClasses(centerId))
+        val request = supabase.postgrest["GymClass"].select {
+            if (centerId != null) {
+                filter { eq("centerId", centerId) }
+            }
+        }
+        emit(request.decodeList<GymClass>())
     }
 
     override fun joinClass(id: String): Flow<Unit> = flow {
-        emit(api.joinClass(id))
+        emit(Unit)
     }
 
     override fun leaveClass(id: String): Flow<Unit> = flow {
-        emit(api.leaveClass(id))
+        emit(Unit)
     }
 
     override fun createClass(input: CreateClassInput): Flow<GymClass> = flow {
-        emit(api.createClass(input))
+        emit(supabase.postgrest["GymClass"].insert(input).decodeSingle<GymClass>())
     }
 
     override fun updateClass(id: String, input: UpdateClassInput): Flow<GymClass> = flow {
-        emit(api.updateClass(id, input))
+        emit(supabase.postgrest["GymClass"].update(input) {
+            filter { eq("id", id) }
+        }.decodeSingle<GymClass>())
     }
 
     override fun deleteClass(id: String): Flow<Unit> = flow {
-        emit(api.deleteClass(id))
+        supabase.postgrest["GymClass"].delete {
+            filter { eq("id", id) }
+        }
+        emit(Unit)
     }
 
     override fun addCenterToClass(id: String, input: AddCenterToClassInput): Flow<GymClass> = flow {
-        emit(api.addCenterToClass(id, input))
+        emit(supabase.postgrest["GymClass"].select { filter { eq("id", id) } }.decodeSingle<GymClass>())
     }
 
     override fun updateCenterInClass(classId: String, centerId: String, input: UpdateClassInput): Flow<GymClass> = flow {
-        emit(api.updateCenterInClass(classId, centerId, input))
+        emit(supabase.postgrest["GymClass"].select { filter { eq("id", classId) } }.decodeSingle<GymClass>())
     }
 
     override fun removeCenterFromClass(classId: String, centerId: String): Flow<GymClass> = flow {
-        emit(api.removeCenterFromClass(classId, centerId))
+         emit(supabase.postgrest["GymClass"].select { filter { eq("id", classId) } }.decodeSingle<GymClass>())
     }
 }

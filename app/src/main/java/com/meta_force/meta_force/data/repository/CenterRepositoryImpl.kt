@@ -3,37 +3,41 @@ package com.meta_force.meta_force.data.repository
 import com.meta_force.meta_force.data.model.Center
 import com.meta_force.meta_force.data.model.CreateCenterInput
 import com.meta_force.meta_force.data.model.UpdateCenterInput
-import com.meta_force.meta_force.data.network.CenterApi
+import com.meta_force.meta_force.data.supabase.SupabaseProvider
+import io.github.jan.supabase.postgrest.postgrest
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Concrete implementation of [CenterRepository] using [CenterApi].
- *
- * @property centerApi The API interface for center-related network requests.
+ * Concrete implementation of [CenterRepository] using Supabase PostgREST.
  */
 @Singleton
-class CenterRepositoryImpl @Inject constructor(
-    private val centerApi: CenterApi
-) : CenterRepository {
+class CenterRepositoryImpl @Inject constructor() : CenterRepository {
+    private val supabase = SupabaseProvider.client
 
     override suspend fun getCenters(): Result<List<Center>> = runCatching {
-        centerApi.getCenters()
+        supabase.postgrest["Center"].select().decodeList<Center>()
     }
 
     override suspend fun getCenter(id: String): Result<Center> = runCatching {
-        centerApi.getCenter(id)
+        supabase.postgrest["Center"].select {
+            filter { eq("id", id) }
+        }.decodeSingle<Center>()
     }
 
     override suspend fun createCenter(input: CreateCenterInput): Result<Center> = runCatching {
-        centerApi.createCenter(input)
+        supabase.postgrest["Center"].insert(input).decodeSingle<Center>()
     }
 
     override suspend fun updateCenter(id: String, input: UpdateCenterInput): Result<Center> = runCatching {
-        centerApi.updateCenter(id, input)
+        supabase.postgrest["Center"].update(input) {
+            filter { eq("id", id) }
+        }.decodeSingle<Center>()
     }
 
     override suspend fun deleteCenter(id: String): Result<Unit> = runCatching {
-        centerApi.deleteCenter(id)
+        supabase.postgrest["Center"].delete {
+            filter { eq("id", id) }
+        }
     }
 }

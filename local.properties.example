@@ -1,0 +1,6 @@
+# Copia este archivo a `local.properties` (no se versiona) y rellena con datos del panel Supabase (Settings → API).
+
+sdk.dir=C\:\\Users\\YOU\\AppData\\Local\\Android\\Sdk
+
+supabase.url=https://YOUR_SUPABASE_PROJECT_REF.supabase.co
+supabase.key=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY

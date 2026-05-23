@@ -9,6 +9,8 @@ import com.meta_force.meta_force.data.network.CenterApi
 import com.meta_force.meta_force.data.network.MachineApi
 import com.meta_force.meta_force.data.network.MealApi
 import com.meta_force.meta_force.data.network.ExerciseApi
+import com.meta_force.meta_force.data.network.AccessApi
+import com.meta_force.meta_force.data.network.MeSubscriptionApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +23,7 @@ import javax.inject.Singleton
 import okhttp3.ConnectionPool
 import okhttp3.logging.HttpLoggingInterceptor
 import com.meta_force.meta_force.data.network.TokenAuthenticator
+import com.meta_force.meta_force.BuildConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -51,7 +54,9 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://meta-force-back.vercel.app/api/") // Production Server
+            // Legacy REST backend removed: keep Retrofit for any remaining calls, but point to Supabase (Data API).
+            // Most repositories should migrate to SupabaseProvider instead of Retrofit.
+            .baseUrl("${BuildConfig.SUPABASE_URL.trimEnd('/')}/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -115,5 +120,17 @@ object NetworkModule {
     @Singleton
     fun provideExerciseApi(retrofit: Retrofit): ExerciseApi {
         return retrofit.create(ExerciseApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccessApi(retrofit: Retrofit): AccessApi {
+        return retrofit.create(AccessApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMeSubscriptionApi(retrofit: Retrofit): MeSubscriptionApi {
+        return retrofit.create(MeSubscriptionApi::class.java)
     }
 }

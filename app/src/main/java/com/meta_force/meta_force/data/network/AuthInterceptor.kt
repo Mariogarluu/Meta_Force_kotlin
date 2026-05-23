@@ -1,6 +1,7 @@
 package com.meta_force.meta_force.data.network
 
 import com.meta_force.meta_force.data.local.SessionManager
+import com.meta_force.meta_force.BuildConfig
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -30,6 +31,8 @@ class AuthInterceptor @Inject constructor(
             token?.let {
                 addHeader("Authorization", "Bearer $it")
             }
+            // Cabecera requerida por Supabase Data API (publishable key)
+            addHeader("apikey", BuildConfig.SUPABASE_KEY)
         }.build()
 
         return chain.proceed(request)

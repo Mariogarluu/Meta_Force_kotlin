@@ -1,10 +1,22 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
+    kotlin("plugin.serialization")
 }
+
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+val supabaseUrl: String =
+    localProps.getProperty("supabase.url") ?: "https://YOUR_SUPABASE_PROJECT_REF.supabase.co"
+val supabaseKey: String =
+    localProps.getProperty("supabase.key") ?: "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY"
 
 android {
     namespace = "com.meta_force.meta_force"
@@ -18,11 +30,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl.replace("\"", "\\\"")}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${supabaseKey.replace("\"", "\\\"")}\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Enable code shrinking and resource shrinking for release builds
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -38,7 +55,14 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+}
+
+detekt {
+    config = files("$rootDir/config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+    autoCorrect = false
 }
 
 dependencies {
@@ -79,11 +103,22 @@ dependencies {
 
     // Gson
     implementation(libs.gson)
+    // Supabase Kotlin (Auth + PostgREST + Functions + Storage)
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.auth)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.functions)
+    implementation(libs.supabase.storage)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Ktor engine (required by Supabase SDK)
+    implementation("io.ktor:ktor-client-android:2.3.12")
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

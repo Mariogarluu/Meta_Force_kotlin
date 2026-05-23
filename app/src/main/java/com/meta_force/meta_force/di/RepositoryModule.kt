@@ -70,4 +70,16 @@ abstract class RepositoryModule {
     abstract fun bindExerciseRepository(
         exerciseRepositoryImpl: ExerciseRepositoryImpl
     ): ExerciseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMeSubscriptionRepository(
+        meSubscriptionRepositoryImpl: MeSubscriptionRepositoryImpl
+    ): MeSubscriptionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindQrRepository(
+        qrRepositoryImpl: QrRepositoryImpl
+    ): QrRepository
 }

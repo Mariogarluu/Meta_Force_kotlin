@@ -32,9 +32,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.meta_force.meta_force.data.model.UserProfile
-import org.json.JSONObject
+import com.meta_force.meta_force.data.model.SignedQr
 import java.net.URLEncoder
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,8 +87,7 @@ fun QrScreen(
             is QrUiState.Success -> {
                 QrContent(
                     paddingValues = innerPadding,
-                    user = state.user,
-                    timestamp = state.timestamp
+                    qr = state.qr
                 )
             }
             is QrUiState.Error -> {
@@ -105,18 +107,29 @@ fun QrScreen(
 @Composable
 private fun QrContent(
     paddingValues: PaddingValues,
-    user: UserProfile,
-    timestamp: String
+    qr: SignedQr
 ) {
-    val qrData = JSONObject().apply {
-        put("id", user.id)
-        put("email", user.email)
-        put("name", user.name)
-        put("timestamp", timestamp)
-    }.toString()
-
-    val encodedData = URLEncoder.encode(qrData, "UTF-8")
+    val encodedData = URLEncoder.encode(qr.token, "UTF-8")
     val qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodedData}&color=30-64-175&bgcolor=255-255-255&margin=1&ecc=M"
+
+    val locale = Locale.getDefault()
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+    val endDate = runCatching { LocalDate.parse(qr.endDate) }.getOrNull()
+    val formattedEndDate = endDate?.format(formatter) ?: qr.endDate
+    val modalityText = buildString {
+        if (!qr.planName.isNullOrBlank()) {
+            append(qr.planName)
+        } else {
+            append(qr.planCode)
+        }
+        if (!qr.durationLabel.isNullOrBlank()) {
+            append(" · ")
+            append(qr.durationLabel)
+        } else if (qr.durationMonths != null) {
+            append(" · ")
+            append("${qr.durationMonths}m")
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -152,8 +165,14 @@ private fun QrContent(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Muestra este QR en recepción",
+                    text = "Válido hasta $formattedEndDate",
                     color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = modalityText,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
