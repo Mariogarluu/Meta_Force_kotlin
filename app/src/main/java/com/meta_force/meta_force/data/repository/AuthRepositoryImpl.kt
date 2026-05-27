@@ -146,39 +146,33 @@ class AuthRepositoryImpl @Inject constructor(
             val user = supabase.auth.currentUserOrNull()
                 ?: throw IllegalStateException("No session")
 
-            val updated = supabase.postgrest["User"]
-                .update(
-                    mapOf(
-                        "name" to request.name,
-                        "height" to request.height,
-                        "currentWeight" to request.currentWeight,
-                        "birthDate" to request.birthDate,
-                        "gender" to request.gender,
-                        "medicalNotes" to request.medicalNotes,
-                        "activityLevel" to request.activityLevel,
-                        "goal" to request.goal
-                    ).filterValues { it != null }
-                ) {
-                    filter { eq("id", user.id) }
-                }
-                .decodeSingle<JsonObject>()
+            try {
+                supabase.postgrest["User"]
+                    .update(
+                        mapOf(
+                            "name" to request.name,
+                            "height" to request.height,
+                            "currentWeight" to request.currentWeight,
+                            "birthDate" to request.birthDate,
+                            "gender" to request.gender,
+                            "medicalNotes" to request.medicalNotes,
+                            "activityLevel" to request.activityLevel,
+                            "goal" to request.goal
+                        ).filterValues { it != null }
+                    ) {
+                        filter { eq("id", user.id) }
+                    }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw Exception("Error al actualizar perfil en BD (PostgREST Update): ${e.message ?: e.javaClass.simpleName}", e)
+            }
 
-            val roleFromRpc = getRoleFromRpcOrNull()
-
-            UserProfile(
-                id = updated["id"]?.jsonPrimitive?.content ?: user.id,
-                email = updated["email"]?.jsonPrimitive?.content ?: (user.email ?: ""),
-                name = updated["name"]?.jsonPrimitive?.content ?: "",
-                role = roleFromRpc ?: updated["role"]?.jsonPrimitive?.content ?: "USER",
-                profileImageUrl = updated["profileImageUrl"]?.jsonPrimitive?.contentOrNull,
-                height = updated["height"]?.jsonPrimitive?.doubleOrNull,
-                currentWeight = updated["currentWeight"]?.jsonPrimitive?.doubleOrNull,
-                birthDate = updated["birthDate"]?.jsonPrimitive?.contentOrNull,
-                gender = updated["gender"]?.jsonPrimitive?.contentOrNull,
-                medicalNotes = updated["medicalNotes"]?.jsonPrimitive?.contentOrNull,
-                activityLevel = updated["activityLevel"]?.jsonPrimitive?.contentOrNull,
-                goal = updated["goal"]?.jsonPrimitive?.contentOrNull
-            )
+            // Reload and return the freshly updated profile using the robust getProfile query
+            when (val profileResult = getProfile()) {
+                is NetworkResult.Success -> profileResult.data
+                is NetworkResult.Error -> throw Exception(profileResult.message)
+                is NetworkResult.Exception -> throw profileResult.e
+            }
         }
     }
 
@@ -200,33 +194,22 @@ class AuthRepositoryImpl @Inject constructor(
             
             val publicUrl = bucket.publicUrl(path)
 
-            val updated = try {
+            try {
                 supabase.postgrest["User"]
                     .update(mapOf("profileImageUrl" to publicUrl)) {
                         filter { eq("id", user.id) }
                     }
-                    .decodeSingle<JsonObject>()
             } catch (e: Exception) {
                 e.printStackTrace()
                 throw Exception("Error en Base de Datos (PostgREST Update): ${e.message ?: e.javaClass.simpleName}", e)
             }
 
-            val roleFromRpc = getRoleFromRpcOrNull()
-
-            UserProfile(
-                id = updated["id"]?.jsonPrimitive?.content ?: user.id,
-                email = updated["email"]?.jsonPrimitive?.content ?: (user.email ?: ""),
-                name = updated["name"]?.jsonPrimitive?.content ?: "",
-                role = roleFromRpc ?: updated["role"]?.jsonPrimitive?.content ?: "USER",
-                profileImageUrl = updated["profileImageUrl"]?.jsonPrimitive?.contentOrNull,
-                height = updated["height"]?.jsonPrimitive?.doubleOrNull,
-                currentWeight = updated["currentWeight"]?.jsonPrimitive?.doubleOrNull,
-                birthDate = updated["birthDate"]?.jsonPrimitive?.contentOrNull,
-                gender = updated["gender"]?.jsonPrimitive?.contentOrNull,
-                medicalNotes = updated["medicalNotes"]?.jsonPrimitive?.contentOrNull,
-                activityLevel = updated["activityLevel"]?.jsonPrimitive?.contentOrNull,
-                goal = updated["goal"]?.jsonPrimitive?.contentOrNull
-            )
+            // Reload and return the freshly updated profile using the robust getProfile query
+            when (val profileResult = getProfile()) {
+                is NetworkResult.Success -> profileResult.data
+                is NetworkResult.Error -> throw Exception(profileResult.message)
+                is NetworkResult.Exception -> throw profileResult.e
+            }
         }
     }
 }
