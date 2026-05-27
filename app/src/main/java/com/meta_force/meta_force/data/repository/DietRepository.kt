@@ -122,11 +122,18 @@ class DietRepositoryImpl @Inject constructor(
             put("description", description)
             put("userId", finalUserId)
         }
-        val insertedJson = supabase.postgrest["Diet"]
-            .insert(requestObject)
+        
+        // Ejecutar inserción sin decodificar la respuesta para evitar el error de EOF (204 No Content)
+        supabase.postgrest["Diet"].insert(requestObject)
+        
+        // Recargar el registro recién creado
+        val remoteJson = supabase.postgrest["Diet"]
+            .select(columns = Columns.raw("*, meals:DietMeal(*, meal:Meal(*))")) {
+                filter { eq("id", dietId) }
+            }
             .decodeSingle<JsonObject>()
         
-        val newDiet = insertedJson.toDiet()
+        val newDiet = remoteJson.toDiet()
         localDataSource.saveDiet(newDiet)
         emit(newDiet)
     }
@@ -143,14 +150,21 @@ class DietRepositoryImpl @Inject constructor(
         val updateObject = buildJsonObject {
             request.name?.let { put("name", it) }
             request.description?.let { put("description", it) }
-            request.caloriesTarget?.let { put("caloriesTarget", it) }
         }
-        val updatedJson = supabase.postgrest["Diet"]
-            .update(updateObject) {
+        
+        // Ejecutar actualización sin decodificar
+        supabase.postgrest["Diet"].update(updateObject) {
+            filter { eq("id", id) }
+        }
+        
+        // Recargar el registro actualizado
+        val remoteJson = supabase.postgrest["Diet"]
+            .select(columns = Columns.raw("*, meals:DietMeal(*, meal:Meal(*))")) {
                 filter { eq("id", id) }
             }
             .decodeSingle<JsonObject>()
-        val updatedDiet = updatedJson.toDiet()
+            
+        val updatedDiet = remoteJson.toDiet()
         localDataSource.saveDiet(updatedDiet)
         emit(updatedDiet)
     }
@@ -167,14 +181,13 @@ class DietRepositoryImpl @Inject constructor(
             request.quantity?.let { put("quantity", it) }
             request.notes?.let { put("notes", it) }
         }
-        val insertedJson = supabase.postgrest["DietMeal"]
-            .insert(requestObject)
-            .decodeSingle<JsonObject>()
         
-        val dietMealId = insertedJson["id"]?.jsonPrimitive?.contentOrNull ?: ""
+        // Ejecutar inserción sin decodificar
+        supabase.postgrest["DietMeal"].insert(requestObject)
+        
         val populatedJson = supabase.postgrest["DietMeal"]
             .select(columns = Columns.raw("*, meal:Meal(*)")) {
-                filter { eq("id", dietMealId) }
+                filter { eq("id", mealLinkId) }
             }
             .decodeSingle<JsonObject>()
         val newMeal = populatedJson.toDietMeal()
@@ -195,10 +208,11 @@ class DietRepositoryImpl @Inject constructor(
             request.quantity?.let { put("quantity", it) }
             request.notes?.let { put("notes", it) }
         }
-        supabase.postgrest["DietMeal"]
-            .update(updateObject) {
-                filter { eq("id", mealId) }
-            }
+        
+        // Ejecutar actualización sin decodificar
+        supabase.postgrest["DietMeal"].update(updateObject) {
+            filter { eq("id", mealId) }
+        }
             
         val populatedJson = supabase.postgrest["DietMeal"]
             .select(columns = Columns.raw("*, meal:Meal(*)")) {

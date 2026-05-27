@@ -75,11 +75,18 @@ class WorkoutRepositoryImpl @Inject constructor(
             put("description", description)
             put("userId", finalUserId)
         }
-        val insertedJson = supabase.postgrest["Workout"]
-            .insert(requestObject)
+        
+        // Ejecutar inserción sin decodificar la respuesta para evitar el error de EOF (204 No Content)
+        supabase.postgrest["Workout"].insert(requestObject)
+        
+        // Recargar el registro recién creado
+        val remoteJson = supabase.postgrest["Workout"]
+            .select(columns = Columns.raw("*, exercises:WorkoutExercise(*, exercise:Exercise(*))")) {
+                filter { eq("id", workoutId) }
+            }
             .decodeSingle<JsonObject>()
         
-        val newWorkout = insertedJson.toWorkout()
+        val newWorkout = remoteJson.toWorkout()
         localDataSource.saveWorkout(newWorkout)
         emit(newWorkout)
     }
@@ -97,12 +104,20 @@ class WorkoutRepositoryImpl @Inject constructor(
             request.name?.let { put("name", it) }
             request.description?.let { put("description", it) }
         }
-        val updatedJson = supabase.postgrest["Workout"]
-            .update(updateObject) {
+        
+        // Ejecutar actualización sin decodificar
+        supabase.postgrest["Workout"].update(updateObject) {
+            filter { eq("id", id) }
+        }
+        
+        // Recargar el registro actualizado
+        val remoteJson = supabase.postgrest["Workout"]
+            .select(columns = Columns.raw("*, exercises:WorkoutExercise(*, exercise:Exercise(*))")) {
                 filter { eq("id", id) }
             }
             .decodeSingle<JsonObject>()
-        val updatedWorkout = updatedJson.toWorkout()
+            
+        val updatedWorkout = remoteJson.toWorkout()
         localDataSource.saveWorkout(updatedWorkout)
         emit(updatedWorkout)
     }
@@ -123,14 +138,13 @@ class WorkoutRepositoryImpl @Inject constructor(
             request.restSeconds?.let { put("restSeconds", it) }
             request.notes?.let { put("notes", it) }
         }
-        val insertedJson = supabase.postgrest["WorkoutExercise"]
-            .insert(requestObject)
-            .decodeSingle<JsonObject>()
         
-        val workoutExerciseId = insertedJson["id"]?.jsonPrimitive?.contentOrNull ?: ""
+        // Ejecutar inserción sin decodificar
+        supabase.postgrest["WorkoutExercise"].insert(requestObject)
+        
         val populatedJson = supabase.postgrest["WorkoutExercise"]
             .select(columns = Columns.raw("*, exercise:Exercise(*)")) {
-                filter { eq("id", workoutExerciseId) }
+                filter { eq("id", exerciseLinkId) }
             }
             .decodeSingle<JsonObject>()
         val newExercise = populatedJson.toWorkoutExercise()
@@ -155,10 +169,11 @@ class WorkoutRepositoryImpl @Inject constructor(
             request.restSeconds?.let { put("restSeconds", it) }
             request.notes?.let { put("notes", it) }
         }
-        supabase.postgrest["WorkoutExercise"]
-            .update(updateObject) {
-                filter { eq("id", exerciseId) }
-            }
+        
+        // Ejecutar actualización sin decodificar
+        supabase.postgrest["WorkoutExercise"].update(updateObject) {
+            filter { eq("id", exerciseId) }
+        }
             
         val populatedJson = supabase.postgrest["WorkoutExercise"]
             .select(columns = Columns.raw("*, exercise:Exercise(*)")) {
