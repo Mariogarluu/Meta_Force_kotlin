@@ -7,6 +7,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.emitAll
 import com.meta_force.meta_force.data.local.DietLocalDataSource
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.gotrue.auth
 import com.meta_force.meta_force.data.supabase.SupabaseProvider
 import kotlinx.serialization.json.*
@@ -73,7 +74,7 @@ class DietRepositoryImpl @Inject constructor(
         try {
             val user = supabase.auth.currentUserOrNull() ?: throw Exception("Usuario no autenticado")
             val remoteJsonList = supabase.postgrest["Diet"]
-                .select(columns = "*, meals:DietMeal(*, meal:Meal(*))") {
+                .select(columns = Columns.raw("*, meals:DietMeal(*, meal:Meal(*))")) {
                     filter { eq("userId", user.id) }
                 }
                 .decodeList<JsonObject>()
@@ -89,7 +90,7 @@ class DietRepositoryImpl @Inject constructor(
     override fun getDiet(id: String): Flow<Diet> = flow {
         try {
             val remoteJson = supabase.postgrest["Diet"]
-                .select(columns = "*, meals:DietMeal(*, meal:Meal(*))") {
+                .select(columns = Columns.raw("*, meals:DietMeal(*, meal:Meal(*))")) {
                     filter { eq("id", id) }
                 }
                 .decodeSingle<JsonObject>()
@@ -169,7 +170,7 @@ class DietRepositoryImpl @Inject constructor(
         
         val dietMealId = insertedJson["id"]?.jsonPrimitive?.contentOrNull ?: ""
         val populatedJson = supabase.postgrest["DietMeal"]
-            .select(columns = "*, meal:Meal(*)") {
+            .select(columns = Columns.raw("*, meal:Meal(*)")) {
                 filter { eq("id", dietMealId) }
             }
             .decodeSingle<JsonObject>()
@@ -197,7 +198,7 @@ class DietRepositoryImpl @Inject constructor(
             }
             
         val populatedJson = supabase.postgrest["DietMeal"]
-            .select(columns = "*, meal:Meal(*)") {
+            .select(columns = Columns.raw("*, meal:Meal(*)")) {
                 filter { eq("id", mealId) }
             }
             .decodeSingle<JsonObject>()

@@ -8,6 +8,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.emitAll
 import com.meta_force.meta_force.data.local.WorkoutLocalDataSource
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.gotrue.auth
 import com.meta_force.meta_force.data.supabase.SupabaseProvider
 import kotlinx.serialization.json.*
@@ -24,7 +25,7 @@ class WorkoutRepositoryImpl @Inject constructor(
         try {
             val user = supabase.auth.currentUserOrNull() ?: throw Exception("Usuario no autenticado")
             val remoteJsonList = supabase.postgrest["Workout"]
-                .select(columns = "*, exercises:WorkoutExercise(*, exercise:Exercise(*))") {
+                .select(columns = Columns.raw("*, exercises:WorkoutExercise(*, exercise:Exercise(*))")) {
                     filter { eq("userId", user.id) }
                 }
                 .decodeList<JsonObject>()
@@ -40,7 +41,7 @@ class WorkoutRepositoryImpl @Inject constructor(
     override fun getWorkout(id: String): Flow<Workout> = flow {
         try {
             val remoteJson = supabase.postgrest["Workout"]
-                .select(columns = "*, exercises:WorkoutExercise(*, exercise:Exercise(*))") {
+                .select(columns = Columns.raw("*, exercises:WorkoutExercise(*, exercise:Exercise(*))")) {
                     filter { eq("id", id) }
                 }
                 .decodeSingle<JsonObject>()
@@ -124,7 +125,7 @@ class WorkoutRepositoryImpl @Inject constructor(
         
         val workoutExerciseId = insertedJson["id"]?.jsonPrimitive?.contentOrNull ?: ""
         val populatedJson = supabase.postgrest["WorkoutExercise"]
-            .select(columns = "*, exercise:Exercise(*)") {
+            .select(columns = Columns.raw("*, exercise:Exercise(*)")) {
                 filter { eq("id", workoutExerciseId) }
             }
             .decodeSingle<JsonObject>()
@@ -156,7 +157,7 @@ class WorkoutRepositoryImpl @Inject constructor(
             }
             
         val populatedJson = supabase.postgrest["WorkoutExercise"]
-            .select(columns = "*, exercise:Exercise(*)") {
+            .select(columns = Columns.raw("*, exercise:Exercise(*)")) {
                 filter { eq("id", exerciseId) }
             }
             .decodeSingle<JsonObject>()
