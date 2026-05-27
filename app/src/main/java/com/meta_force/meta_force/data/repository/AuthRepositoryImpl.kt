@@ -43,7 +43,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     private suspend fun getRoleFromRpcOrNull(): String? {
         return runCatching {
-            val rows = supabase.postgrest.rpc("get_my_role").decodeList<RoleRow>()
+            val rows = supabase.postgrest.rpc("get_my_role", buildJsonObject {}).decodeList<RoleRow>()
             rows.firstOrNull()?.role
         }.getOrNull()
     }
