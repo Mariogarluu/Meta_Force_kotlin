@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.meta_force.meta_force.ui.profile.ProfileViewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -463,20 +464,34 @@ fun ProfileScreen(
                 }
 
                 if (showCameraView) {
-                    CameraCaptureView(
-                        onImageCaptured = { uri ->
-                            showCameraView = false
-                            val file = uriToFile(uri)
-                            if (file != null) {
-                                viewModel.uploadAvatar(file)
-                            } else {
-                                Toast.makeText(context, "Error al procesar la imagen capturada", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        onDismiss = {
-                            showCameraView = false
+                    Dialog(
+                        onDismissRequest = { showCameraView = false },
+                        properties = DialogProperties(
+                            dismissOnBackPress = true,
+                            dismissOnClickOutside = false,
+                            usePlatformDefaultWidth = false
+                        )
+                    ) {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = Color.Black
+                        ) {
+                            CameraCaptureView(
+                                onImageCaptured = { uri ->
+                                    showCameraView = false
+                                    val file = uriToFile(uri)
+                                    if (file != null) {
+                                        viewModel.uploadAvatar(file)
+                                    } else {
+                                        Toast.makeText(context, "Error al procesar la imagen capturada", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                onDismiss = {
+                                    showCameraView = false
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
