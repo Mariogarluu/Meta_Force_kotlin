@@ -43,7 +43,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     private suspend fun getRoleFromRpcOrNull(): String? {
         return runCatching {
-            val rows = supabase.postgrest.rpc("get_my_role").decodeList<RoleRow>()
+            val rows = supabase.postgrest.rpc("get_my_role", buildJsonObject {}).decodeList<RoleRow>()
             rows.firstOrNull()?.role
         }.getOrNull()
     }
@@ -118,7 +118,7 @@ class AuthRepositoryImpl @Inject constructor(
             // Read from legacy public.User (works with current RLS that checks id == auth uid text)
             val row = supabase.postgrest["User"]
                 .select {
-                    filter { eq("id", user.id) }
+                    filter { eq("auth_user_id", user.id) }
                 }
                 .decodeSingle<JsonObject>()
 
@@ -160,7 +160,7 @@ class AuthRepositoryImpl @Inject constructor(
                             "goal" to request.goal
                         ).filterValues { it != null }
                     ) {
-                        filter { eq("id", user.id) }
+                        filter { eq("auth_user_id", user.id) }
                     }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -197,7 +197,7 @@ class AuthRepositoryImpl @Inject constructor(
             try {
                 supabase.postgrest["User"]
                     .update(mapOf("profileImageUrl" to publicUrl)) {
-                        filter { eq("id", user.id) }
+                        filter { eq("auth_user_id", user.id) }
                     }
             } catch (e: Exception) {
                 e.printStackTrace()
