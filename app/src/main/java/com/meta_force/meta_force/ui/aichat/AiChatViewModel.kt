@@ -141,7 +141,14 @@ class AiChatViewModel @Inject constructor(
         viewModelScope.launch {
             _saveStatus.value = NetworkResult.Success(Unit)
             
+            val mappedType = when (plan.type.uppercase().trim()) {
+                "DIETA" -> "DIET"
+                "ENTRENAMIENTO", "RUTINA" -> "WORKOUT"
+                else -> plan.type.uppercase().trim()
+            }
+            
             val sanitizedPlan = plan.copy(
+                type = mappedType,
                 days = plan.days.map { d ->
                     d.copy(dayOfWeek = d.dayOfWeek)
                 }

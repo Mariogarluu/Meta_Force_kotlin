@@ -68,7 +68,9 @@ class WorkoutRepositoryImpl @Inject constructor(
         userId: String
     ): Flow<Workout> = flow {
         val finalUserId = supabase.auth.currentUserOrNull()?.id ?: throw Exception("Usuario no autenticado")
+        val workoutId = java.util.UUID.randomUUID().toString()
         val requestObject = buildJsonObject {
+            put("id", workoutId)
             put("name", name)
             put("description", description)
             put("userId", finalUserId)
@@ -108,7 +110,9 @@ class WorkoutRepositoryImpl @Inject constructor(
     override fun addExerciseToWorkout(id: String, request: AddExerciseToWorkoutRequest): Flow<WorkoutExercise> = flow {
         val setsInt = request.sets?.toIntOrNull()
         val repsInt = request.reps?.toIntOrNull()
+        val exerciseLinkId = java.util.UUID.randomUUID().toString()
         val requestObject = buildJsonObject {
+            put("id", exerciseLinkId)
             put("workoutId", id)
             put("exerciseId", request.exerciseId)
             put("dayOfWeek", request.dayOfWeek)

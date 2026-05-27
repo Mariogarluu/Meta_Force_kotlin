@@ -115,10 +115,11 @@ class DietRepositoryImpl @Inject constructor(
         userId: String
     ): Flow<Diet> = flow {
         val finalUserId = supabase.auth.currentUserOrNull()?.id ?: throw Exception("Usuario no autenticado")
+        val dietId = java.util.UUID.randomUUID().toString()
         val requestObject = buildJsonObject {
+            put("id", dietId)
             put("name", name)
             put("description", description)
-            put("caloriesTarget", caloriesTarget)
             put("userId", finalUserId)
         }
         val insertedJson = supabase.postgrest["Diet"]
@@ -155,7 +156,9 @@ class DietRepositoryImpl @Inject constructor(
     }
 
     override fun addMealToDiet(id: String, request: AddMealToDietRequest): Flow<DietMeal> = flow {
+        val mealLinkId = java.util.UUID.randomUUID().toString()
         val requestObject = buildJsonObject {
+            put("id", mealLinkId)
             put("dietId", id)
             put("mealId", request.mealId)
             put("dayOfWeek", request.dayOfWeek)
