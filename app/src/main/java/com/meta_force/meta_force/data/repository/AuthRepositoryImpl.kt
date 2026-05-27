@@ -190,14 +190,26 @@ class AuthRepositoryImpl @Inject constructor(
             val bucket = supabase.storage.from("profiles")
             val ext = file.extension.ifBlank { "jpg" }
             val path = "${user.id}/avatar.$ext"
-            bucket.upload(path, file.readBytes(), upsert = true)
+            
+            try {
+                bucket.upload(path, file.readBytes(), upsert = true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw Exception("Error en Almacenamiento (Storage Upload): ${e.message ?: e.javaClass.simpleName}", e)
+            }
+            
             val publicUrl = bucket.publicUrl(path)
 
-            val updated = supabase.postgrest["User"]
-                .update(mapOf("profileImageUrl" to publicUrl)) {
-                    filter { eq("id", user.id) }
-                }
-                .decodeSingle<JsonObject>()
+            val updated = try {
+                supabase.postgrest["User"]
+                    .update(mapOf("profileImageUrl" to publicUrl)) {
+                        filter { eq("id", user.id) }
+                    }
+                    .decodeSingle<JsonObject>()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw Exception("Error en Base de Datos (PostgREST Update): ${e.message ?: e.javaClass.simpleName}", e)
+            }
 
             val roleFromRpc = getRoleFromRpcOrNull()
 
