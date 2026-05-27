@@ -41,6 +41,10 @@ import java.io.File
 import java.io.FileOutputStream
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import com.meta_force.meta_force.ui.profile.CameraCaptureView
 
 // Theme Colors
 private val DarkBg = Color(0xFF0f172a)
@@ -57,6 +61,19 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var showBigImageDialog by remember { mutableStateOf(false) }
+    var showCameraView by remember { mutableStateOf(false) }
+    var showSelectionDialog by remember { mutableStateOf(false) }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            showCameraView = true
+            showBigImageDialog = false
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Helper to get file from URI with proper extension and type
     fun uriToFile(uri: Uri): File? {
@@ -393,9 +410,9 @@ fun ProfileScreen(
                                     )
                                 }
 
-                                // Edit Button overlay
+                                 // Edit Button overlay
                                 FloatingActionButton(
-                                    onClick = { photoPickerLauncher.launch("image/*") },
+                                    onClick = { showSelectionDialog = true },
                                     modifier = Modifier
                                         .align(Alignment.BottomEnd)
                                          .padding(16.dp),
@@ -406,6 +423,60 @@ fun ProfileScreen(
                             }
                         }
                     }
+                }
+
+                if (showSelectionDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showSelectionDialog = false },
+                        title = { Text("Editar Foto de Perfil") },
+                        text = { Text("Selecciona cómo quieres actualizar tu foto de perfil:") },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    showSelectionDialog = false
+                                    val permissionCheck = ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.CAMERA
+                                    )
+                                    if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                                        showCameraView = true
+                                        showBigImageDialog = false
+                                    } else {
+                                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                    }
+                                }
+                            ) {
+                                Text("Cámara")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    showSelectionDialog = false
+                                    photoPickerLauncher.launch("image/*")
+                                }
+                            ) {
+                                Text("Galería")
+                            }
+                        }
+                    )
+                }
+
+                if (showCameraView) {
+                    CameraCaptureView(
+                        onImageCaptured = { uri ->
+                            showCameraView = false
+                            val file = uriToFile(uri)
+                            if (file != null) {
+                                viewModel.uploadAvatar(file)
+                            } else {
+                                Toast.makeText(context, "Error al procesar la imagen capturada", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        onDismiss = {
+                            showCameraView = false
+                        }
+                    )
                 }
             }
         }
