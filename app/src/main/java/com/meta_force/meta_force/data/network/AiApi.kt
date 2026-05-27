@@ -21,7 +21,7 @@ interface AiApi {
      * @param request The [ChatMessageRequest] to send.
      * @return A [ChatResponse] with the AI's response.
      */
-    @POST("ai/chat")
+    @POST("functions/v1/ai-chat")
     suspend fun sendMessage(@Body request: ChatMessageRequest): ChatResponse
 
     /**
@@ -29,7 +29,7 @@ interface AiApi {
      *
      * @return A list of [ChatSession] objects.
      */
-    @GET("ai/sessions")
+    @GET("functions/v1/ai-sessions")
     suspend fun getSessions(): List<ChatSession>
 
     /**
@@ -37,7 +37,7 @@ interface AiApi {
      *
      * @param request The [SavePlanRequest] containing the plan data.
      */
-    @POST("ai/save-plan")
+    @POST("functions/v1/ai-save-plan")
     suspend fun savePlan(@Body request: SavePlanRequest)
 
     /**
@@ -45,6 +45,6 @@ interface AiApi {
      *
      * @param sessionId The ID of the session to remove.
      */
-    @DELETE("ai/sessions/{sessionId}")
+    @DELETE("functions/v1/ai-sessions/{sessionId}")
     suspend fun deleteSession(@Path("sessionId") sessionId: String)
 }
