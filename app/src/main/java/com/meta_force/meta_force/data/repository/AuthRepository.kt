@@ -35,6 +35,11 @@ interface AuthRepository {
     fun getAuthToken(): Flow<String?>
 
     /**
+     * Retrieves the current refresh token as a flow.
+     */
+    fun getRefreshToken(): Flow<String?>
+
+    /**
      * Fetches the current user's profile information.
      */
     suspend fun getProfile(): NetworkResult<com.meta_force.meta_force.data.model.UserProfile>

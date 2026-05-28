@@ -183,7 +183,11 @@ fun AiChatScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = err, color = MaterialTheme.colorScheme.onErrorContainer)
+                            Text(
+                                text = com.meta_force.meta_force.ui.theme.mapNetworkErrorMessage(err), 
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.weight(1f)
+                            )
                             TextButton(onClick = { viewModel.clearError() }) {
                                 Text("OK", color = MaterialTheme.colorScheme.onErrorContainer)
                             }
@@ -203,63 +207,70 @@ fun AiChatScreen(
                 ) {
                     if (uiState.messages.isEmpty() && !uiState.isLoading) {
                         item {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 40.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Box(
+                            if (com.meta_force.meta_force.ui.theme.isNetworkError(uiState.error)) {
+                                com.meta_force.meta_force.ui.theme.NoInternetPlaceholder(
+                                    modifier = Modifier.fillMaxWidth().padding(top = 40.dp),
+                                    onRetry = { viewModel.loadSessions() }
+                                )
+                            } else {
+                                Column(
                                     modifier = Modifier
-                                        .size(80.dp)
-                                        .clip(RoundedCornerShape(24.dp))
-                                        .background(Brush.linearGradient(GradientColors)),
-                                    contentAlignment = Alignment.Center
+                                        .fillMaxWidth()
+                                        .padding(top = 40.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(
-                                        "🤖",
-                                        style = MaterialTheme.typography.displayMedium
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(24.dp))
-                                Text(
-                                    stringResource(R.string.ai_chat_greeting_title),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    stringResource(R.string.ai_chat_greeting_desc),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.LightGray
-                                )
-                                
-                                Spacer(modifier = Modifier.height(40.dp))
-                                
-                                val suggestions = listOf(
-                                    stringResource(R.string.ai_chat_suggestion_force) to "💪",
-                                    stringResource(R.string.ai_chat_suggestion_def) to "🥗",
-                                    stringResource(R.string.ai_chat_suggestion_hiit) to "🔥"
-                                )
-                                
-                                suggestions.forEach { (text, icon) ->
-                                    SuggestionChip(
-                                        onClick = { viewModel.sendMessage(text) },
-                                        label = { Text("$icon $text", color = PrimaryCyan, fontWeight = FontWeight.Medium) },
-                                        colors = SuggestionChipDefaults.suggestionChipColors(
-                                            containerColor = DarkSurface,
-                                            labelColor = PrimaryCyan
-                                        ),
-                                        border = SuggestionChipDefaults.suggestionChipBorder(
-                                            enabled = true,
-                                            borderColor = PrimaryBlue
-                                        ),
+                                    Box(
                                         modifier = Modifier
-                                            .padding(vertical = 4.dp)
-                                            .fillMaxWidth()
-                                            .height(50.dp)
+                                            .size(80.dp)
+                                            .clip(RoundedCornerShape(24.dp))
+                                            .background(Brush.linearGradient(GradientColors)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            "🤖",
+                                            style = MaterialTheme.typography.displayMedium
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                    Text(
+                                        stringResource(R.string.ai_chat_greeting_title),
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold
                                     )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        stringResource(R.string.ai_chat_greeting_desc),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = Color.LightGray
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(40.dp))
+                                    
+                                    val suggestions = listOf(
+                                        stringResource(R.string.ai_chat_suggestion_force) to "💪",
+                                        stringResource(R.string.ai_chat_suggestion_def) to "🥗",
+                                        stringResource(R.string.ai_chat_suggestion_hiit) to "🔥"
+                                    )
+                                    
+                                    suggestions.forEach { (text, icon) ->
+                                        SuggestionChip(
+                                            onClick = { viewModel.sendMessage(text) },
+                                            label = { Text("$icon $text", color = PrimaryCyan, fontWeight = FontWeight.Medium) },
+                                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                                containerColor = DarkSurface,
+                                                labelColor = PrimaryCyan
+                                            ),
+                                            border = SuggestionChipDefaults.suggestionChipBorder(
+                                                enabled = true,
+                                                borderColor = PrimaryBlue
+                                            ),
+                                            modifier = Modifier
+                                                .padding(vertical = 4.dp)
+                                                .fillMaxWidth()
+                                                .height(50.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

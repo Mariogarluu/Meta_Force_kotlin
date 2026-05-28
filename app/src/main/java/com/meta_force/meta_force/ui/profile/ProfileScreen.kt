@@ -147,9 +147,25 @@ fun ProfileScreen(
                 CircularProgressIndicator()
             }
             is ProfileUiState.Error -> {
-                Text(stringResource(R.string.profile_retry) + ": ${state.message}", color = MaterialTheme.colorScheme.error)
-                Button(onClick = { viewModel.loadProfile() }) {
-                    Text(stringResource(R.string.profile_retry))
+                if (com.meta_force.meta_force.ui.theme.isNetworkError(state.message)) {
+                    com.meta_force.meta_force.ui.theme.NoInternetPlaceholder(
+                        onRetry = { viewModel.loadProfile() }
+                    )
+                } else {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(24.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.profile_retry) + ": ${state.message}",
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { viewModel.loadProfile() }) {
+                            Text(stringResource(R.string.profile_retry))
+                        }
+                    }
                 }
             }
             is ProfileUiState.Success -> {

@@ -15,10 +15,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.firstOrNull
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    repository: AuthRepository,
+    private val repository: AuthRepository,
     private val accessApi: AccessApi
 ) : ViewModel() {
 
@@ -44,9 +45,10 @@ class MainViewModel @Inject constructor(
         // Restaurar sesión en Supabase para que el cliente nativo funcione
         try {
             val supabase = SupabaseProvider.client
-            if (supabase.auth.currentAccessTokenOrNull() != token) {
-                // No tenemos refresh token aquí, solo el access token actual
-                supabase.auth.importAuthToken(token, "")
+            val currentSession = supabase.auth.currentSessionOrNull()
+            if (currentSession == null || currentSession.accessToken != token) {
+                val refreshToken = repository.getRefreshToken().firstOrNull()
+                supabase.auth.importAuthToken(token, refreshToken ?: "")
             }
         } catch (_: Exception) {
             // Ignoramos errores al importar el token; se forzará re-login si hace falta

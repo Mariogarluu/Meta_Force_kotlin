@@ -91,13 +91,20 @@ fun QrScreen(
                 )
             }
             is QrUiState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                if (com.meta_force.meta_force.ui.theme.isNetworkError(state.message)) {
+                    com.meta_force.meta_force.ui.theme.NoInternetPlaceholder(
+                        modifier = Modifier.padding(innerPadding),
+                        onRetry = { viewModel.loadData() }
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                    }
                 }
             }
         }

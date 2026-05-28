@@ -65,6 +65,10 @@ class AiChatViewModel @Inject constructor(
         loadSessionsAndStart()
     }
 
+    fun loadSessions() {
+        loadSessionsAndStart()
+    }
+
     private fun loadSessionsAndStart() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)

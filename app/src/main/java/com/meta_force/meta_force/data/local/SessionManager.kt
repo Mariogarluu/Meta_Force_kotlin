@@ -23,6 +23,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "us
 class SessionManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     private val USER_TOKEN_KEY = stringPreferencesKey("user_token")
+    private val USER_REFRESH_TOKEN_KEY = stringPreferencesKey("user_refresh_token")
 
     /**
      * Observable flow of the authentication token.
@@ -33,22 +34,33 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     }
 
     /**
-     * Saves the authentication token to local storage.
-     *
-     * @param token The JWT token to save.
+     * Observable flow of the refresh token.
+     * Emits null if no token is saved.
      */
-    suspend fun saveAuthToken(token: String) {
+    val refreshToken: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[USER_REFRESH_TOKEN_KEY]
+    }
+
+    /**
+     * Saves the authentication and refresh tokens to local storage.
+     *
+     * @param token The JWT access token to save.
+     * @param refresh The refresh token to save.
+     */
+    suspend fun saveAuthToken(token: String, refresh: String) {
         context.dataStore.edit { preferences ->
             preferences[USER_TOKEN_KEY] = token
+            preferences[USER_REFRESH_TOKEN_KEY] = refresh
         }
     }
 
     /**
-     * Clears the authentication token from local storage, effectively logging the user out.
+     * Clears the authentication and refresh tokens from local storage, effectively logging the user out.
      */
     suspend fun clearAuthToken() {
         context.dataStore.edit { preferences ->
             preferences.remove(USER_TOKEN_KEY)
+            preferences.remove(USER_REFRESH_TOKEN_KEY)
         }
     }
 }

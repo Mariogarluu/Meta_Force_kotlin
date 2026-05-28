@@ -100,11 +100,17 @@ fun ClassesScreen(
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = PrimaryCyan)
                     }
                     is ClassesUiState.Error -> {
-                        Text(
-                            text = "Error: ${state.message}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+                        if (com.meta_force.meta_force.ui.theme.isNetworkError(state.message)) {
+                            com.meta_force.meta_force.ui.theme.NoInternetPlaceholder(
+                                onRetry = { viewModel.loadClasses(selectedCenterId) }
+                            )
+                        } else {
+                            Text(
+                                text = "Error: ${state.message}",
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
                     }
                     is ClassesUiState.Success -> {
                         if (state.classes.isEmpty()) {

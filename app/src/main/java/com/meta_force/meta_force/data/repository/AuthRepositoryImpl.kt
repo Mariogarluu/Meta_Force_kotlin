@@ -19,6 +19,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.contentOrNull
 import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.SessionStatus
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
@@ -27,16 +28,30 @@ import com.meta_force.meta_force.data.supabase.SupabaseProvider
 import java.io.File
 import javax.inject.Inject
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+
 /**
  * Implementation of [AuthRepository] that interacts with [AuthApi] and [SessionManager].
  *
- * @property api The authentication API interface.
  * @property sessionManager Instance for local session/token persistence.
  */
 class AuthRepositoryImpl @Inject constructor(
     private val sessionManager: SessionManager
 ) : AuthRepository {
     private val supabase = SupabaseProvider.client
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            supabase.auth.sessionStatus.collect { status ->
+                if (status is SessionStatus.Authenticated) {
+                    val session = status.session
+                    sessionManager.saveAuthToken(session.accessToken, session.refreshToken)
+                }
+            }
+        }
+    }
 
     @Serializable
     private data class RoleRow(val role: String)
@@ -56,7 +71,8 @@ class AuthRepositoryImpl @Inject constructor(
             }
             val token = supabase.auth.currentAccessTokenOrNull()
                 ?: throw IllegalStateException("No access token returned by Supabase")
-            sessionManager.saveAuthToken(token)
+            val refreshToken = supabase.auth.currentSessionOrNull()?.refreshToken ?: ""
+            sessionManager.saveAuthToken(token, refreshToken)
 
             val authUser = supabase.auth.currentUserOrNull()
                 ?: throw IllegalStateException("No user returned by Supabase")
@@ -83,7 +99,8 @@ class AuthRepositoryImpl @Inject constructor(
             }
             val token = supabase.auth.currentAccessTokenOrNull()
                 ?: throw IllegalStateException("No access token returned by Supabase")
-            sessionManager.saveAuthToken(token)
+            val refreshToken = supabase.auth.currentSessionOrNull()?.refreshToken ?: ""
+            sessionManager.saveAuthToken(token, refreshToken)
 
             val authUser = supabase.auth.currentUserOrNull()
                 ?: throw IllegalStateException("No user returned by Supabase")
@@ -108,6 +125,10 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun getAuthToken(): Flow<String?> {
         return sessionManager.authToken
+    }
+
+    override fun getRefreshToken(): Flow<String?> {
+        return sessionManager.refreshToken
     }
 
     override suspend fun getProfile(): NetworkResult<UserProfile> {
