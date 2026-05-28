@@ -1,16 +1,19 @@
 package com.meta_force.meta_force.data.model
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /**
  * Represents the broad category of a gym machine.
  */
+@Serializable
 enum class MachineType {
-    @SerializedName("cardio") CARDIO,
-    @SerializedName("fuerza") FUERZA,
-    @SerializedName("peso libre") PESO_LIBRE,
-    @SerializedName("funcional") FUNCIONAL,
-    @SerializedName("otro") OTRO
+    @SerializedName("cardio") @SerialName("cardio") CARDIO,
+    @SerializedName("fuerza") @SerialName("fuerza") FUERZA,
+    @SerializedName("peso libre") @SerialName("peso libre") PESO_LIBRE,
+    @SerializedName("funcional") @SerialName("funcional") FUNCIONAL,
+    @SerializedName("otro") @SerialName("otro") OTRO
 }
 
 /**
@@ -18,10 +21,11 @@ enum class MachineType {
  *
  * @property displayName Human-readable name for the status.
  */
+@Serializable
 enum class MachineStatus(val displayName: String) {
-    @SerializedName("operativa") OPERATIVA("Operativa"),
-    @SerializedName("en mantenimiento") MANTENIMIENTO("En mantenimiento"),
-    @SerializedName("fuera de servicio") FUERA_SERVICIO("Fuera de servicio")
+    @SerializedName("operativa") @SerialName("operativa") OPERATIVA("Operativa"),
+    @SerializedName("en mantenimiento") @SerialName("en mantenimiento") MANTENIMIENTO("En mantenimiento"),
+    @SerializedName("fuera de servicio") @SerialName("fuera de servicio") FUERA_SERVICIO("Fuera de servicio")
 }
 
 /**
@@ -37,6 +41,7 @@ enum class MachineStatus(val displayName: String) {
  * @property createdAt Creation timestamp.
  * @property updatedAt Last update timestamp.
  */
+@Serializable
 data class MachineCenterInstance(
     val id: String,
     val machineTypeId: String,
@@ -59,6 +64,7 @@ data class MachineCenterInstance(
  * @property updatedAt Last update timestamp.
  * @property instances Optional list of physical [MachineCenterInstance]s of this type.
  */
+@Serializable
 data class MachineTypeModel(
     val id: String,
     val name: String,
@@ -66,5 +72,6 @@ data class MachineTypeModel(
     val createdAt: String? = null,
     val updatedAt: String? = null,
     @SerializedName("machines", alternate = ["instances"])
+    @SerialName("instances")
     val instances: List<MachineCenterInstance>? = null
 )
