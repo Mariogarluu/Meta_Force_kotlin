@@ -172,11 +172,6 @@ private fun QrContent(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Válido hasta $formattedEndDate",
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
                     text = modalityText,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodySmall
