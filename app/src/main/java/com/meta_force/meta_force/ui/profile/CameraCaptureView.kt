@@ -47,6 +47,46 @@ fun CameraCaptureView(
     
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     
+    // Remember PreviewView so we can bind to it in LaunchedEffect
+    val previewView = remember {
+        PreviewView(context).apply {
+            scaleType = PreviewView.ScaleType.FILL_CENTER
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+    }
+    
+    // Bind camera lifecycle reactively when lensFacing changes
+    LaunchedEffect(lensFacing) {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+            
+            val preview = Preview.Builder().build().apply {
+                setSurfaceProvider(previewView.surfaceProvider)
+            }
+            
+            val cameraSelector = CameraSelector.Builder()
+                .requireLensFacing(lensFacing)
+                .build()
+            
+            try {
+                // Unbind all use cases before binding them again
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    imageCapture
+                )
+            } catch (exc: Exception) {
+                Log.e("CameraCaptureView", "Use case binding failed", exc)
+            }
+        }, ContextCompat.getMainExecutor(context))
+    }
+    
     // Cleanup executor when view is disposed
     DisposableEffect(Unit) {
         onDispose {
@@ -61,43 +101,8 @@ fun CameraCaptureView(
     ) {
         // Camera viewfinder preview
         AndroidView(
-            factory = { ctx ->
-                PreviewView(ctx).apply {
-                    scaleType = PreviewView.ScaleType.FILL_CENTER
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxSize(),
-            update = { previewView ->
-                val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-                cameraProviderFuture.addListener({
-                    val cameraProvider = cameraProviderFuture.get()
-                    
-                    val preview = Preview.Builder().build().apply {
-                        setSurfaceProvider(previewView.surfaceProvider)
-                    }
-                    
-                    val cameraSelector = CameraSelector.Builder()
-                        .requireLensFacing(lensFacing)
-                        .build()
-                    
-                    try {
-                        // Unbind all use cases before binding them again
-                        cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
-                            lifecycleOwner,
-                            cameraSelector,
-                            preview,
-                            imageCapture
-                        )
-                    } catch (exc: Exception) {
-                        Log.e("CameraCaptureView", "Use case binding failed", exc)
-                    }
-                }, ContextCompat.getMainExecutor(context))
-            }
+            factory = { previewView },
+            modifier = Modifier.fillMaxSize()
         )
         
         // Header bar with Close and Flip controls

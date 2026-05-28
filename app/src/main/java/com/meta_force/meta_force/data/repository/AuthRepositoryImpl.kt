@@ -168,19 +168,19 @@ class AuthRepositoryImpl @Inject constructor(
                 ?: throw IllegalStateException("No session")
 
             try {
+                val updateData = buildJsonObject {
+                    request.name?.let { put("name", it) }
+                    request.height?.let { put("height", it) }
+                    request.currentWeight?.let { put("currentWeight", it) }
+                    request.birthDate?.let { put("birthDate", it) }
+                    request.gender?.let { put("gender", it) }
+                    request.medicalNotes?.let { put("medicalNotes", it) }
+                    request.activityLevel?.let { put("activityLevel", it) }
+                    request.goal?.let { put("goal", it) }
+                }
+
                 supabase.postgrest["User"]
-                    .update(
-                        mapOf(
-                            "name" to request.name,
-                            "height" to request.height,
-                            "currentWeight" to request.currentWeight,
-                            "birthDate" to request.birthDate,
-                            "gender" to request.gender,
-                            "medicalNotes" to request.medicalNotes,
-                            "activityLevel" to request.activityLevel,
-                            "goal" to request.goal
-                        ).filterValues { it != null }
-                    ) {
+                    .update(updateData) {
                         filter { eq("auth_user_id", user.id) }
                     }
             } catch (e: Exception) {
@@ -216,8 +216,11 @@ class AuthRepositoryImpl @Inject constructor(
             val publicUrl = bucket.publicUrl(path)
 
             try {
+                val updateData = buildJsonObject {
+                    put("profileImageUrl", publicUrl)
+                }
                 supabase.postgrest["User"]
-                    .update(mapOf("profileImageUrl" to publicUrl)) {
+                    .update(updateData) {
                         filter { eq("auth_user_id", user.id) }
                     }
             } catch (e: Exception) {
@@ -227,7 +230,11 @@ class AuthRepositoryImpl @Inject constructor(
 
             // Reload and return the freshly updated profile using the robust getProfile query
             when (val profileResult = getProfile()) {
-                is NetworkResult.Success -> profileResult.data
+                is NetworkResult.Success -> {
+                    val profile = profileResult.data
+                    val updatedAvatarUrl = profile.profileImageUrl?.let { "$it?t=${System.currentTimeMillis()}" }
+                    profile.copy(profileImageUrl = updatedAvatarUrl)
+                }
                 is NetworkResult.Error -> throw Exception(profileResult.message)
                 is NetworkResult.Exception -> throw profileResult.e
             }
