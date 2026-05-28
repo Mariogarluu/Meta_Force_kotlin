@@ -60,7 +60,27 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(updateStatus) {
+        updateStatus?.let { result ->
+            when (result) {
+                is com.meta_force.meta_force.data.network.NetworkResult.Success -> {
+                    Toast.makeText(context, "Perfil guardado con éxito", Toast.LENGTH_SHORT).show()
+                    viewModel.clearUpdateStatus()
+                }
+                is com.meta_force.meta_force.data.network.NetworkResult.Error -> {
+                    Toast.makeText(context, "Error al guardar: ${result.message}", Toast.LENGTH_SHORT).show()
+                    viewModel.clearUpdateStatus()
+                }
+                is com.meta_force.meta_force.data.network.NetworkResult.Exception -> {
+                    Toast.makeText(context, "Error de red: ${result.e.message ?: "Conexión fallida"}", Toast.LENGTH_SHORT).show()
+                    viewModel.clearUpdateStatus()
+                }
+            }
+        }
+    }
     var showBigImageDialog by remember { mutableStateOf(false) }
     var showCameraView by remember { mutableStateOf(false) }
     var showSelectionDialog by remember { mutableStateOf(false) }

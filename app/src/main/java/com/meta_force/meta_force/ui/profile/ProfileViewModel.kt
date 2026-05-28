@@ -35,6 +35,13 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
+    private val _updateStatus = MutableStateFlow<NetworkResult<UserProfile>?>(null)
+    val updateStatus: StateFlow<NetworkResult<UserProfile>?> = _updateStatus.asStateFlow()
+
+    fun clearUpdateStatus() {
+        _updateStatus.value = null
+    }
+
     init {
         loadProfile()
     }
@@ -58,18 +65,17 @@ class ProfileViewModel @Inject constructor(
 
     fun updateProfile(request: UpdateProfileRequest) {
         viewModelScope.launch {
-            // Optimistic update or show loading overlay? 
-            // For now, let's just perform the call and update on success
+            _updateStatus.value = null
             when (val result = repository.updateProfile(request)) {
                 is NetworkResult.Success -> {
                     _uiState.value = ProfileUiState.Success(result.data)
+                    _updateStatus.value = result
                 }
                 is NetworkResult.Error -> {
-                    // In a real app, we might want to pulse an error message without clearing current success data
-                    _uiState.value = ProfileUiState.Error(result.message)
+                    _updateStatus.value = result
                 }
                 is NetworkResult.Exception -> {
-                    _uiState.value = ProfileUiState.Error(result.e.message ?: "Update failed")
+                    _updateStatus.value = result
                 }
             }
         }
