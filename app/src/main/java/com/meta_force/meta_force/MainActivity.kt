@@ -32,6 +32,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.meta_force.meta_force.ui.splash.SplashScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -62,11 +65,21 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val startDestination by mainViewModel.startDestination.collectAsState()
+                    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = currentBackStackEntry?.destination?.route
 
-                    // Note: In a real app, you might want to show a splash screen until startDestination is determined
-                    // For now, we rely on the initial value "login" and the flow updating it.
+                    LaunchedEffect(startDestination, currentRoute) {
+                        if (currentRoute == "splash" && startDestination != "splash") {
+                            navController.navigate(startDestination) {
+                                popUpTo("splash") { inclusive = true }
+                            }
+                        }
+                    }
                     
-                    NavHost(navController = navController, startDestination = startDestination) {
+                    NavHost(navController = navController, startDestination = "splash") {
+                        composable("splash") {
+                            SplashScreen()
+                        }
                         composable("login") {
                             LoginScreen(
                                 onLoginSuccess = {

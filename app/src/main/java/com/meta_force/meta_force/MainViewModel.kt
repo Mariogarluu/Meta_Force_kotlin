@@ -33,7 +33,7 @@ class MainViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = "login" // Default mientras se calcula
+            initialValue = "splash" // Default mientras se calcula
         )
 
     private fun computeStartDestination(token: String?): Flow<String> = flow {
