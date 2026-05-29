@@ -38,8 +38,15 @@ class ProfileViewModel @Inject constructor(
     private val _updateStatus = MutableStateFlow<NetworkResult<UserProfile>?>(null)
     val updateStatus: StateFlow<NetworkResult<UserProfile>?> = _updateStatus.asStateFlow()
 
+    private val _changePasswordStatus = MutableStateFlow<NetworkResult<Boolean>?>(null)
+    val changePasswordStatus: StateFlow<NetworkResult<Boolean>?> = _changePasswordStatus.asStateFlow()
+
     fun clearUpdateStatus() {
         _updateStatus.value = null
+    }
+
+    fun clearChangePasswordStatus() {
+        _changePasswordStatus.value = null
     }
 
     init {
@@ -95,6 +102,19 @@ class ProfileViewModel @Inject constructor(
                     _uiState.value = ProfileUiState.Error(result.e.message ?: "Failed to upload avatar")
                 }
             }
+        }
+    }
+
+    fun changePassword(currentPass: String, newPass: String) {
+        viewModelScope.launch {
+            _changePasswordStatus.value = null
+            _changePasswordStatus.value = repository.changePassword(currentPass, newPass)
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            repository.logout()
         }
     }
 }

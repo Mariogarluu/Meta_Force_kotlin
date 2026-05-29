@@ -24,6 +24,10 @@ import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.storage.storage
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlinx.coroutines.withContext
+import com.meta_force.meta_force.BuildConfig
 import com.meta_force.meta_force.data.supabase.SupabaseProvider
 import java.io.File
 import javax.inject.Inject
@@ -238,6 +242,53 @@ class AuthRepositoryImpl @Inject constructor(
                 is NetworkResult.Error -> throw Exception(profileResult.message)
                 is NetworkResult.Exception -> throw profileResult.e
             }
+        }
+    }
+
+    private suspend fun verifyCurrentPassword(email: String, currentPassword: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL("${BuildConfig.SUPABASE_URL}/auth/v1/token?grant_type=password")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("apikey", BuildConfig.SUPABASE_KEY)
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.doOutput = true
+
+                val jsonBody = "{\"email\":\"$email\",\"password\":\"$currentPassword\"}"
+                conn.outputStream.use { os ->
+                    val input = jsonBody.toByteArray(charset("utf-8"))
+                    os.write(input, 0, input.size)
+                }
+
+                val responseCode = conn.responseCode
+                conn.disconnect()
+                responseCode == 200
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+    }
+
+    override suspend fun changePassword(currentPassword: String, newPassword: String): NetworkResult<Boolean> {
+        return safeApiCall {
+            val user = supabase.auth.currentUserOrNull()
+                ?: throw IllegalStateException("No se pudo obtener la sesión de usuario activa.")
+
+            val email = user.email ?: throw IllegalStateException("No hay un correo asociado a la sesión activa.")
+
+            // 1. Verificar la contraseña actual vía API REST directa
+            val isValid = verifyCurrentPassword(email, currentPassword)
+            if (!isValid) {
+                throw IllegalArgumentException("La contraseña actual es incorrecta.")
+            }
+
+            // 2. Si la validación es exitosa, actualizar la contraseña en el cliente principal
+            supabase.auth.updateUser {
+                password = newPassword
+            }
+            true
         }
     }
 }

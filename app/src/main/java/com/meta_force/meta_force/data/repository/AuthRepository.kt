@@ -53,4 +53,9 @@ interface AuthRepository {
      * Uploads a new profile image.
      */
     suspend fun uploadAvatar(file: java.io.File): NetworkResult<com.meta_force.meta_force.data.model.UserProfile>
+
+    /**
+     * Verifies the current password and updates it with the new password.
+     */
+    suspend fun changePassword(currentPassword: String, newPassword: String): NetworkResult<Boolean>
 }

@@ -126,7 +126,12 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("profile") {
                             com.meta_force.meta_force.ui.profile.ProfileScreen(
-                                onNavigateBack = { navController.popBackStack() }
+                                onNavigateBack = { navController.popBackStack() },
+                                onPasswordChanged = {
+                                    navController.navigate("login") {
+                                        popUpTo("dashboard") { inclusive = true }
+                                    }
+                                }
                             )
                         }
                         composable("workouts") {

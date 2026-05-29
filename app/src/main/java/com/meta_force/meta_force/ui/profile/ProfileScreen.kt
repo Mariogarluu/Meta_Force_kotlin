@@ -23,7 +23,14 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import com.meta_force.meta_force.data.model.UpdateProfileRequest
 import androidx.compose.ui.res.stringResource
 import com.meta_force.meta_force.R
@@ -57,10 +64,12 @@ private val PrimaryCyan = Color(0xFF22d3ee)
 @Composable
 fun ProfileScreen(
     onNavigateBack: () -> Unit,
+    onPasswordChanged: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
+    val changePasswordStatus by viewModel.changePasswordStatus.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(updateStatus) {
@@ -77,6 +86,27 @@ fun ProfileScreen(
                 is com.meta_force.meta_force.data.network.NetworkResult.Exception -> {
                     Toast.makeText(context, "Error de red: ${result.e.message ?: "Conexión fallida"}", Toast.LENGTH_SHORT).show()
                     viewModel.clearUpdateStatus()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(changePasswordStatus) {
+        changePasswordStatus?.let { result ->
+            when (result) {
+                is com.meta_force.meta_force.data.network.NetworkResult.Success -> {
+                    Toast.makeText(context, "Contraseña cambiada con éxito. Cerrando sesión...", Toast.LENGTH_LONG).show()
+                    viewModel.clearChangePasswordStatus()
+                    viewModel.logout()
+                    onPasswordChanged()
+                }
+                is com.meta_force.meta_force.data.network.NetworkResult.Error -> {
+                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                    viewModel.clearChangePasswordStatus()
+                }
+                is com.meta_force.meta_force.data.network.NetworkResult.Exception -> {
+                    Toast.makeText(context, "Error de red: ${result.e.message ?: "Conexión fallida"}", Toast.LENGTH_SHORT).show()
+                    viewModel.clearChangePasswordStatus()
                 }
             }
         }
@@ -199,6 +229,13 @@ fun ProfileScreen(
                 var birthDate by remember { mutableStateOf(user.birthDate ?: "") }
                 var medicalNotes by remember { mutableStateOf(user.medicalNotes ?: "") }
 
+                // State for Change Password
+                var showChangePasswordDialog by remember { mutableStateOf(false) }
+                var currentPassword by remember { mutableStateOf("") }
+                var newPassword by remember { mutableStateOf("") }
+                var showCurrentPass by remember { mutableStateOf(false) }
+                var showNewPass by remember { mutableStateOf(false) }
+
                 // Validation Errors
                 var heightError by remember { mutableStateOf<String?>(null) }
                 var weightError by remember { mutableStateOf<String?>(null) }
@@ -288,7 +325,37 @@ fun ProfileScreen(
                          modifier = Modifier.fillMaxWidth()
                      )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                     Spacer(modifier = Modifier.height(16.dp))
+
+                     Card(
+                         modifier = Modifier.fillMaxWidth(),
+                         colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                         border = androidx.compose.foundation.BorderStroke(1.dp, DarkSurfaceVariant),
+                         shape = MaterialTheme.shapes.medium
+                     ) {
+                         Column(modifier = Modifier.padding(16.dp)) {
+                             Text(
+                                 text = "Seguridad",
+                                 style = MaterialTheme.typography.titleMedium,
+                                 color = MaterialTheme.colorScheme.secondary,
+                                 fontWeight = FontWeight.Bold
+                             )
+                             Spacer(modifier = Modifier.height(8.dp))
+                             Button(
+                                 onClick = {
+                                     currentPassword = ""
+                                     newPassword = ""
+                                     showChangePasswordDialog = true
+                                 },
+                                 modifier = Modifier.fillMaxWidth(),
+                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                             ) {
+                                 Text("Cambiar contraseña", color = DarkBg, fontWeight = FontWeight.Bold)
+                             }
+                         }
+                     }
+
+                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(stringResource(R.string.profile_physical_data), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -417,6 +484,95 @@ fun ProfileScreen(
                     }
                     
                     Spacer(modifier = Modifier.height(48.dp))
+                }
+
+                if (showChangePasswordDialog) {
+                    Dialog(onDismissRequest = { showChangePasswordDialog = false }) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            shape = MaterialTheme.shapes.medium,
+                            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                            border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryCyan)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Cambiar contraseña",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = PrimaryCyan
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                OutlinedTextField(
+                                    value = currentPassword,
+                                    onValueChange = { currentPassword = it },
+                                    label = { Text("Contraseña actual") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    visualTransformation = if (showCurrentPass) VisualTransformation.None else PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                    trailingIcon = {
+                                        IconButton(onClick = { showCurrentPass = !showCurrentPass }) {
+                                            Icon(
+                                                imageVector = if (showCurrentPass) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        }
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                OutlinedTextField(
+                                    value = newPassword,
+                                    onValueChange = { newPassword = it },
+                                    label = { Text("Nueva contraseña") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    visualTransformation = if (showNewPass) VisualTransformation.None else PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                    trailingIcon = {
+                                        IconButton(onClick = { showNewPass = !showNewPass }) {
+                                            Icon(
+                                                imageVector = if (showNewPass) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                            )
+                                        }
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(24.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    TextButton(
+                                        onClick = { showChangePasswordDialog = false },
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text("Cancelar", color = Color.White)
+                                    }
+                                    Button(
+                                        onClick = {
+                                            if (currentPassword.isNotBlank() && newPassword.length >= 6) {
+                                                viewModel.changePassword(currentPassword, newPassword)
+                                            } else if (newPassword.length < 6) {
+                                                Toast.makeText(context, "La nueva contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show()
+                                            }
+                                        },
+                                        enabled = currentPassword.isNotBlank() && newPassword.isNotBlank(),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text("Guardar", fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Dialog for Big Image & Edit
