@@ -40,6 +40,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +52,7 @@ fun MySubscriptionScreen(
     viewModel: MySubscriptionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -113,7 +118,37 @@ fun MySubscriptionScreen(
                     paddingValues = innerPadding,
                     items = state.subscriptions,
                     downloadingInvoiceId = state.downloadingInvoiceId,
-                    onDownloadInvoice = viewModel::downloadInvoice
+                    onDownloadInvoice = { invoiceId ->
+                        viewModel.downloadInvoice(
+                            invoiceId = invoiceId,
+                            onSuccess = { url ->
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                    Toast.makeText(
+                                        context,
+                                        "Descarga de factura iniciada correctamente",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        "No se pudo abrir el enlace de la factura: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            },
+                            onError = { errorMsg ->
+                                Toast.makeText(
+                                    context,
+                                    "Error al descargar la factura: $errorMsg",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        )
+                    }
                 )
             }
         }

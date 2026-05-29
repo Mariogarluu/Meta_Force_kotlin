@@ -53,7 +53,11 @@ class MySubscriptionViewModel @Inject constructor(
         }
     }
 
-    fun downloadInvoice(invoiceId: String) {
+    fun downloadInvoice(
+        invoiceId: String,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
         val current = _uiState.value
         if (current !is MySubscriptionUiState.Success) return
 
@@ -61,17 +65,16 @@ class MySubscriptionViewModel @Inject constructor(
             _uiState.value = current.copy(downloadingInvoiceId = invoiceId)
             when (val result = repository.getInvoiceSignedUrl(invoiceId)) {
                 is NetworkResult.Success -> {
-                    // En Android real abriríamos un CustomTabs/Intent; aquí dejamos el hook.
-                    // La UI puede reaccionar a este resultado mediante efectos o navegación externa.
                     _uiState.value = current.copy(downloadingInvoiceId = null)
+                    onSuccess(result.data)
                 }
                 is NetworkResult.Error -> {
-                    _uiState.value = MySubscriptionUiState.Error(result.message)
+                    _uiState.value = current.copy(downloadingInvoiceId = null)
+                    onError(result.message)
                 }
                 is NetworkResult.Exception -> {
-                    _uiState.value = MySubscriptionUiState.Error(
-                        result.e.message ?: "Error downloading invoice"
-                    )
+                    _uiState.value = current.copy(downloadingInvoiceId = null)
+                    onError(result.e.message ?: "Error al descargar la factura")
                 }
             }
         }
