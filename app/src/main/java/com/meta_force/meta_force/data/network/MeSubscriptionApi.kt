@@ -29,7 +29,7 @@ interface MeSubscriptionApi {
      * Devuelve una URL firmada temporal para descargar la factura indicada.
      */
     @Headers("Content-Type: application/json")
-    @POST("rest/v1/rpc/get_invoice_signed_url")
+    @POST("functions/v1/invoice-pdf")
     suspend fun getInvoiceSignedUrl(
         @Body body: Map<String, @JvmSuppressWildcards Any?>
     ): SignedUrlResponse

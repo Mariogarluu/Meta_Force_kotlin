@@ -55,7 +55,7 @@ class MeSubscriptionRepositoryImpl @Inject constructor(
     override suspend fun getInvoiceSignedUrl(invoiceId: String): NetworkResult<String> {
         return safeApiCall {
             val response = api.getInvoiceSignedUrl(
-                mapOf("p_invoice_id" to invoiceId)
+                mapOf("invoice_id" to invoiceId)
             )
             response.url
         }
