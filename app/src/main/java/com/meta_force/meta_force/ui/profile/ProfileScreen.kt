@@ -326,36 +326,6 @@ fun ProfileScreen(
                      )
 
                      Spacer(modifier = Modifier.height(16.dp))
-
-                     Card(
-                         modifier = Modifier.fillMaxWidth(),
-                         colors = CardDefaults.cardColors(containerColor = DarkSurface),
-                         border = androidx.compose.foundation.BorderStroke(1.dp, DarkSurfaceVariant),
-                         shape = MaterialTheme.shapes.medium
-                     ) {
-                         Column(modifier = Modifier.padding(16.dp)) {
-                             Text(
-                                 text = "Seguridad",
-                                 style = MaterialTheme.typography.titleMedium,
-                                 color = MaterialTheme.colorScheme.secondary,
-                                 fontWeight = FontWeight.Bold
-                             )
-                             Spacer(modifier = Modifier.height(8.dp))
-                             Button(
-                                 onClick = {
-                                     currentPassword = ""
-                                     newPassword = ""
-                                     showChangePasswordDialog = true
-                                 },
-                                 modifier = Modifier.fillMaxWidth(),
-                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                             ) {
-                                 Text("Cambiar contraseña", color = DarkBg, fontWeight = FontWeight.Bold)
-                             }
-                         }
-                     }
-
-                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(stringResource(R.string.profile_physical_data), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.secondary)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -481,6 +451,21 @@ fun ProfileScreen(
                         shape = MaterialTheme.shapes.medium
                     ) {
                         Text(stringResource(R.string.profile_save))
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            currentPassword = ""
+                            newPassword = ""
+                            showChangePasswordDialog = true
+                        },
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text("Cambiar contraseña", color = DarkBg, fontWeight = FontWeight.Bold)
                     }
                     
                     Spacer(modifier = Modifier.height(48.dp))
