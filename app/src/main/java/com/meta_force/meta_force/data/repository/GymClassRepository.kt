@@ -1,6 +1,7 @@
 package com.meta_force.meta_force.data.repository
 
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 
 import com.meta_force.meta_force.data.model.GymClass
 import com.meta_force.meta_force.data.model.CreateClassInput
@@ -73,10 +74,18 @@ class GymClassRepositoryImpl @Inject constructor() : GymClassRepository {
     private val supabase = com.meta_force.meta_force.data.supabase.SupabaseProvider.client
 
     override fun getClasses(centerId: String?): Flow<List<GymClass>> = flow {
-        val request = supabase.postgrest["GymClass"].select {
-            if (centerId != null) {
-                filter { eq("centerId", centerId) }
+        val request = if (centerId != null) {
+            supabase.postgrest["GymClass"].select(
+                columns = Columns.raw("*, ClassCenterSchedule!inner(*)")
+            ) {
+                filter {
+                    eq("ClassCenterSchedule.centerId", centerId)
+                }
             }
+        } else {
+            supabase.postgrest["GymClass"].select(
+                columns = Columns.raw("*, ClassCenterSchedule(*)")
+            )
         }
         emit(request.decodeList<GymClass>())
     }

@@ -8,7 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Retrofit interface for AI-related API endpoints.
@@ -45,6 +45,6 @@ interface AiApi {
      *
      * @param sessionId The ID of the session to remove.
      */
-    @DELETE("functions/v1/ai-sessions/{sessionId}")
-    suspend fun deleteSession(@Path("sessionId") sessionId: String)
+    @DELETE("functions/v1/ai-sessions")
+    suspend fun deleteSession(@Query("sessionId") sessionId: String)
 }

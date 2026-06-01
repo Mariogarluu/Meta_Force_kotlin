@@ -17,15 +17,27 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): NetworkResult<T> {
     } catch (e: HttpException) {
         val code = e.code()
         val errorResponse = e.response()?.errorBody()?.string()
-        var message = e.message() ?: "Unknown error"
+        var message = e.message()
+        if (message.isNullOrBlank()) {
+            message = "Error HTTP $code"
+        }
 
         try {
-            if (errorResponse != null) {
+            if (!errorResponse.isNullOrBlank()) {
                 val jsonObject = JSONObject(errorResponse)
-                message = jsonObject.getString("message")
+                // Deno / Supabase functions might return "error" or "message" key
+                val msg = jsonObject.optString("message", jsonObject.optString("error", ""))
+                if (msg.isNotBlank()) {
+                    message = msg
+                } else if (errorResponse.length < 150) {
+                    message = errorResponse
+                }
             }
         } catch (ex: Exception) {
-            // If it's not JSON, fallback to the raw string or standard message
+            // If it's not JSON, fallback to raw response if it is a short, readable message
+            if (!errorResponse.isNullOrBlank() && errorResponse.length < 150) {
+                message = errorResponse
+            }
         }
         
         NetworkResult.Error(code, message)
