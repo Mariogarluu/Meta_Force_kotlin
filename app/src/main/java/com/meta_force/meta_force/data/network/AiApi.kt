@@ -38,7 +38,7 @@ interface AiApi {
      * @param request The [SavePlanRequest] containing the plan data.
      */
     @POST("functions/v1/ai-save-plan")
-    suspend fun savePlan(@Body request: SavePlanRequest)
+    suspend fun savePlan(@Body request: SavePlanRequest): com.google.gson.JsonElement
 
     /**
      * Deletes a specific chat session.

@@ -143,12 +143,11 @@ class AiChatViewModel @Inject constructor(
 
     fun savePlan(plan: com.meta_force.meta_force.data.model.AiGeneratedPlan) {
         viewModelScope.launch {
-            _saveStatus.value = NetworkResult.Success(Unit)
-            
-            val mappedType = when (plan.type.uppercase().trim()) {
-                "DIETA" -> "DIET"
-                "ENTRENAMIENTO", "RUTINA" -> "WORKOUT"
-                else -> plan.type.uppercase().trim()
+            val typeUpper = plan.type.uppercase().trim()
+            val mappedType = when {
+                typeUpper.contains("DIET") || typeUpper.contains("ALIMENT") || typeUpper.contains("NUTRI") || typeUpper.contains("COMID") || typeUpper.contains("DIETA") -> "DIET"
+                typeUpper.contains("WORK") || typeUpper.contains("TRAIN") || typeUpper.contains("ENTREN") || typeUpper.contains("RUTIN") || typeUpper.contains("EJERCIC") -> "WORKOUT"
+                else -> typeUpper
             }
             
             val sanitizedPlan = plan.copy(

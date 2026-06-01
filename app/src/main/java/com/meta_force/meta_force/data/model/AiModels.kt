@@ -1,5 +1,7 @@
 package com.meta_force.meta_force.data.model
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Request object for sending a message to the AI chat.
  *
@@ -56,6 +58,7 @@ data class AiGeneratedPlan(
  */
 data class AiPlanDay(
     val dayOfWeek: Int?,
+    @SerializedName(value = "items", alternate = ["exercises", "meals"])
     val items: List<AiPlanItem>? // represents both exercises and meals
 )
 
