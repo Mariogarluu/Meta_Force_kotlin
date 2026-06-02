@@ -1,6 +1,7 @@
 package com.meta_force.meta_force.data.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 /**
  * Represents a scheduled session of a gym class at a specific center.
@@ -97,7 +98,9 @@ data class GymClass(
     val description: String? = null,
     val createdAt: String? = null,
     val updatedAt: String? = null,
+    @SerialName("ClassTrainer")
     val trainers: List<ClassTrainer>? = emptyList(),
+    @SerialName("ClassCenterSchedule")
     val schedules: List<ClassCenterSchedule>? = emptyList(),
     val centers: List<CenterBasicInfo>? = emptyList(),
     // Keep backward compatible ones for existing views if needed temporarily
