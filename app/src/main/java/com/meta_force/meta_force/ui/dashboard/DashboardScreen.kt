@@ -34,15 +34,7 @@ fun DashboardScreen(
         topBar = {
             TopAppBar(
                 title = { Text("METAFORCE", color = MaterialTheme.colorScheme.primary) },
-                navigationIcon = {
-                    IconButton(onClick = { /* TODO: Open Drawer */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                },
                 actions = {
-                    IconButton(onClick = { /* TODO: Favorites */ }) {
-                        Icon(Icons.Default.Favorite, contentDescription = "Heart", tint = MaterialTheme.colorScheme.error)
-                    }
                     IconButton(onClick = { viewModel.logout(onLogout) }) {
                         Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }

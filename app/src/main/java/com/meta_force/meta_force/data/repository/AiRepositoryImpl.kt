@@ -27,8 +27,11 @@ class AiRepositoryImpl @Inject constructor(
     }
 
     override suspend fun savePlan(request: SavePlanRequest): NetworkResult<Unit> {
-        return safeApiCall { api.savePlan(request) }
-    }
+        return safeApiCall {
+            api.savePlan(request)
+            Unit
+        }
+     }
 
     override suspend fun deleteSession(sessionId: String): NetworkResult<Unit> {
         return safeApiCall { api.deleteSession(sessionId) }

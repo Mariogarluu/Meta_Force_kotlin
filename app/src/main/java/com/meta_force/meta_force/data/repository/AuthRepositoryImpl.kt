@@ -209,7 +209,6 @@ class AuthRepositoryImpl @Inject constructor(
             val bucket = supabase.storage.from("profiles")
             val ext = file.extension.ifBlank { "jpg" }
             val path = "${user.id}/avatar.$ext"
-            
             try {
                 bucket.upload(path, file.readBytes(), upsert = true)
             } catch (e: Exception) {
@@ -217,7 +216,7 @@ class AuthRepositoryImpl @Inject constructor(
                 throw Exception("Error en Almacenamiento (Storage Upload): ${e.message ?: e.javaClass.simpleName}", e)
             }
             
-            val publicUrl = bucket.publicUrl(path)
+            val publicUrl = "${bucket.publicUrl(path)}?t=${System.currentTimeMillis()}"
 
             try {
                 val updateData = buildJsonObject {

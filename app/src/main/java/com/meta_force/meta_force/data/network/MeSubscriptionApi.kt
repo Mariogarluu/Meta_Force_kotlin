@@ -11,7 +11,7 @@ import retrofit2.http.POST
  *
  * Implementa las RPC:
  * - get_my_subscriptions()
- * - get_invoice_signed_url(invoice_id uuid)
+ * - get_invoice_signed_url(p_invoice_id uuid)
  */
 interface MeSubscriptionApi {
 
