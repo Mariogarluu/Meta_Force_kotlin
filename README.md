@@ -6,11 +6,13 @@
 
 **Aplicación Android de gestión fitness integral con IA integrada**
 
-[![Android](https://img.shields.io/badge/Android-26%2B-green?logo=android)](https://developer.android.com)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-blue?logo=kotlin)](https://kotlinlang.org)
-[![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material3-purple)](https://developer.android.com/jetpack/compose)
-[![Hilt](https://img.shields.io/badge/Hilt-DI-orange)](https://dagger.dev/hilt/)
-[![API](https://img.shields.io/badge/API-Supabase-3ECF8E?logo=supabase)](https://qybgnrlszozjhimewkel.supabase.co)
+<div align="center">
+
+[![Kotlin](https://img.shields.io/badge/Language-Kotlin%202.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Android](https://img.shields.io/badge/OS-Android%208.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com)
+[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpack-compose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Dagger Hilt](https://img.shields.io/badge/DI-Dagger%20Hilt-F05032?style=for-the-badge&logo=dagger&logoColor=white)](https://dagger.dev/hilt/)
+[![API](https://img.shields.io/badge/API-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://qybgnrlszozjhimewkel.supabase.co)
 
 </div>
 
@@ -120,12 +122,30 @@ app/src/main/java/com/meta_force/meta_force/
     └── theme/          # Colores, tipografía y tema Material3
 ```
 
-### Flujo de datos
+### Flujo de datos y Arquitectura MVVM
 
-```
-UI (Composable) → ViewModel → Repository → API (Retrofit) → Backend
-                                         ↗
-                             DataStore (sesión local)
+```mermaid
+flowchart TD
+    subgraph Capa de Presentación (UI)
+        UI[Composable Screens] -->|Observa StateFlow| VM[ViewModels]
+        VM -->|Desencadena Eventos| UI
+    end
+    
+    subgraph Capa de Dominio / Repositorio
+        VM -->|Consulta/Escribe| Repositories[Repositories contracts]
+        RepositoriesImpl[Repositories Implementations] -.->|Implementa| Repositories
+    end
+    
+    subgraph Capa de Datos (Data Source)
+        RepositoriesImpl -->|Consumo REST/PostgREST| Retrofit[Retrofit / OkHttp]
+        RepositoriesImpl -->|Sesión local| DataStore[Jetpack DataStore]
+    end
+    
+    subgraph Backend
+        Supabase[(Supabase DB & Functions)]
+    end
+    
+    Retrofit -->|Peticiones de Red| Supabase
 ```
 
 ---
