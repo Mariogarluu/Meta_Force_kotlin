@@ -10,7 +10,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-blue?logo=kotlin)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material3-purple)](https://developer.android.com/jetpack/compose)
 [![Hilt](https://img.shields.io/badge/Hilt-DI-orange)](https://dagger.dev/hilt/)
-[![API](https://img.shields.io/badge/API-REST-red)](https://meta-force-back.vercel.app)
+[![API](https://img.shields.io/badge/API-Supabase-3ECF8E?logo=supabase)](https://qybgnrlszozjhimewkel.supabase.co)
 
 </div>
 
@@ -154,16 +154,17 @@ cd Meta_Force_kotlin
 2. Selecciona **File → Open** y elige la carpeta del proyecto
 3. Espera a que Gradle sincronice las dependencias
 
-### 3. Configurar la URL del backend
+### 3. Configurar la URL y credenciales de Supabase
 
-La URL base de la API está configurada en:
+El backend REST API tradicional ha sido migrado a **Supabase**. Las credenciales de acceso se cargan de forma segura desde `local.properties`:
 
-```kotlin
-// app/src/main/java/com/meta_force/meta_force/di/NetworkModule.kt
-private const val BASE_URL = "https://meta-force-back.vercel.app/api/"
-```
-
-Si deseas apuntar a un backend local, modifica esta constante con tu URL.
+1. Copia el archivo `local.properties.example` y renómbralo a `local.properties`.
+2. Introduce las credenciales de tu proyecto Supabase:
+   ```properties
+   supabase.url=https://YOUR_SUPABASE_PROJECT_REF.supabase.co
+   supabase.key=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
+   ```
+3. El script de Gradle de la app inyectará dinámicamente estas propiedades como variables de compilación (`BuildConfig.SUPABASE_URL` y `BuildConfig.SUPABASE_ANON_KEY`), las cuales son consumidas por `NetworkModule` para inicializar Retrofit y el cliente de red.
 
 ### 4. Ejecutar la aplicación
 
@@ -198,21 +199,22 @@ Meta_Force_kotlin/
 
 ---
 
-## 🔌 API REST
+## 🔌 API REST & Supabase Integration
 
-La aplicación se conecta al backend **Meta Force API** desplegado en Vercel.
+La aplicación consume la API de **Supabase** (PostgREST para consultas a tablas y Edge Functions serverless para lógica específica).
 
-**Base URL:** `https://meta-force-back.vercel.app/api/`
+**Base URL:** `${BuildConfig.SUPABASE_URL}/`
 
-| Módulo | Endpoints principales |
-|--------|----------------------|
-| **Auth** | `POST /auth/login`, `POST /auth/register`, `GET /users/me`, `PUT /users/me` |
-| **Workouts** | `GET /workouts`, `GET /workouts/{id}`, `POST /workouts`, `DELETE /workouts/{id}` |
-| **Diets** | `GET /diets`, `GET /diets/{id}`, `POST /diets`, `DELETE /diets/{id}` |
-| **Classes** | `GET /classes`, `POST /classes/{id}/join`, `DELETE /classes/{id}/join` |
-| **Centers** | `GET /centers`, `GET /centers/{id}` |
-| **Machines** | `GET /machines/types?centerId={id}` |
-| **AI Chat** | `POST /ai/chat`, `GET /ai/sessions`, `POST /ai/save-plan` |
+| Módulo | Tipo de Integración | Recurso / RPC / Edge Function |
+|--------|---------------------|-------------------------------|
+| **Auth** | Supabase Auth (REST) | `/auth/v1/signup`, `/auth/v1/token?grant_type=password`, RPC `get_my_role` |
+| **Workouts** | PostgREST (Tablas) | `/rest/v1/Workout`, `/rest/v1/WorkoutExercise`, `/rest/v1/Exercise` |
+| **Diets** | PostgREST (Tablas) | `/rest/v1/Diet`, `/rest/v1/DietMeal`, `/rest/v1/Meal` |
+| **Classes** | PostgREST (Tablas) | `/rest/v1/GymClass`, `/rest/v1/ClassCenterSchedule`, `/rest/v1/ClassTrainer` |
+| **Centers & Machines** | PostgREST (Tablas) | `/rest/v1/Center`, `/rest/v1/Machine` |
+| **AI Chat** | Edge Function (Deno) | `/functions/v1/ai-chat` (asistente de IA), RPC `save-ai-plan` |
+| **QR Firma Acceso** | Edge Function (Deno) | `/functions/v1/qr-sign` (generación de firma de acceso temporal) |
+| **Suscripciones** | PostgREST (Tablas) | `/rest/v1/subscriptions`, `/rest/v1/invoices` |
 
 ### Autenticación
 
